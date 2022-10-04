@@ -1,0 +1,71 @@
+---
+title: "Preliminary stuff"
+output: html_document
+date: "2022-10-03"
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = F)
+library(tidyverse)
+```
+
+# Pull data
+
+```{r}
+library(googledrive)
+
+f <- googledrive::as_dribble("https://docs.google.com/spreadsheets/d/1UT6KLRujn6iEQ_s01_4yNfFYqc7hAWTpB-t9mdDp0O8/edit#gid=0")
+googledrive::drive_download(f, path="raw_data.xlsx", overwrite=T)
+d <- readxl::read_xlsx("raw_data.xlsx", skip=2)
+
+```
+
+# Correlation between replication scores
+
+
+```{r}
+d_corr <- d |> filter(!status %in% c("missing", "non-experiment")) |> 
+  mutate(replicated_instructor_code=as.numeric(replicated_instructor_code)) |> #forcibly convert the ?s to NAs
+  filter(!is.na(replicated_instructor_code) & !is.na(replicated_report_code))
+corr <- cor.test(d_corr$replicated_instructor_code, d_corr$replicated_report_code, method = 'spearman')
+
+d_corr |> filter(replicated_instructor_code!=replicated_report_code) |> nrow()
+d_corr |> filter(replicated_instructor_code==replicated_report_code) |> nrow()
+
+ggplot(d_corr |> filter(replicated_instructor_code!=replicated_report_code), aes(x=replicated_instructor_code, y=replicated_report_code))+geom_jitter(width=.04, height=.04)+theme_bw()
+
+d_corr |>
+  group_by(replicated_instructor_code, replicated_report_code ) |> tally() |> arrange(replicated_report_code) |> 
+  pivot_wider(names_from=replicated_report_code, values_from=n, values_fill=0)
+```
+
+# Are the ES's okay?
+
+```{r}
+library(metafor)
+
+fill_es <- function(type, value, n){
+  if (is.na(type)) {
+    return(NA)}
+  if (is.na(value)) {
+    return(NA)
+  }
+  if (type=="partial eta sq"){
+    d = sqrt( (n-1)/n * abs(value)/(1-abs(value)))
+    if (value < 0) {
+      return(-d)}
+    return(d)
+    }
+  if (type %in% c("d", "SMD")){
+    return(value)
+  }
+  return(NA)
+}
+
+d_es <-  d |> filter(!status %in% c("missing", "non-experiment")) |> 
+  rowwise() |> 
+  mutate(d_calc_target=fill_es(target_ES_type, target_ES_value, target_N)) |> 
+  mutate(d_calc_rep=fill_es(replication_ES_type, replication_ES_value, replication_N)) |> 
+  select(target_ES_type, target_ES_value,d_calc_target, replication_ES_type, replication_ES_value, d_calc_rep)
+  
+```
