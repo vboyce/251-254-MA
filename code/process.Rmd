@@ -15,11 +15,8 @@ theme_set(theme_bw())
 ```
 
 # TODOs
- - will need count of studies excluded for 
- reproducibility / non-exp / missing
  - Fill in ES conversion for non d/SMD/partial eta (and check for correct conversion of those)
- - check & fill on_turk columns
- 
+
 # Pull data
 
 ```{r, eval=F}
@@ -32,7 +29,7 @@ googledrive::drive_download(f, path="raw_data.xlsx", overwrite=T)
 
 ```{r}
 d <- readxl::read_xlsx("raw_data.xlsx", sheet="aligned data", skip=2) |> 
-  select(target_lastauthor_year, status, academic_year, subfield, stanford_internal, 
+  select(target_lastauthor_year, status, academic_year, subfield, target_year, stanford_internal, 
          open_data, open_materials, target_on_turk, replication_on_turk, 
          within_between, single_vignette, repeated_measure,
          target_N, target_test, target_pvalue, target_ES_type, target_ES_value,
@@ -41,11 +38,33 @@ d <- readxl::read_xlsx("raw_data.xlsx", sheet="aligned data", skip=2) |>
 
 ```
 
+# Exclusions
+
+```{r}
+d |> group_by(status) |> tally()
+```
+
+# How much missing data?
+
+```{r, message=T}
+message("total rows")
+d |> filter(!status %in% c("missing", "non-experiment", "reproduction")) |> nrow()
+
+message("number of NAs per column")
+
+d |> filter(!status %in% c("missing", "non-experiment", "reproduction")) |> summarize(                                                      across(everything(),~sum(is.na(.)))) |>
+pivot_longer(everything()) |> 
+  arrange(desc(value)) |> 
+  filter(value!=0)
+  
+
+```
+
 # Correlation between replication scores
 
 
 ```{r, message=T}
-d_corr <- d |> filter(!status %in% c("missing", "non-experiment")) |> 
+d_corr <- d |> filter(!status %in% c("missing", "non-experiment", "reproduction")) |> 
   mutate(replicated_instructor_code=as.numeric(replicated_instructor_code)) |> #forcibly convert the ?s to NAs
   filter(!is.na(replicated_instructor_code) & !is.na(replicated_report_code))
 
@@ -90,7 +109,7 @@ fill_es <- function(type, value, n){
   return(NA)
 }
 
-d_es <-  d |> filter(!status %in% c("missing", "non-experiment")) |> 
+d_es <-  d |> filter(!status %in% c("missing", "non-experiment", "reproduction")) |> 
   rowwise() |> 
   mutate(d_calc_target=fill_es(target_ES_type, target_ES_value, target_N)) |> 
   mutate(d_calc_rep=fill_es(replication_ES_type, replication_ES_value, replication_N))
@@ -128,11 +147,15 @@ NOTE: will need to replace replicated_code with the discussion agreed one!!
 
 ## demographics
 
-need to code publication year
 
 ```{r}
-# needs publication year
-d_demo <- d_es 
+d_demo <- d_es |> 
+  ungroup() |> 
+  mutate(pub_year= target_year-mean(target_year)) |> 
+  select(target_year, pub_year, subfield, replicated_report_code, academic_year)
+
+summary(d_demo)
+d_demo |> group_by(subfield) |> tally()
 ```
 
 ## statistics
@@ -170,12 +193,12 @@ summary(d_close)
 
 ## design
 
-will need to recode mixed designs so they can be binarized
 
 ```{r}
 d_design <- d_es |> 
   mutate(is_within=case_when(
     within_between=="within" ~ 1,
+    within_between=="mixed" ~ 1,
     within_between=="between" ~ 0),
     log_trials=log(repeated_measure),
     log_sample=log(target_N))|> 
