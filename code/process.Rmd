@@ -1,7 +1,8 @@
 ---
-title: "Preliminary stuff"
-output: html_document
-date: "2022-10-03"
+title: "251 MA"
+output:
+  html_document: 
+    toc: true
 ---
 
 ```{r setup, include=FALSE}
@@ -12,11 +13,14 @@ knitr::opts_chunk$set(echo = F)
 library(tidyverse)
 library(viridis)
 library(Replicate)
+library(metafor)
 theme_set(theme_bw())
 ```
 
 # TODOs
- - Fill in ES conversion for non d/SMD/partial eta (and check for correct conversion of those)
+- get ES from t test, from F test (using compute es) < -- what does within_one and within_two mean??
+- validate df against num people?
+- what about for other test statistics
 
 # Pull data
 
@@ -33,8 +37,8 @@ d <- readxl::read_xlsx("raw_data.xlsx", sheet="aligned data", skip=2) |>
   select(target_lastauthor_year, status, academic_year, subfield, target_year, stanford_internal, 
          open_data, open_materials, target_on_turk, replication_on_turk, 
          within_between, single_vignette, repeated_measure,
-         target_N, target_test, target_pvalue, target_ES_type, target_ES_value,
-         replication_N, replication_test, replication_pvalue, replication_ES_type, replication_ES_value,
+         target_N, target_test, target_raw_stat, target_pvalue, target_ES_type, target_ES_value,
+         replication_N, replication_test, replication_raw_stat, replication_pvalue, replication_ES_type, replication_ES_value,
          replicated_instructor_code, replicated_report_code)
 
 ```
@@ -43,6 +47,81 @@ d <- readxl::read_xlsx("raw_data.xlsx", sheet="aligned data", skip=2) |>
 
 ```{r}
 d |> group_by(status) |> tally()
+```
+# Validation
+
+```{r}
+d_val <- d |> filter(!status %in% c("missing", "non-experiment", "reproduction"))
+
+d_val$academic_year |> unique()
+
+d_val |> filter(!subfield %in% c("social","cognitive","non-psych","other-psych"))
+
+d_val |> filter(!stanford_internal %in% c("no","yes"))
+
+d_val |> filter(!open_data %in% c("no","yes"))
+
+d_val |> filter(!open_materials %in% c("no","yes"))
+
+d_val |> filter(!target_on_turk %in% c("no","yes"))
+
+d_val |> filter(!replication_on_turk %in% c("no","yes"))
+
+d_val |> filter(!within_between %in% c("within","between","mixed"))
+
+d_val |> filter(!single_vignette %in% c(0,1))
+
+
+
+
+
+```
+# Parsing
+```{r}
+test <- "t(42)=2.41"
+ftest <- "F(1,12)=45.43"
+parse_t <- function(tval) {
+  df=str_extract(tval, "\\(.*\\)") |> str_sub(2,-2) |> as.numeric()
+  val=str_extract(tval, "=.*") |> str_sub(2,-1) |> as.numeric() |> abs()
+  return(data.frame("df_2"=df,"tstat"=val))
+}
+
+parse_f <- function(fval){
+  df_1 =str_extract(fval, "\\(.*,") |> str_sub(2,-2) |> as.numeric()
+  df_2 =str_extract(fval, ",.*\\)") |> str_sub(2,-2) |> as.numeric()
+  val=str_extract(fval, "=.*") |> str_sub(2,-1) |> as.numeric() |> abs()
+  return(data.frame("df_1"=df_1,"df_2"=df_2,"fstat"=val))
+}
+
+
+
+p_from_t <- function(d) {
+  pt(q=d$tstat, df=d$df_2, lower.tail=FALSE)*2 # two tailed
+}
+
+p_from_f <- function(d) {
+  pf(q=d$fstat, df1=d$df_1, df2=d$df_2, lower.tail=FALSE)
+}
+
+parse_t(test) |> p_from_t()
+parse_f(ftest) |> p_from_f()
+
+```
+
+```{r}
+test <-  d_val |> 
+  mutate(target_p_calc=case_when(
+    str_sub(target_raw_stat,1,1)=="t" ~ parse_t(target_raw_stat) |> p_from_t(),
+    str_sub(target_raw_stat,1,1)=="F" ~ parse_f(target_raw_stat) |> p_from_f()),
+    rep_p_calc=case_when(
+    str_sub(replication_raw_stat,1,1)=="t" ~parse_t(replication_raw_stat) %>% p_from_t(),
+    str_sub(replication_raw_stat,1,1)=="F" ~parse_f(replication_raw_stat) |> p_from_f()))
+
+ggplot(test, aes(x=target_pvalue, y=target_p_calc))+geom_point()+geom_abline(slope=1,intercept=0)+
+  scale_x_log10()+scale_y_log10()
+
+ggplot(test, aes(x=replication_pvalue, y=rep_p_calc))+geom_point()+geom_abline(slope=1,intercept=0)+scale_x_log10()+scale_y_log10()
+
 ```
 
 # How much missing data?
