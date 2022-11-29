@@ -14,15 +14,15 @@ library(tidyverse)
 library(viridis)
 library(Replicate)
 library(metafor)
-library
+library(esc)
 theme_set(theme_bw())
 ```
 
 # TODOs
-- why are some ES's  about 2 times bigger than they should be?
-- get ES from t test, from F test (using compute es) < -- what does within_one and within_two mean??
+- why are some ES's  about 2 times bigger than they should be? (from within v between stuff)
 - validate df against num people?
-- what about for other test statistics (r)
+ - what to do for chisq, other things? for ES
+
 
 # Pull data
 
@@ -41,6 +41,7 @@ d <- readxl::read_xlsx("raw_data.xlsx", sheet="aligned data", skip=1) |>
          open_data, open_materials, target_on_turk, replication_on_turk, 
          within_between, single_vignette, repeated_measure,
          target_N, target_test, target_raw_stat, target_pvalue, target_ES_type, target_ES_value,
+         same_dir,
          replication_N, replication_test, replication_raw_stat, replication_pvalue, replication_ES_type, replication_ES_value,
          replicated_instructor_code, replicated_report_code)
 
@@ -84,7 +85,8 @@ d_val <- d |> filter(!status %in% c("missing", "non-experiment", "reproduction")
 
 # Parsing
 
-We parse out values from (for now) t tests and F tests (other tests to be added later). 
+We parse out values from (for now) t tests, F tests, and chisq. 
+Other stats to be added later, chisq ES to be added. 
 
 ```{r}
 # considered using the effectsize package but afaik we don't care about estimating CI's here and there were optim problems with that
@@ -114,50 +116,73 @@ parse_f <- function(fval, within_between){
     else{
       d_calc=sqrt(val)/sqrt(df_2)
     }
-  if(!is.na(df_1)){
+  }
+  else if(!is.na(df_1)){
     # we go through partial eta
     n=df_1+df_2+1 # rederive n b/c it's not always matching the n we have
     partial_eta=(val*df_1)/(val*df_1+df_2)
     d_calc=sqrt(n/(n-1)*(partial_eta/(1-partial_eta)))
   }
-}
   return(data.frame("df_1"=df_1,"df_2"=df_2,"tstat"=NA, "fstat"=val, "p_calc"=pval, "d_calc"=d_calc))
 }
+
+parse_chisq <- function(chival, within_between){
+  df=str_extract(chival, "\\(.*,") |> str_sub(2,-2) |> as.numeric()
+  n=str_extract(chival, ",N=.*\\)") |> str_sub(4,-2) |> as.numeric()
+  val=str_extract(chival, "\\)=.*") |> str_sub(3,-1) |> as.numeric() |> abs()
+  print(val)
+  pval=pchisq(val,df, lower.tail=F)
+  phi=sqrt(val/n)
+  d_calc=NA
+  if (!is.na(df)&&df==1){
+    d_calc=esc_phi(phi,pval,n, es.type="d")$es
+  }
+  return(data.frame("df_1"=df,"df_2"=NA,"tstat"=NA, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc))
+}
+
+#foo = "MCI m1=3.41[3.24,3.55], m2=3.44[3.24,3.57]"
+parse_mean_ci <- function(mci,within_between,n){
+  cond1=str_extract(mci, "m1.*\\],")
+  cond2=str_extract(mci, "m2.*\\]")
+  m1=str_extract(cond1, "m1=.*\\[") |> str_sub(4,-2) |> as.numeric()
+  m2=str_extract(cond2, "m2=.*\\[") |> str_sub(4,-2) |> as.numeric()
+  low1=str_extract(cond1, "\\[.*,.") |> str_sub(2,-3) |> as.numeric()
+  low2=str_extract(cond2, "\\[.*,") |> str_sub(2,-2) |> as.numeric()
+  high1=str_extract(cond1, ",.*\\]") |> str_sub(2,-2) |> as.numeric()
+  high2=str_extract(cond2, ",.*\\]") |> str_sub(2,-2) |> as.numeric()
+  se1=high1-low1/(2*1.96)
+  se2=high2-low2/(2*1.96)
+  se=(se1+se2)/2
+  tval=(m1-m2)/se |> abs()
+  if (within_between=="within"){
+  df=n-1
+  pval=pt(q=tval, df=df, lower.tail=FALSE)*2
+  d_calc=tval/(sqrt(df)) 
+  }
+  else{
+    df=NA
+    pval=NA
+    d_calc=NA
+  }
+  return(data.frame("df_1"=df,"df_2"=NA,"tstat"=tval, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc))
+}
+
+#parse_mean_ci(foo)
+
 
 do_blanks <- function(){
   return(data.frame("df_1"=NA,"df_2"=NA,"tstat"=NA, "fstat"=NA, "p_calc"=NA, "d_calc"=NA))
 }
-do_parsing=function(raw_stat, within_between){
+do_parsing=function(raw_stat, within_between,n){
   if (is.na(raw_stat)) {return (do_blanks())}
   if (str_sub(raw_stat,1,1)=="t"){return(parse_t(raw_stat, within_between))}
   if (str_sub(raw_stat,1,1)=="F"){return(parse_f(raw_stat, within_between))}
+  if (str_sub(raw_stat,1,1)=="c"){return(parse_chisq(raw_stat, within_between))}
+  if (str_sub(raw_stat, 1,3)=="MCI"){return(parse_mean_ci(raw_stat, within_between,n))}
   return (do_blanks())
 }
 ```
 
-
-```{r}
-test <- d_val |> 
-  mutate(target=map2(target_raw_stat, within_between, do_parsing),
-         rep=map2(replication_raw_stat, within_between, do_parsing)) |> 
-  unnest(cols=c(target, rep), names_sep="_")
-                       
-  
-```
-
-Comparing calculated p vals to provided (or hand calculated) ones.
-
-```{r}
-
-ggplot(test, aes(x=target_pvalue, y=target_p_calc))+geom_point()+geom_abline(slope=1,intercept=0)+
-  scale_x_log10()+scale_y_log10()
-
-ggplot(test, aes(x=replication_pvalue, y=rep_p_calc))+geom_point()+geom_abline(slope=1,intercept=0)+scale_x_log10()+scale_y_log10()
-
-```
-Comparing calculated ES to original (or hand calculated) ES. All converted to SMD. 
-
-Note: black line is y=x, red line is y=2x. Things on y=2x probably had issues where one of the tests calculated it as (within|between) and the other did it the other way. 
 
 ```{r}
 fill_es <- function(type, value, n){
@@ -178,15 +203,80 @@ fill_es <- function(type, value, n){
   return(NA)
 }
 
-test |> rowwise() |> mutate(d_fill_target=fill_es(target_ES_type, target_ES_value, target_N))|> 
-  ggplot(aes(x=d_fill_target, y=target_d_calc))+geom_point()+geom_abline(slope=1,intercept=0)+geom_abline(slope=2,intercept=0, color="red")+coord_cartesian(xlim=c(0,5),ylim=c(0,5))
+test <- d_val |> 
+  mutate(target_raw_stat=gsub(" ","",target_raw_stat),
+         target=pmap(list(target_raw_stat, within_between,target_N), do_parsing),
+         replication_raw_stat=gsub(" ","",replication_raw_stat),
+         rep=pmap(list(replication_raw_stat, within_between,replication_N), do_parsing)) |> 
+  unnest(cols=c(target, rep), names_sep="_") |> 
+  rowwise() |> 
+  mutate(d_fill_target=fill_es(target_ES_type, target_ES_value, target_N),
+         d_fill_rep=fill_es(replication_ES_type, replication_ES_value, replication_N))
+                       
+  
+```
 
-test |> rowwise() |> mutate(d_fill_rep=fill_es(replication_ES_type, replication_ES_value, replication_N))|>
-  ggplot(aes(x=d_fill_rep, y=rep_d_calc))+geom_point()+geom_abline(slope=1,intercept=0)+geom_abline(slope=2,intercept=0, color="red")
+Comparing calculated p vals to provided (or hand calculated) ones. Line is x=y. 
+
+These look pretty reasonable. Lots on the line and others is places were <.001's happened. 
+
+```{r}
+
+ggplot(test, aes(x=target_pvalue, y=target_p_calc))+geom_point()+geom_abline(slope=1,intercept=0)+
+  scale_x_log10()+scale_y_log10()
+
+ggplot(test, aes(x=replication_pvalue, y=rep_p_calc))+geom_point()+geom_abline(slope=1,intercept=0)+scale_x_log10()+scale_y_log10()
+
+```
+Comparing calculated ES to original (or hand calculated) ES. All converted to SMD. 
+
+Note: black line is y=x, red line is y=2x. Things on y=2x probably had issues where one of the tests calculated it as (within|between) and the other did it the other way. 
+
+```{r}
+
+
+test |> 
+  ggplot(aes(x=d_fill_target, y=target_d_calc))+geom_point()+geom_abline(slope=1,intercept=0)+geom_abline(slope=2,intercept=0, color="red")+coord_cartesian(xlim=c(0,5),ylim=c(0,5))+geom_abline(slope=.5,intercept=0, color="red")
+
+test |> 
+  ggplot(aes(x=d_fill_rep, y=rep_d_calc))+geom_point()+geom_abline(slope=1,intercept=0)+geom_abline(slope=2,intercept=0, color="red")+geom_abline(slope=.5,intercept=0, color="red")
+
+```
+
+## what to do with the weirdos
+
+Where there's a difference, I could check whether it's being compared to something *I* calculated versus something that an original paper or students paper calculated? Except that there's sources for errors in any of those. Ones where we get an off  by two error -- should I double check within-betweeness for the test? 
+
+```{r}
+test |> filter(target_d_calc>1.9*d_fill_target)
+test |> filter(target_d_calc<.6*d_fill_target)
+
+
+test |> filter(rep_d_calc>1.9*d_fill_rep)
+test |> filter(rep_d_calc<.6*d_fill_rep)
 
 ```
 
 
+## what didn't parse
+
+```{r}
+
+test |> filter(is.na(target_d_calc)) |> filter(!is.na(target_raw_stat)) |>  pull(target_raw_stat)
+
+test |> filter(is.na(rep_d_calc)) |> filter(!is.na(replication_raw_stat)) |> pull(replication_raw_stat)
+```
+
+
+
+# Where does df not line up?
+Note: it's not *necessarily* a problem if df's don't line up -- there could be some repeated measures or welch's test stuff going on, but nice to check.
+
+```{r}
+
+test
+
+```
 
 # Are the ES's okay?
 
@@ -203,6 +293,7 @@ est_SE <- function(p,d){
 d_es <-  test |> 
   rowwise() |> 
   mutate(target_se_calc=est_SE(target_p_calc,target_d_calc),
+         rep_d_calc=ifelse(same_dir=="no", -rep_d_calc, rep_d_calc),
          rep_se_calc=est_SE(rep_p_calc,rep_d_calc))
 
 ```
