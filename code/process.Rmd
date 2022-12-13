@@ -18,11 +18,6 @@ library(esc)
 theme_set(theme_bw())
 ```
 
-# TODOs
-- why are some ES's  about 2 times bigger than they should be? (from within v between stuff)
-- validate df against num people?
- - what to do for chisq, other things? for ES
-
 
 # Pull data
 
@@ -43,7 +38,7 @@ d <- readxl::read_xlsx("raw_data.xlsx", sheet="aligned data", skip=1) |>
          target_N, target_test, target_raw_stat, target_pvalue, target_ES_type, target_ES_value,
          same_dir,
          replication_N, replication_test, replication_raw_stat, replication_pvalue, replication_ES_type, replication_ES_value,
-         replicated_instructor_code, replicated_report_code)
+         replicated_instructor_code, replicated_report_code, adjudicated_replication_code)
 
 ```
 
@@ -52,7 +47,7 @@ d <- readxl::read_xlsx("raw_data.xlsx", sheet="aligned data", skip=1) |>
 ```{r}
 d |> group_by(status) |> tally()
 
-d |> filter(!status %in% c("missing", "non-experiment", "reproduction")) |> tally()
+d |> filter(!status %in% c("missing", "non-experiment", "reproduction", "TODO")) |> tally()
 ```
 We have maybe as many as 178 at least for some analyses. 
 
@@ -70,7 +65,7 @@ Descriptions:
 
 
 ```{r}
-d_val <- d |> filter(!status %in% c("missing", "non-experiment", "reproduction", "TODO"))
+d_val <- d |> filter(!status %in% c("missing", "non-experiment", "reproduction"))
 
 # d_val$academic_year |> unique()
 # 
@@ -272,9 +267,21 @@ parse_beta_se <- function(raw_stat){
     beta=str_extract(raw_stat, "b=.*\\(") |> str_sub(3,-2) |> as.numeric()
     se=str_extract(raw_stat, "\\(.*\\)") |> str_sub(2,-2) |> as.numeric()
     zval=beta/se
-    print(zval)
     pval=2*pnorm(zval, lower.tail=F)
 return(data.frame("df_1"=NA,"df_2"=NA,"tstat"=NA, "fstat"=NA, "p_calc"=pval, "d_calc"=NA, "N_calc"=NA, "beta"=beta, "SE"=se))
+}
+
+```
+
+```{r}
+parse_beta_ci <- function(raw_stat){
+  beta=str_extract(raw_stat, "b=.*\\[") |> str_sub(3,-2) |> as.numeric()
+  low=str_extract(raw_stat, "\\[.*,") |> str_sub(2,-2) |> as.numeric()
+  high=str_extract(raw_stat, ",.*\\]") |> str_sub(2,-2) |> as.numeric()
+  se=high-low/(2*1.96)
+  zval=beta/se
+    pval=2*pnorm(zval, lower.tail=F)
+  return(data.frame("df_1"=NA,"df_2"=NA,"tstat"=NA, "fstat"=NA, "p_calc"=pval, "d_calc"=NA, "N_calc"=NA, "beta"=beta, "SE"=se))
 }
 
 ```
@@ -294,7 +301,7 @@ do_parsing=function(raw_stat, within_between,n){
   if (str_sub(raw_stat, 1,3)=="MSE"){return(parse_mean_se(raw_stat, within_between,n))}
   if (str_sub(raw_stat, 1,8)=="wilcoxon"){return(parse_wilcoxon(raw_stat))}
   if (str_sub(raw_stat, 1,3)=="bse"){return(parse_beta_se(raw_stat))}
-
+  if (str_sub(raw_stat, 1,3)=="bci"){return(parse_beta_se(raw_stat))}
 
   return (do_blanks())
 }
@@ -326,7 +333,7 @@ test <- d_val |>
   unnest(cols=c(target, rep), names_sep="_") |> 
   rowwise() |> 
   mutate(d_fill_target=fill_es(target_ES_type, target_ES_value, target_N),
-         d_fill_rep=fill_es(replication_ES_type, replication_ES_value, replication_N))
+         d_fill_rep=fill_es(replication_ES_type, replication_ES_value, replication_N)) 
                        
   
 ```
@@ -372,11 +379,13 @@ Where there's a difference, I could check whether it's being compared to somethi
 
 these are ones where we did not get a non-NA effect size. Could be due to formulas being incomplete, or missing information. 
 
+note that we also aren't including the betas where we know we can't get effect size, but we'll still get porig and predInt. 
+
 ```{r}
 
-test |> filter(is.na(target_d_calc)) |> filter(!is.na(target_raw_stat)) |>  pull(target_raw_stat)
+test |> filter(is.na(target_d_calc)&is.na(target_beta)) |> filter(!is.na(target_raw_stat)) |>  pull(target_raw_stat)
 
-test |> filter(is.na(rep_d_calc)) |> filter(!is.na(replication_raw_stat)) |> pull(replication_raw_stat)
+test |> filter(is.na(rep_d_calc)&is.na(rep_beta)) |> filter(!is.na(replication_raw_stat)) |> pull(replication_raw_stat)
 ```
 
 ## how are the df's lining up with sample size?
@@ -417,22 +426,46 @@ d_es <-  test |>
 ```
 
 ```{r}
+do_pred_int <- function(target_d_calc, target_se_calc, rep_d_calc,rep_se_calc, target_beta, target_SE, rep_beta, rep_SE){
+  if (!is.na(target_d_calc)&!is.na(rep_d_calc)){
+    return(Replicate::pred_int(target_d_calc,target_se_calc**2, rep_d_calc, rep_se_calc**2)$rep.inside)}
+  if(!is.na(target_beta)&!is.na(rep_beta)){
+    return(Replicate::pred_int(target_beta, target_SE**2, rep_beta, rep_SE**2)$rep.inside)
+  }
+  return(NA)
+}
 
-d_es_try <- d_es |> filter(!is.na(target_d_calc)&!is.na(rep_d_calc)|!is.na(target_beta)&!is.na(rep_beta)) |> 
-  mutate(
-         predInt=ifelse(!is.na(target_d_calc),
-                        Replicate::pred_int(target_d_calc,target_se_calc**2, rep_d_calc, rep_se_calc**2)$rep.inside,
-                        Replicate::pred_int(target_beta, target_SE**2, rep_beta, rep_SE**2)$rep.inside),
-         p_orig=ifelse(!is.na(target_d_calc),
-                       Replicate::p_orig(target_d_calc,target_se_calc**2, rep_d_calc, t2=0, rep_se_calc**2),
-                       Replicate::p_orig(target_beta, target_SE**2,rep_beta, t2=0, rep_SE**2)))
-  
+do_p_orig <- function(target_d_calc, target_se_calc, rep_d_calc,rep_se_calc, target_beta, target_SE, rep_beta, rep_SE){
+  if (!is.na(target_d_calc)&!is.na(rep_d_calc)){
+    return(Replicate::p_orig(target_d_calc,target_se_calc**2, rep_d_calc, t2=0, rep_se_calc**2))}
+  if(!is.na(target_beta)&!is.na(rep_beta)){
+    return(Replicate::p_orig(target_beta, target_SE**2,rep_beta, t2=0, rep_SE**2))
+  }
+  return(NA)
+}
+
+do_subjective_rep <- function(replicated_instructor_code, replicated_report_code, adjudicated_replication_code){
+  if (is.na(replicated_instructor_code)){return(as.numeric(NA))}
+  if (is.na(replicated_report_code)){return(as.numeric(NA))}
+  if (replicated_instructor_code==replicated_report_code){ return(replicated_instructor_code)}
+  if (!is.na(adjudicated_replication_code)){return (adjudicated_replication_code)}
+  return(as.numeric(NA))
+}
+d_es_predInt <- d_es |> 
+         mutate(
+           predInt=do_pred_int(target_d_calc, target_se_calc, rep_d_calc,rep_se_calc, target_beta, target_SE, rep_beta, rep_SE),
+           p_orig=do_p_orig(target_d_calc, target_se_calc, rep_d_calc,rep_se_calc, target_beta, target_SE, rep_beta, rep_SE),
+           sub_rep= do_subjective_rep(replicated_instructor_code, replicated_report_code, adjudicated_replication_code))
+           
+           
+                
+              
 ```
 
 
 ```{r}
 
-d_es_try |> ggplot(aes(x=target_d_calc, y=rep_d_calc, color=p_orig))+
+d_es_predInt |> ggplot(aes(x=target_d_calc, y=rep_d_calc, color=p_orig))+
   geom_point()+
   coord_cartesian(xlim=c(0,2), ylim=c(-1,3))+
   geom_abline(slope=1, intercept=0)+
@@ -440,7 +473,7 @@ d_es_try |> ggplot(aes(x=target_d_calc, y=rep_d_calc, color=p_orig))+
   scale_color_viridis(discrete=F, direction=-1)+
   labs(color="p_orig", x="Original SMD", y="Replication SMD")
 
-d_es_try |> mutate(p_sig=p_orig<.05) |> ggplot(aes(x=target_d_calc, y=rep_d_calc, color=p_sig))+
+d_es_predInt |> mutate(p_sig=p_orig<.05) |> ggplot(aes(x=target_d_calc, y=rep_d_calc, color=p_sig))+
   geom_point()+
   coord_cartesian(xlim=c(0,2), ylim=c(-1,3))+
   geom_abline(slope=1, intercept=0)+
@@ -448,7 +481,7 @@ d_es_try |> mutate(p_sig=p_orig<.05) |> ggplot(aes(x=target_d_calc, y=rep_d_calc
   scale_color_viridis(discrete=T, direction=-1)+
   labs(color="P_orig<.05", x="Original SMD", y="Replication SMD")
 
-d_es_try |> ggplot(aes(x=target_d_calc, y=rep_d_calc, color=predInt))+
+d_es_predInt |> ggplot(aes(x=target_d_calc, y=rep_d_calc, color=predInt))+
   geom_point()+
   coord_cartesian(xlim=c(0,2), ylim=c(-1,3))+
   geom_abline(slope=1, intercept=0)+
@@ -456,11 +489,11 @@ d_es_try |> ggplot(aes(x=target_d_calc, y=rep_d_calc, color=predInt))+
   scale_color_viridis(discrete=T, direction=-1)+
   labs(color="rep in predInt", x="Original SMD", y="Replication SMD")
 
-d_es_try |> ggplot(aes(x=replicated_report_code, y=p_orig))+geom_jitter(height=0, alpha=.5)+
-  #scale_y_log10()+
-  geom_hline(yintercept=.05)
-
-d_es_try |> ggplot(aes(x=replicated_report_code, y=predInt))+geom_jitter(alpha=.5)
+# d_es_predInt |> ggplot(aes(x=replicated_report_code, y=p_orig))+geom_jitter(height=0, alpha=.5)+
+#   #scale_y_log10()+
+#   geom_hline(yintercept=.05)
+# 
+# d_es_predInt |> ggplot(aes(x=replicated_report_code, y=predInt))+geom_jitter(alpha=.5)
 ```
 
 
@@ -496,117 +529,74 @@ Note, it may seem weird that we're missing d and SE for many more replications t
 
 ```{r, message=T}
 message("total rows")
-d_es |> filter(!status %in% c("missing", "non-experiment", "reproduction")) |> nrow()
+d_es_predInt |> filter(!status %in% c("missing", "non-experiment", "reproduction")) |> nrow()
 
 message("number of NAs per column")
 
-d_check_nas <- d_es |> filter(!status %in% c("missing", "non-experiment", "reproduction")) |> ungroup() |>
-    select(-rep_fstat, -rep_tstat,-rep_df_1,-rep_df_2,
-         -target_fstat, -target_tstat, -target_df_1, -target_df_2,
-         -d_fill_rep, -d_fill_target, 
-         -replication_ES_type, -replication_ES_value, -replication_pvalue,
-         -target_ES_type, -target_ES_value, -target_pvalue,
-         -rep_N_calc, -target_N_calc,
-         -replication_test, -target_test) 
+d_check_nas <- d_es_predInt |> filter(!status %in% c("missing", "non-experiment", "reproduction")) |> ungroup() |>
+    select(target_lastauthor_year, status, academic_year, subfield, target_year,
+           stanford_internal,open_data, open_materials, target_on_turk,
+           replication_on_turk, within_between, single_vignette, repeated_measure,
+           target_N, replication_N,
+           target_p_calc, target_d_calc, rep_p_calc, rep_d_calc,
+           predInt, p_orig, sub_rep) 
 
-d_check_nas |> summarize(                                                      across(everything(),~sum(is.na(.)))) |>
+d_check_nas |> summarize(across(everything(),~sum(is.na(.)))) |>
 pivot_longer(everything()) |>
-  arrange(desc(value)) |>
+  arrange((value)) |>
   filter(value!=0)
 
-message("number of complete rows")
+message("number of complete rows for full analysis")
 
 d_check_nas |> filter(across(everything(), ~!is.na(.))) |> nrow()
 
+message("number of rows for subjective w/ demographic/experimental")
+
+d_check_nas |> select(target_lastauthor_year, status, academic_year, subfield, target_year,
+           stanford_internal,open_data, open_materials, target_on_turk,
+           replication_on_turk, within_between, single_vignette, repeated_measure,
+           target_N, replication_N,
+           sub_rep) |> filter(across(everything(), ~!is.na(.))) |> nrow()
+
+message("number of rows for predInt/p_orig w/ demographic/experimental")
+
+
+d_check_nas |> select(target_lastauthor_year, status, academic_year, subfield, target_year,
+           stanford_internal,open_data, open_materials, target_on_turk,
+           replication_on_turk, within_between, single_vignette, repeated_measure,
+           target_N, replication_N, predInt, p_orig,
+           sub_rep) |>  filter(across(everything(), ~!is.na(.))) |> nrow()
 ```
 
-# Correlation between replication scores
 
-
-```{r, message=T}
-d_corr <- d |> filter(!status %in% c("missing", "non-experiment", "reproduction")) |>
-  mutate(replicated_instructor_code=as.numeric(replicated_instructor_code)) |> #forcibly convert the ?s to NAs
-  filter(!is.na(replicated_instructor_code) & !is.na(replicated_report_code))
-
-corr <- cor.test(d_corr$replicated_instructor_code, d_corr$replicated_report_code, method = 'spearman')
-
-message("Num not match")
-d_corr |> filter(replicated_instructor_code!=replicated_report_code) |> nrow()
-
-message("Num match")
-d_corr |> filter(replicated_instructor_code==replicated_report_code) |> nrow()
-
-message("distribution of non-matches")
-
-ggplot(d_corr |> filter(replicated_instructor_code!=replicated_report_code), aes(x=replicated_instructor_code, y=replicated_report_code))+geom_jitter(width=.04, height=.04)+theme_bw()
-
-d_corr |>
-  group_by(replicated_instructor_code, replicated_report_code ) |> tally() |> arrange(replicated_report_code) |>
-  pivot_wider(names_from=replicated_report_code, values_from=n, values_fill=0)
-```
 
 # code vars for models
 
-NOTE: will need to replace replicated_code with the discussion agreed one!!
-
-## demographics
-
 
 ```{r}
-d_demo <- d_es |> 
+d_for_model <- d_es_predInt |> 
   ungroup() |> 
-  mutate(pub_year= target_year-mean(target_year)) |> 
-  select(target_year, pub_year, subfield, replicated_report_code, academic_year)
-
-summary(d_demo)
-d_demo |> group_by(subfield) |> tally()
-```
-
-## statistics
-
-? will outliers on ratio_ss cause a problem?
-
-```{r}
-d_stats <- d_es |> 
-  mutate(log_p =log(target_p_calc),
+  mutate(pub_year= target_year-mean(target_year),
+         log_p =log(target_p_calc),
          log_sample =log(target_N),
          ratio_ss = replication_N/target_N,
-         change_platform=ifelse(replication_on_turk==target_on_turk,0,1)) |> 
+         change_platform=ifelse(replication_on_turk==target_on_turk,0,1),
   #this codes 1 if the original was in person, but replication turk/prolific,
   # 0 if they were both on turk/prolific or both in-person (rare, but happens a few times)
-  select(replicated_report_code,log_p,log_sample, ratio_ss, change_platform, academic_year, target_d_calc)
-
-summary(d_stats)
-```
-
-## closeness
-
-```{r}
-
-# could do with mutate across, but clearer this way?
-
-d_close <- d_es |> 
-  mutate(open_data=ifelse(open_data=="yes", 1,0),
+        open_data=ifelse(open_data=="yes", 1,0),
          open_mat=ifelse(open_materials=="yes", 1,0),
-         stanford=ifelse(stanford_internal=="yes", 1,0)) |> 
-  select(open_data, open_mat, stanford, replicated_report_code,
-         academic_year)
+         stanford=ifelse(stanford_internal=="yes", 1,0),
+        is_within=case_when(
+            within_between=="within" ~ 1,
+            within_between=="mixed" ~ 1,
+            within_between=="between" ~ 0),
+    log_trials=log(repeated_measure)) |> 
+  select(target_lastauthor_year, academic_year, subfield, 
+         pub_year, log_p, log_sample, ratio_ss, change_platform, target_d_calc,
+           stanford, open_data, open_mat, 
+         is_within, single_vignette, log_trials, 
+           predInt, p_orig, sub_rep)
 
-summary(d_close)
-```
+summary(d_for_model)
 
-## design
-
-
-```{r}
-d_design <- d_es |> 
-  mutate(is_within=case_when(
-    within_between=="within" ~ 1,
-    within_between=="mixed" ~ 1,
-    within_between=="between" ~ 0),
-    log_trials=log(repeated_measure),
-    log_sample=log(target_N))|> 
-  select(is_within, single_vignette,log_trials, log_sample, replicated_report_code, academic_year)
-
-summary(d_design)
 ```
