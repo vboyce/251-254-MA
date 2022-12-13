@@ -54,9 +54,23 @@ d |> group_by(status) |> tally()
 
 d |> filter(!status %in% c("missing", "non-experiment", "reproduction")) |> tally()
 ```
+We have maybe as many as 178 at least for some analyses. 
+
+Descriptions: 
+
+- "great" means we have all relevant cells coded in spreadsheet
+
+- "ES_direction" is great except that we don't have the direction coded (ex. is an interaction that I can't eyeball, or a multi-way F test with no graph)
+
+- "stuck" means that I'm stuck somewhere -- we don't have everything filled in, but it may be possible to get there
+
+- "hopeless" means we don't have everything filled in, but I don't believe filling in more/all is possible
+
+- "TODO" means I'm still working on data coding (this year's projects)
+
 
 ```{r}
-d_val <- d |> filter(!status %in% c("missing", "non-experiment", "reproduction"))
+d_val <- d |> filter(!status %in% c("missing", "non-experiment", "reproduction", "TODO"))
 
 # d_val$academic_year |> unique()
 # 
@@ -103,7 +117,7 @@ parse_t <- function(tval, within_between) {
     d_calc=val/sqrt(df)
     N_from_df=df+1
   }
-  return(data.frame("df_1"=NA, "df_2"=df,"tstat"=val, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=N_from_df))
+  return(data.frame("df_1"=NA, "df_2"=df,"tstat"=val, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=N_from_df, "beta"=NA, "SE"=NA))
 }
 ```
 
@@ -129,7 +143,7 @@ parse_f <- function(fval, within_between){
     partial_eta=(val*df_1)/(val*df_1+df_2)
     d_calc=sqrt(n/(n-1)*(partial_eta/(1-partial_eta)))
   }
-  return(data.frame("df_1"=df_1,"df_2"=df_2,"tstat"=NA, "fstat"=val, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=N_from_df))
+  return(data.frame("df_1"=df_1,"df_2"=df_2,"tstat"=NA, "fstat"=val, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=N_from_df, "beta"=NA, "SE"=NA))
 }
 ```
 
@@ -144,7 +158,7 @@ parse_chisq <- function(chival, within_between){
   if (!is.na(df)&&df==1){
     d_calc=esc_phi(phi,pval,n, es.type="d")$es
   }
-  return(data.frame("df_1"=df,"df_2"=NA,"tstat"=NA, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=n))
+  return(data.frame("df_1"=df,"df_2"=NA,"tstat"=NA, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=n, "beta"=NA, "SE"=NA))
 }
 
 ```
@@ -173,7 +187,7 @@ parse_mean_ci <- function(mci,within_between,n){
     pval=NA
     d_calc=NA
   }
-  return(data.frame("df_1"=df,"df_2"=NA,"tstat"=tval, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=NA))
+  return(data.frame("df_1"=df,"df_2"=NA,"tstat"=tval, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=NA, "beta"=NA, "SE"=NA))
 }
 ```
 
@@ -203,7 +217,7 @@ parse_mean_sd <- function(msd,within_between,n){
     pval=NA
     d_calc=NA
   }
-  return(data.frame("df_1"=df,"df_2"=NA,"tstat"=tval, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=NA))
+  return(data.frame("df_1"=df,"df_2"=NA,"tstat"=tval, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=NA, "beta"=NA, "SE"=NA))
 }
 
 
@@ -234,7 +248,7 @@ parse_mean_se <- function(mse,within_between,n){
     pval=NA
     d_calc=NA
   }
-  return(data.frame("df_1"=df,"df_2"=NA,"tstat"=tval, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=NA))
+  return(data.frame("df_1"=df,"df_2"=NA,"tstat"=tval, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=NA, "beta"=NA, "SE"=NA))
 }
 
 ```
@@ -246,15 +260,29 @@ parse_wilcoxon <- function(wilcox){
   #r=z/sqrt(n)
   #d_calc=4*r/(sqrt(1-r**2))
   d_calc=NA
-    return(data.frame("df_1"=NA,"df_2"=NA,"tstat"=NA, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=NA))
+    return(data.frame("df_1"=NA,"df_2"=NA,"tstat"=NA, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=NA, "beta"=NA, "SE"=NA))
 
 }
 ```
 
 ```{r}
 
+
+parse_beta_se <- function(raw_stat){
+    beta=str_extract(raw_stat, "b=.*\\(") |> str_sub(3,-2) |> as.numeric()
+    se=str_extract(raw_stat, "\\(.*\\)") |> str_sub(2,-2) |> as.numeric()
+    zval=beta/se
+    print(zval)
+    pval=2*pnorm(zval, lower.tail=F)
+return(data.frame("df_1"=NA,"df_2"=NA,"tstat"=NA, "fstat"=NA, "p_calc"=pval, "d_calc"=NA, "N_calc"=NA, "beta"=beta, "SE"=se))
+}
+
+```
+
+```{r}
+
 do_blanks <- function(){
-  return(data.frame("df_1"=NA,"df_2"=NA,"tstat"=NA, "fstat"=NA, "p_calc"=NA, "d_calc"=NA, "N_calc"=NA))
+  return(data.frame("df_1"=NA,"df_2"=NA,"tstat"=NA, "fstat"=NA, "p_calc"=NA, "d_calc"=NA, "N_calc"=NA, "beta"=NA, "SE"=NA))
 }
 do_parsing=function(raw_stat, within_between,n){
   if (is.na(raw_stat)) {return (do_blanks())}
@@ -265,6 +293,7 @@ do_parsing=function(raw_stat, within_between,n){
   if (str_sub(raw_stat, 1,3)=="MSD"){return(parse_mean_sd(raw_stat, within_between,n))}
   if (str_sub(raw_stat, 1,3)=="MSE"){return(parse_mean_se(raw_stat, within_between,n))}
   if (str_sub(raw_stat, 1,8)=="wilcoxon"){return(parse_wilcoxon(raw_stat))}
+  if (str_sub(raw_stat, 1,3)=="bse"){return(parse_beta_se(raw_stat))}
 
 
   return (do_blanks())
@@ -307,6 +336,8 @@ test <- d_val |>
 Comparing calculated p vals to provided (or hand calculated) ones. Line is x=y. 
 
 These look pretty reasonable. Lots on the line and others is places were <.001's happened. 
+
+It may be worth checking points that are above the line. 
 
 ```{r}
 
@@ -387,11 +418,14 @@ d_es <-  test |>
 
 ```{r}
 
-d_es_try <- d_es |> filter(!is.na(target_d_calc)) |> 
-  filter(!is.na(rep_d_calc)) |> 
+d_es_try <- d_es |> filter(!is.na(target_d_calc)&!is.na(rep_d_calc)|!is.na(target_beta)&!is.na(rep_beta)) |> 
   mutate(
-         predInt=Replicate::pred_int(target_d_calc,target_se_calc**2, rep_d_calc, rep_se_calc**2)$rep.inside,
-         p_orig=Replicate::p_orig(target_d_calc,target_se_calc**2, rep_d_calc, t2=0, rep_se_calc**2))
+         predInt=ifelse(!is.na(target_d_calc),
+                        Replicate::pred_int(target_d_calc,target_se_calc**2, rep_d_calc, rep_se_calc**2)$rep.inside,
+                        Replicate::pred_int(target_beta, target_SE**2, rep_beta, rep_SE**2)$rep.inside),
+         p_orig=ifelse(!is.na(target_d_calc),
+                       Replicate::p_orig(target_d_calc,target_se_calc**2, rep_d_calc, t2=0, rep_se_calc**2),
+                       Replicate::p_orig(target_beta, target_SE**2,rep_beta, t2=0, rep_SE**2)))
   
 ```
 
@@ -444,6 +478,7 @@ d_es |> ggplot(aes(x=target_d_calc, y=rep_d_calc, color=as.factor(replicated_rep
   geom_point()+
   #coord_cartesian(xlim=c(0,5), ylim=c(-1,5))+
   geom_abline(slope=1, intercept=0)+
+    geom_hline(yintercept=0)+
   scale_color_viridis(discrete=T, direction=-1)
 
 d_es |> ggplot(aes(x=target_d_calc, y=rep_d_calc, color=as.factor(replicated_report_code)))+
@@ -465,18 +500,23 @@ d_es |> filter(!status %in% c("missing", "non-experiment", "reproduction")) |> n
 
 message("number of NAs per column")
 
-d_es |> filter(!status %in% c("missing", "non-experiment", "reproduction")) |> ungroup() |> summarize(                                                      across(everything(),~sum(is.na(.)))) |>
-  select(-rep_fstat, -rep_tstat,-rep_df_1,-rep_df_2,
+d_check_nas <- d_es |> filter(!status %in% c("missing", "non-experiment", "reproduction")) |> ungroup() |>
+    select(-rep_fstat, -rep_tstat,-rep_df_1,-rep_df_2,
          -target_fstat, -target_tstat, -target_df_1, -target_df_2,
          -d_fill_rep, -d_fill_target, 
          -replication_ES_type, -replication_ES_value, -replication_pvalue,
          -target_ES_type, -target_ES_value, -target_pvalue,
          -rep_N_calc, -target_N_calc,
-         -replication_test, -target_test) |> 
+         -replication_test, -target_test) 
+
+d_check_nas |> summarize(                                                      across(everything(),~sum(is.na(.)))) |>
 pivot_longer(everything()) |>
   arrange(desc(value)) |>
   filter(value!=0)
 
+message("number of complete rows")
+
+d_check_nas |> filter(across(everything(), ~!is.na(.))) |> nrow()
 
 ```
 
