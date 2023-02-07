@@ -123,7 +123,7 @@ parse_t <- function(tval, within_between) {
     d_calc=val/sqrt(df)
     N_from_df=df+1
   }
-  return(data.frame("df_1"=NA, "df_2"=df,"tstat"=val, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=N_from_df, "beta"=NA, "SE"=NA))
+  return(data.frame("df_1"=NA, "df_2"=df,"tstat"=val, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=N_from_df, "ES"=NA, "SE"=NA))
 }
 ```
 
@@ -149,23 +149,29 @@ parse_f <- function(fval, within_between){
     partial_eta=(val*df_1)/(val*df_1+df_2)
     d_calc=sqrt(n/(n-1)*(partial_eta/(1-partial_eta)))
   }
-  return(data.frame("df_1"=df_1,"df_2"=df_2,"tstat"=NA, "fstat"=val, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=N_from_df, "beta"=NA, "SE"=NA))
+  return(data.frame("df_1"=df_1,"df_2"=df_2,"tstat"=NA, "fstat"=val, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=N_from_df, "ES"=NA, "SE"=NA))
 }
 ```
 
 ```{r}
-parse_chisq <- function(chival, within_between){
-  df=str_extract(chival, "\\(.*,") |> str_sub(2,-2) |> as.numeric()
-  n=str_extract(chival, ",N=.*\\)") |> str_sub(4,-2) |> as.numeric()
-  val=str_extract(chival, "\\)=.*") |> str_sub(3,-1) |> as.numeric() |> abs()
-  pval=pchisq(val,df, lower.tail=F)
-  phi=sqrt(val/n)
-  d_calc=NA
-  if (!is.na(df)&&df==1){
-    d_calc=esc_phi(phi,pval,n, es.type="d")$es
-  }
-  return(data.frame("df_1"=df,"df_2"=NA,"tstat"=NA, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=n, "beta"=NA, "SE"=NA))
+# for proportions 
+#ex <- "prob: 13 / 14 , 2 / 14"
+parse_prop <- function(propval){
+  val <- str_extract_all(propval, "[0-9]+")[[1]]
+  num1 <- val[1] |> as.numeric()
+  den1 <- val[2] |> as.numeric()
+  num2 <- val[3] |> as.numeric()
+  den2 <- val[4] |> as.numeric()
+  est1 <- num1/den1
+  est1_var <- est1*(1-est1)/den1
+  est2 <- num2/den2
+  est2_var <- est2*(1-est2)/den2
+  diff <- est1-est2
+  diff_var <- est1_var+est2_var
+  return(data.frame("df_1"=NA, "df_2"=NA,"tstat"=NA, "fstat"=NA, "p_calc"=NA, "d_calc"=NA, "N_calc"=NA, "ES"=diff, "SE"=sqrt(diff_var)))
 }
+#parse_prop(ex)
+
 
 ```
 
@@ -193,7 +199,7 @@ parse_mean_ci <- function(mci,within_between,n){
     pval=NA
     d_calc=NA
   }
-  return(data.frame("df_1"=df,"df_2"=NA,"tstat"=tval, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=NA, "beta"=NA, "SE"=NA))
+  return(data.frame("df_1"=df,"df_2"=NA,"tstat"=tval, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=NA, "ES"=NA, "SE"=NA))
 }
 ```
 
@@ -223,7 +229,7 @@ parse_mean_sd <- function(msd,within_between,n){
     pval=NA
     d_calc=NA
   }
-  return(data.frame("df_1"=df,"df_2"=NA,"tstat"=tval, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=NA, "beta"=NA, "SE"=NA))
+  return(data.frame("df_1"=df,"df_2"=NA,"tstat"=tval, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=NA, "ES"=NA, "SE"=NA))
 }
 
 
@@ -254,22 +260,11 @@ parse_mean_se <- function(mse,within_between,n){
     pval=NA
     d_calc=NA
   }
-  return(data.frame("df_1"=df,"df_2"=NA,"tstat"=tval, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=NA, "beta"=NA, "SE"=NA))
+  return(data.frame("df_1"=df,"df_2"=NA,"tstat"=tval, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=NA, "ES"=NA, "SE"=NA))
 }
 
 ```
 
-```{r}
-parse_wilcoxon <- function(wilcox){
-  z=str_sub(wilcox,11,-1) |> as.numeric()
-  pval=pnorm(z,lower.tail=F)
-  #r=z/sqrt(n)
-  #d_calc=4*r/(sqrt(1-r**2))
-  d_calc=NA
-    return(data.frame("df_1"=NA,"df_2"=NA,"tstat"=NA, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=NA, "beta"=NA, "SE"=NA))
-
-}
-```
 
 ```{r}
 
@@ -279,7 +274,7 @@ parse_beta_se <- function(raw_stat){
     se=str_extract(raw_stat, "\\(.*\\)") |> str_sub(2,-2) |> as.numeric()
     zval=beta/se
     pval=2*pnorm(zval, lower.tail=F)
-return(data.frame("df_1"=NA,"df_2"=NA,"tstat"=NA, "fstat"=NA, "p_calc"=pval, "d_calc"=NA, "N_calc"=NA, "beta"=beta, "SE"=se))
+return(data.frame("df_1"=NA,"df_2"=NA,"tstat"=NA, "fstat"=NA, "p_calc"=pval, "d_calc"=NA, "N_calc"=NA, "ES"=beta, "SE"=se))
 }
 
 ```
@@ -293,7 +288,7 @@ parse_beta_ci <- function(raw_stat){
   se=high-low/(2*1.96)
   zval=beta/se
     pval=2*pnorm(zval, lower.tail=F)
-  return(data.frame("df_1"=NA,"df_2"=NA,"tstat"=NA, "fstat"=NA, "p_calc"=pval, "d_calc"=NA, "N_calc"=NA, "beta"=beta, "SE"=se))
+  return(data.frame("df_1"=NA,"df_2"=NA,"tstat"=NA, "fstat"=NA, "p_calc"=pval, "d_calc"=NA, "N_calc"=NA, "ES"=beta, "SE"=se))
 }
 
 ```
@@ -301,13 +296,13 @@ parse_beta_ci <- function(raw_stat){
 ```{r}
 
 do_blanks <- function(){
-  return(data.frame("df_1"=NA,"df_2"=NA,"tstat"=NA, "fstat"=NA, "p_calc"=NA, "d_calc"=NA, "N_calc"=NA, "beta"=NA, "SE"=NA))
+  return(data.frame("df_1"=NA,"df_2"=NA,"tstat"=NA, "fstat"=NA, "p_calc"=NA, "d_calc"=NA, "N_calc"=NA, "ES"=NA, "SE"=NA))
 }
 do_parsing=function(raw_stat, within_between,n){
   if (is.na(raw_stat)) {return (do_blanks())}
   if (str_sub(raw_stat,1,1)=="t"){return(parse_t(raw_stat, within_between))}
   if (str_sub(raw_stat,1,1)=="F"){return(parse_f(raw_stat, within_between))}
-  if (str_sub(raw_stat,1,1)=="c"){return(parse_chisq(raw_stat, within_between))}
+  if (str_sub(raw_stat,1,4)=="prop"){return(parse_prop(raw_stat))}
   if (str_sub(raw_stat, 1,3)=="MCI"){return(parse_mean_ci(raw_stat, within_between,n))}
   if (str_sub(raw_stat, 1,3)=="MSD"){return(parse_mean_sd(raw_stat, within_between,n))}
   if (str_sub(raw_stat, 1,3)=="MSE"){return(parse_mean_se(raw_stat, within_between,n))}
