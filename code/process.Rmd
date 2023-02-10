@@ -42,7 +42,7 @@ d <- readxl::read_xlsx("raw_data.xlsx", sheet="aligned data", skip=1) |>
          replicated_instructor_code, replicated_report_code, adjudicated_replication_code)
 
 ```
-
+<!--
 # Exclusions
 
 ```{r}
@@ -73,7 +73,7 @@ Descriptions:
 - "non-experiment" -- student replicated something that was not an experiment
 
 - "reproduction" -- student did a reproduction and not replication 
-
+-->
 
 ```{r}
 d_val <- d |> filter(!status %in% c("missing", "non-experiment", "reproduction"))
@@ -102,12 +102,33 @@ d_val <- d |> filter(!status %in% c("missing", "non-experiment", "reproduction")
 
 ```
 
+```{r}
+#helper function for pooling when needed
+pool_m_sd <- function(m1, sd1, n1, m2, sd2, n2){
+  m=(m1*n1+m2*n2)/(n1+n2)
+  var=(n1*(sd1**2+m1**2)+n2*(sd2**2+m2**2))/(n1+n2)-m**2
+  sd=sqrt(var)
+  return(c(m,sd))
+  
+}
+
+#pool_m_sd(2.875,1.3102163,16,3.5,.8548504,14)
+#pool_m_sd(1.5, 1.6329932, 16, 2.25, 1.6583124, 12)
+#pool_m_sd(2.48,1.41,46,3.35,1.07,49)
+#pool_m_sd(1.90,1.54,49,2.22,1.46,49)
+```
 # Parsing
 
 We parse out values from the raw stats. 
 
 ```{r}
 # considered using the effectsize package but afaik we don't care about estimating CI's here and there were optim problems with that
+
+est_SE <- function(p,d){
+  z <- -.862+sqrt(abs(.743-2.404*log(p)))
+  SE <- abs(d/z)
+  return(SE)
+}
 
 parse_t <- function(tval, within_between) {
   df=str_extract(tval, "\\(.*\\)") |> str_sub(2,-2) |> as.numeric()
@@ -123,7 +144,8 @@ parse_t <- function(tval, within_between) {
     d_calc=val/sqrt(df)
     N_from_df=df+1
   }
-  return(data.frame("df_1"=NA, "df_2"=df,"tstat"=val, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=N_from_df, "ES"=NA, "SE"=NA))
+  se=est_SE(pval, d_calc)
+  return(data.frame("df_1"=NA, "df_2"=df,"tstat"=val, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=N_from_df, "ES"=d_calc, "SE"=se))
 }
 ```
 
@@ -142,19 +164,23 @@ parse_f <- function(fval, within_between){
     else{
       d_calc=sqrt(val)/sqrt(df_2)
     }
+    se=est_SE(pval,d_calc)
   }
   else if(!is.na(df_1)){
     # we go through partial eta
     n=df_1+df_2+1 # rederive n b/c it's not always matching the n we have
-    partial_eta=(val*df_1)/(val*df_1+df_2)
-    d_calc=sqrt(n/(n-1)*(partial_eta/(1-partial_eta)))
+    #partial_eta=(val*df_1)/(val*df_1+df_2)
+    #d_calc=sqrt(n/(n-1)*(partial_eta/(1-partial_eta)))
+    d_calc=NA
+    se=NA
   }
-  return(data.frame("df_1"=df_1,"df_2"=df_2,"tstat"=NA, "fstat"=val, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=N_from_df, "ES"=NA, "SE"=NA))
+  
+  return(data.frame("df_1"=df_1,"df_2"=df_2,"tstat"=NA, "fstat"=val, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=N_from_df, "ES"=d_calc, "SE"=se))
 }
 ```
 
 ```{r}
-# for proportions 
+# for comparison between proportions 
 #ex <- "prob: 13 / 14 , 2 / 14"
 parse_prop <- function(propval){
   val <- str_extract_all(propval, "[0-9]+")[[1]]
@@ -173,6 +199,20 @@ parse_prop <- function(propval){
 #parse_prop(ex)
 
 
+```
+
+```{r}
+# for one proportion
+#ex <- "raw prop : 10 / 18"
+parse_raw_prop <- function(propval){
+  val <- str_extract_all(propval, "[0-9]+")[[1]]
+  num1 <- val[1] |> as.numeric()
+  den1 <- val[2] |> as.numeric()
+  est1 <- num1/den1
+  est1_var <- est1*(1-est1)/den1
+   return(data.frame("df_1"=NA, "df_2"=NA,"tstat"=NA, "fstat"=NA, "p_calc"=NA, "d_calc"=NA, "N_calc"=NA, "ES"=est1, "SE"=sqrt(est1_var)))
+}
+#parse_raw_prop(ex)
 ```
 
 ```{r}
@@ -199,7 +239,7 @@ parse_mean_ci <- function(mci,within_between,n){
     pval=NA
     d_calc=NA
   }
-  return(data.frame("df_1"=df,"df_2"=NA,"tstat"=tval, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=NA, "ES"=NA, "SE"=NA))
+  return(data.frame("df_1"=df,"df_2"=NA,"tstat"=tval, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=NA, "ES"=m1-m2, "SE"=se))
 }
 ```
 
@@ -229,7 +269,7 @@ parse_mean_sd <- function(msd,within_between,n){
     pval=NA
     d_calc=NA
   }
-  return(data.frame("df_1"=df,"df_2"=NA,"tstat"=tval, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=NA, "ES"=NA, "SE"=NA))
+  return(data.frame("df_1"=df,"df_2"=NA,"tstat"=tval, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=NA, "ES"=m1-m2, "SE"=se))
 }
 
 
@@ -260,7 +300,7 @@ parse_mean_se <- function(mse,within_between,n){
     pval=NA
     d_calc=NA
   }
-  return(data.frame("df_1"=df,"df_2"=NA,"tstat"=tval, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=NA, "ES"=NA, "SE"=NA))
+  return(data.frame("df_1"=df,"df_2"=NA,"tstat"=tval, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=NA, "ES"=m1-m2, "SE"=se))
 }
 
 ```
@@ -291,6 +331,20 @@ parse_beta_ci <- function(raw_stat){
   return(data.frame("df_1"=NA,"df_2"=NA,"tstat"=NA, "fstat"=NA, "p_calc"=pval, "d_calc"=NA, "N_calc"=NA, "ES"=beta, "SE"=se))
 }
 
+#this is just to deal with yang2018 where we have d's given and bci
+#ex <- "d: 1.40 ; bci: b=1.72 [1.44, 2.00]"
+parse_dbci <- function(raw_stat){
+  bci = str_extract(raw_stat, ";.*") |> str_sub(2,-1)
+  beta=str_extract(bci, "b=.*\\[") |> str_sub(3,-2) |> as.numeric()
+  low=str_extract(bci, "\\[.*,") |> str_sub(2,-2) |> as.numeric()
+  high=str_extract(bci, ",.*\\]") |> str_sub(2,-2) |> as.numeric()
+  se=high-low/(2*1.96)
+
+  dval = str_extract(raw_stat, ".*;") |> str_sub(3,-2) |> as.numeric()
+  return(data.frame("df_1"=NA,"df_2"=NA,"tstat"=NA, "fstat"=NA, "p_calc"=NA, "d_calc"=dval, "N_calc"=NA, "ES"=beta, "SE"=se))
+}
+#parse_dbci(ex)
+
 ```
 
 ```{r}
@@ -303,12 +357,15 @@ do_parsing=function(raw_stat, within_between,n){
   if (str_sub(raw_stat,1,1)=="t"){return(parse_t(raw_stat, within_between))}
   if (str_sub(raw_stat,1,1)=="F"){return(parse_f(raw_stat, within_between))}
   if (str_sub(raw_stat,1,4)=="prop"){return(parse_prop(raw_stat))}
+  if (str_sub(raw_stat,1,7)=="rawprop"){return(parse_raw_prop(raw_stat))}
   if (str_sub(raw_stat, 1,3)=="MCI"){return(parse_mean_ci(raw_stat, within_between,n))}
   if (str_sub(raw_stat, 1,3)=="MSD"){return(parse_mean_sd(raw_stat, within_between,n))}
   if (str_sub(raw_stat, 1,3)=="MSE"){return(parse_mean_se(raw_stat, within_between,n))}
   if (str_sub(raw_stat, 1,8)=="wilcoxon"){return(parse_wilcoxon(raw_stat))}
   if (str_sub(raw_stat, 1,3)=="bse"){return(parse_beta_se(raw_stat))}
   if (str_sub(raw_stat, 1,3)=="bci"){return(parse_beta_ci(raw_stat))}
+  if (str_sub(raw_stat, 1,1)=="d"){return(parse_dbci(raw_stat))}
+
 
   return (do_blanks())
 }
@@ -344,7 +401,7 @@ test <- d_val |>
                        
   
 ```
-
+<!--
 ## Compare pvals
 
 Comparing calculated p vals to provided (or hand calculated) ones. Line is x=y. 
@@ -381,7 +438,7 @@ test |>
 
 
 Where there's a difference, I could check whether it's being compared to something *I* calculated versus something that an original paper or students paper calculated? Except that there's sources for errors in any of those. Ones where we get an off  by two error -- should I double check within-betweeness for the test? 
-
+-->
 ## what didn't parse
 
 these are ones where we did not get a non-NA effect size. Could be due to formulas being incomplete, or missing information. 
@@ -390,11 +447,12 @@ note that we also aren't including the betas where we know we can't get effect s
 
 ```{r}
 
-test |> filter(is.na(target_d_calc)&is.na(target_beta)) |> filter(!is.na(target_raw_stat)) |>  pull(target_raw_stat)
+test |> filter(is.na(target_d_calc)&is.na(target_ES)) |> filter(!is.na(target_raw_stat)) |>  pull(target_raw_stat)
 
-test |> filter(is.na(rep_d_calc)&is.na(rep_beta)) |> filter(!is.na(replication_raw_stat)) |> pull(replication_raw_stat)
+test |> filter(is.na(rep_d_calc)&is.na(rep_ES)) |> filter(!is.na(replication_raw_stat)) |> pull(replication_raw_stat)
 ```
 
+<!--
 ## how are the df's lining up with sample size?
 
 We can try to back out effective sample size from the df's. Note that we don't always expect them to agree (Welch's t test, repeated measures, comparisons only on a sample), but still useful to look at.
@@ -411,42 +469,39 @@ There's a lot of off by 1 or 2 things, which I'm unsure what to make of. (As muc
 
 
 ```
-
+-->
 # PredInt and P_orig
 
 ```{r}
 library(metafor)
 
-
-est_SE <- function(p,d){
-  z <- -.862+sqrt(abs(.743-2.404*log(p)))
-  SE <- abs(d/z)
-  return(SE)
-}
-
 d_es <-  test |> 
-  rowwise() |> 
-  mutate(target_se_calc=est_SE(target_p_calc,target_d_calc),
-         rep_d_calc=ifelse(same_dir=="no", -rep_d_calc, rep_d_calc),
-         rep_se_calc=est_SE(rep_p_calc,rep_d_calc))
-
+  mutate(target_d_calc=abs(target_d_calc),
+         target_ES=abs(target_ES),
+         rep_d_calc=case_when(
+           same_dir=="yes" ~ abs(rep_d_calc),
+           same_dir=="no" ~-abs(rep_d_calc),
+           T ~ as.numeric(NA)
+          ),
+         rep_ES=case_when(
+           same_dir=="yes" ~ abs(rep_ES),
+           same_dir=="no" ~-abs(rep_ES),
+           T ~ as.numeric(NA)
+         ))
+         
 ```
 
 ```{r}
-do_pred_int <- function(target_d_calc, target_se_calc, rep_d_calc,rep_se_calc, target_beta, target_SE, rep_beta, rep_SE){
-  if (!is.na(target_d_calc)&!is.na(rep_d_calc)){
-    return(Replicate::pred_int(target_d_calc,target_se_calc**2, rep_d_calc, rep_se_calc**2)$rep.inside)}
-  if(!is.na(target_beta)&!is.na(rep_beta)){
-    return(Replicate::pred_int(target_beta, target_SE**2, rep_beta, rep_SE**2)$rep.inside)
+do_pred_int <- function(target_ES, target_SE, rep_ES, rep_SE){
+  if(!is.na(target_ES)&!is.na(rep_ES)){
+    return(Replicate::pred_int(target_ES, target_SE**2, rep_ES, rep_SE**2)$rep.inside)
   }
   return(NA)
 }
 
-do_p_orig <- function(target_d_calc, target_se_calc, rep_d_calc,rep_se_calc, target_beta, target_SE, rep_beta, rep_SE){
-  if (!is.na(target_d_calc)&!is.na(rep_d_calc)){
-    return(Replicate::p_orig(target_d_calc,target_se_calc**2, rep_d_calc, t2=0, rep_se_calc**2))}
-  if(!is.na(target_beta)&!is.na(rep_beta)){
-    return(Replicate::p_orig(target_beta, target_SE**2,rep_beta, t2=0, rep_SE**2))
+do_p_orig <- function(target_ES, target_SE, rep_ES, rep_SE){
+  if(!is.na(target_ES)&!is.na(rep_ES)){
+    return(Replicate::p_orig(target_ES, target_SE**2,rep_ES, t2=0, rep_SE**2))
   }
   return(NA)
 }
@@ -460,10 +515,9 @@ do_subjective_rep <- function(replicated_instructor_code, replicated_report_code
 }
 d_es_predInt <- d_es |> 
          mutate(
-           predInt=do_pred_int(target_d_calc, target_se_calc, rep_d_calc,rep_se_calc, target_beta, target_SE, rep_beta, rep_SE),
-           p_orig=do_p_orig(target_d_calc, target_se_calc, rep_d_calc,rep_se_calc, target_beta, target_SE, rep_beta, rep_SE),
+           predInt=do_pred_int(target_ES, target_SE, rep_ES, rep_SE),
+           p_orig=do_p_orig(target_ES, target_SE, rep_ES, rep_SE),
            sub_rep= do_subjective_rep(replicated_instructor_code, replicated_report_code, adjudicated_replication_code))
-           
            
                 
               
@@ -576,14 +630,14 @@ d_check_nas |> select(target_lastauthor_year, status, academic_year, target_year
 ```{r}
 # papers where we don't have everything
 
-d_check_nas |> filter(if_any(everything(), ~is.na(.))) 
+#d_check_nas |> filter(if_any(everything(), ~is.na(.))) 
 
-d_check_nas |> filter(across(everything(), ~!is.na(.))) 
+#d_check_nas |> filter(across(everything(), ~!is.na(.))) 
 
-d_check_nas  |> select(target_lastauthor_year, status, academic_year, target_year,
-           stanford_internal,open_data, open_materials, target_on_turk,
-           replication_on_turk, within_between, single_vignette, repeated_measure,
-           target_N, replication_N, predInt, p_orig) |>  filter(if_any(everything(), ~is.na(.)))
+# d_check_nas  |> select(target_lastauthor_year, status, academic_year, target_year,
+#            stanford_internal,open_data, open_materials, target_on_turk,
+#            replication_on_turk, within_between, single_vignette, repeated_measure,
+#            target_N, replication_N, predInt, p_orig) |>  filter(if_any(everything(), ~is.na(.)))
 ```
 
 
@@ -618,3 +672,7 @@ d_for_model <- d_es_predInt |>
 summary(d_for_model)
 
 ```
+
+TODOs:
+- will need to do selection of which things have complete cases for models
+- will need to z-score things (in a recoverable way)
