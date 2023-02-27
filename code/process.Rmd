@@ -17,6 +17,11 @@ library(metafor)
 library(esc)
 library(here)
 library(brms)
+library(rstan)
+
+rstan_options(auto_write = TRUE)
+options(mc.cores = parallel::detectCores())
+
 theme_set(theme_bw())
 
 model_location="code/models"
@@ -46,10 +51,10 @@ d <- readxl::read_xlsx("raw_data.xlsx", sheet="aligned data", skip=1) |>
          replicated_instructor_code, replicated_report_code, adjudicated_replication_code)
 
 ```
-<!--
-# Exclusions
 
 ```{r}
+
+d |> tally()
 d |> group_by(status) |> tally()
 
 d |> filter(!status %in% c("missing", "non-experiment", "reproduction")) |> tally()
@@ -613,19 +618,21 @@ pivot_longer(everything()) |>
 
 message("number of complete rows for full analysis")
 
-d_check_nas |> select(-sub_rep, -subfield) |> filter(across(everything(), ~!is.na(.))) |> nrow()
+d_check_nas |> filter(across(everything(), ~!is.na(.))) |> nrow()
 
 message("number of rows for subjective w/ demographic/experimental")
 
 d_check_nas |> select(target_lastauthor_year, status, academic_year,  target_year,
+                      sub_rep, subfield,
            stanford_internal,open_data, open_materials, target_on_turk,
            replication_on_turk, within_between, single_vignette, repeated_measure,
-           target_N, replication_N) |> filter(across(everything(), ~!is.na(.))) |> nrow()
+           target_N, replication_N) |> filter(if_any(everything(), ~is.na(.))) #|> nrow()
 
 message("number of rows for predInt/p_orig w/ demographic/experimental")
 
 
 d_check_nas |> select(target_lastauthor_year, status, academic_year, target_year,
+                      sub_rep, subfield,
            stanford_internal,open_data, open_materials, target_on_turk,
            replication_on_turk, within_between, single_vignette, repeated_measure,
            target_N, replication_N, predInt, p_orig) |>  filter(across(everything(), ~!is.na(.))) |> nrow()
@@ -730,18 +737,22 @@ priors <- c(set_prior("horseshoe(3)", class="b"),
             set_prior("lkj(1)", class="cor"))
 ```
 
-```{r}
+```{r, eval=F}
 tier1_subjective <- brm(sub_rep ~ z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
                           z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
                           (z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
                           z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials | academic_year),
-                        family="bernoulli",
+                        #family=gaussian(link='logit'), # runs
+                        #family="cumulative", # runs on 1-5 data
+                        # family="zero_one_inflated_beta", runs, 
+                        # beta_binomial on 0-4 data
                         data=data_tier1,
-                        file=here(model_location, "tier1_subjective"),
+                        #file=here(model_location, "tier1_subjective"),
                         prior=priors, 
                         iter=100,
                         control=list(adapt_delta=.99),
-                        backend="cmdstanr")
+                        #backend="cmdstanr"
+                        )
 ```
 
 ```{r, eval=F}
@@ -806,10 +817,11 @@ tier3_porig <- brm(p_orig ~ z_pub_year + subfield + open_data +  open_mat + stan
                           (z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
                           z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
                              z_target_d_calc + z_log_p| academic_year),
-                        family="bernoulli",
+                        family=(link="logit"),
                         data=data_tier3,
                         file=here(model_location, "tier3_porig"),
                         prior=priors, 
                         control=list(adapt_delta=.99),
-                        backend="cmdstanr")
+                        #backend="cmdstanr"
+                   )
 ```
