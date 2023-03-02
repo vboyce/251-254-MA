@@ -18,6 +18,9 @@ library(esc)
 library(here)
 library(brms)
 library(rstan)
+library(googledrive)
+library(glmnet)
+
 
 rstan_options(auto_write = TRUE)
 options(mc.cores = parallel::detectCores())
@@ -30,28 +33,32 @@ model_location="code/models"
 
 # Pull data
 
+Download
 
 ```{r, eval=F}
-library(googledrive)
-
 f <- googledrive::as_dribble("https://docs.google.com/spreadsheets/d/1UT6KLRujn6iEQ_s01_4yNfFYqc7hAWTpB-t9mdDp0O8/edit#gid=0")
-googledrive::drive_download(f, path="raw_data.xlsx", overwrite=T)
+googledrive::drive_download(f, path=here("data","raw_data.xlsx"), overwrite=T)
 
 ```
 
+Read in cache.
+
 ```{r}
-d <- readxl::read_xlsx("raw_data.xlsx", sheet="aligned data", skip=1) |> 
-  
+d <- readxl::read_xlsx(here("data","raw_data.xlsx"), 
+                       sheet="aligned data", skip=1) |> 
   select(target_lastauthor_year, sensitivity, include,
          status, academic_year, subfield, target_year, stanford_internal, 
          open_data, open_materials, target_on_turk, replication_on_turk, 
          within_between, single_vignette, repeated_measure,
-         target_N, target_test, target_raw_stat, target_pvalue, target_ES_type, target_ES_value,
-         same_dir,
-         replication_N, replication_test, replication_raw_stat, replication_pvalue, replication_ES_type, replication_ES_value,
-         replicated_instructor_code, replicated_report_code, adjudicated_replication_code)
+         target_N, target_test, target_raw_stat, target_pvalue, target_ES_type, 
+         target_ES_value, same_dir, replication_N, # replication_test
+         replication_raw_stat, replication_pvalue, replication_ES_type, 
+         replication_ES_value, replicated_instructor_code, replicated_report_code,
+         adjudicated_replication_code)
 
 ```
+
+Counts.
 
 ```{r}
 
@@ -68,263 +75,27 @@ We have maybe as many as 177 at least for some analyses.
 Descriptions: 
 
 - "done" -- fully coded, can be used for whatever is specified in other column 
-
 - "ES_direction" -- we don't have the direction coded 
-
 - "ask" -- might be salvageable, but I have questions about coding
-
 - "unusable" -- got as far as I can, and it does not have complete descriptives
-
 - "missing" -- student didn't finish or we don't have write-up
-
 - "non-experiment" -- student replicated something that was not an experiment
-
 - "reproduction" -- student did a reproduction and not replication 
-
 
 ```{r}
 d_val <- d |> filter(!status %in% c("missing", "non-experiment", "reproduction"))
-
 ```
 
-```{r}
-#helper function for pooling when needed
-pool_m_sd <- function(m1, sd1, n1, m2, sd2, n2){
-  m=(m1*n1+m2*n2)/(n1+n2)
-  var=(n1*(sd1**2+m1**2)+n2*(sd2**2+m2**2))/(n1+n2)-m**2
-  sd=sqrt(var)
-  return(c(m,sd))
-  
-}
-```
 # Parsing
 
 We parse out values from the raw stats. 
 
 ```{r}
-# considered using the effectsize package but afaik we don't care about estimating CI's here and there were optim problems with that
-
-parse_t <- function(tval, within_between) {
-  df=str_extract(tval, "\\(.*\\)") |> str_sub(2,-2) |> as.numeric()
-  val=str_extract(tval, "=.*") |> str_sub(2,-1) |> as.numeric() |> abs()
-  pval=pt(q=val, df=df, lower.tail=FALSE)*2
-  d_calc=NA
-  N_from_df=NA
-  if(within_between=="between"){
-    d_calc=2*val/(sqrt(df+2)) # this is a simplification for equal groups
-    N_from_df=df+2 # between so add 2
-  }
-  else{
-    d_calc=val/sqrt(df+1)
-    N_from_df=df+1
-  }
-  se=4/N_from_df+d_calc**2/(2*N_from_df)
-  return(data.frame("df_1"=NA, "df_2"=df,"tstat"=val, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=N_from_df, "ES"=d_calc, "SE"=se))
-}
-```
-
-```{r}
-parse_f <- function(fval, within_between){
-  df_1 =str_extract(fval, "\\(.*,") |> str_sub(2,-2) |> as.numeric()
-  df_2 =str_extract(fval, ",.*\\)") |> str_sub(2,-2) |> as.numeric()
-  val=str_extract(fval, "=.*") |> str_sub(2,-1) |> as.numeric() |> abs()
-  pval=pf(q=val, df1=df_1, df2=df_2, lower.tail=FALSE)
-  d_calc=NA
-  N_from_df=df_1+df_2+1
-  if(!is.na(df_1)&&df_1==1){
-    if(within_between=="between"){
-      d_calc=2*sqrt(val)/sqrt(N_from_df) # if there's just two groups, then F=t**2 and we can use the t-test thingy
-    }
-    else{
-      d_calc=sqrt(val)/sqrt(df_2)
-    }
-   se=4/N_from_df+d_calc**2/(2*N_from_df)
-  }
-  else if(!is.na(df_1)){
-    d_calc=NA
-    se=NA
-  }
-  
-  return(data.frame("df_1"=df_1,"df_2"=df_2,"tstat"=NA, "fstat"=val, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=N_from_df, "ES"=d_calc, "SE"=se))
-}
-```
-
-```{r}
-# for comparison between proportions 
-#ex <- "prob: 13 / 14 , 2 / 14"
-parse_prop <- function(propval){
-  val <- str_extract_all(propval, "[0-9]+")[[1]]
-  num1 <- val[1] |> as.numeric()
-  den1 <- val[2] |> as.numeric()
-  num2 <- val[3] |> as.numeric()
-  den2 <- val[4] |> as.numeric()
-  est1 <- num1/den1
-  est1_var <- est1*(1-est1)/den1
-  est2 <- num2/den2
-  est2_var <- est2*(1-est2)/den2
-  diff <- est1-est2
-  diff_var <- est1_var+est2_var
-  return(data.frame("df_1"=NA, "df_2"=NA,"tstat"=NA, "fstat"=NA, "p_calc"=NA, "d_calc"=NA, "N_calc"=NA, "ES"=diff, "SE"=sqrt(diff_var)))
-}
-#parse_prop(ex)
-
-
-```
-
-```{r}
-# for one proportion
-#ex <- "raw prop : 10 / 18"
-parse_raw_prop <- function(propval){
-  val <- str_extract_all(propval, "[0-9]+")[[1]]
-  num1 <- val[1] |> as.numeric()
-  den1 <- val[2] |> as.numeric()
-  est1 <- num1/den1
-  est1_var <- est1*(1-est1)/den1
-   return(data.frame("df_1"=NA, "df_2"=NA,"tstat"=NA, "fstat"=NA, "p_calc"=NA, "d_calc"=NA, "N_calc"=NA, "ES"=est1, "SE"=sqrt(est1_var)))
-}
-#parse_raw_prop(ex)
-```
-
-```{r}
-parse_mean_ci <- function(mci,within_between,n){
-  # parsing 
-  cond1=str_extract(mci, "m1.*\\],")
-  cond2=str_extract(mci, "m2.*\\]")
-  m1=str_extract(cond1, "m1=.*\\[") |> str_sub(4,-2) |> as.numeric()
-  m2=str_extract(cond2, "m2=.*\\[") |> str_sub(4,-2) |> as.numeric()
-  low1=str_extract(cond1, "\\[.*,.") |> str_sub(2,-3) |> as.numeric()
-  low2=str_extract(cond2, "\\[.*,") |> str_sub(2,-2) |> as.numeric()
-  high1=str_extract(cond1, ",.*\\]") |> str_sub(2,-2) |> as.numeric()
-  high2=str_extract(cond2, ",.*\\]") |> str_sub(2,-2) |> as.numeric()
-  # calculations 
-  se1=high1-low1/(2*1.96)
-  se2=high2-low2/(2*1.96)
-  per_group_n=ifelse(within_between=="within",n, n/2)
-  sd1=se1*sqrt(per_group_n-1) # assume equal groups
-  sd2=se2*sqrt(per_group_n-1)
-  sd_pool=sqrt((sd1**2+sd2**2)/2) # assume equal groups
-  se_pool=sd_pool/sqrt(n-1)
-  d_calc=abs(m1-m2/sd_pool) # note we force all positive and then fix later 
-  tval=(m1-m2)/se_pool |> abs()
-  df=ifelse(within_between=="within", n-1, n-2)
-  pval=pt(q=tval, df=df, lower.tail=FALSE)*2
-  return(data.frame("df_1"=df,"df_2"=NA,"tstat"=tval, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=NA, "ES"=m1-m2, "SE"=se_pool))
-}
-```
-
-```{r}
-parse_mean_sd <- function(msd,within_between,n){
-  cond1=str_extract(msd, "m1.*\\),")
-  cond2=str_extract(msd, "m2.*\\)")
-  m1=str_extract(cond1, "m1=.*\\(") |> str_sub(4,-2) |> as.numeric()
-  m2=str_extract(cond2, "m2=.*\\(") |> str_sub(4,-2) |> as.numeric()
-  sd1=str_extract(cond1, "\\(.*\\),") |> str_sub(2,-3) |> as.numeric()
-  sd2=str_extract(cond2, "\\(.*\\)") |> str_sub(2,-2) |> as.numeric()
-  #
-  sd_pool=sqrt((sd1**2+sd2**2)/2) # assume equal groups
-  se_pool=sd_pool/sqrt(n-1)
-  d_calc=abs(m1-m2/sd_pool) # note we force all positive and then fix later 
-  tval=(m1-m2)/se_pool |> abs()
-  df=ifelse(within_between=="within", n-1, n-2)
-  pval=pt(q=tval, df=df, lower.tail=FALSE)*2
-  return(data.frame("df_1"=df,"df_2"=NA,"tstat"=tval, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=NA, "ES"=m1-m2, "SE"=se_pool))
-}
-
-
-```
-
-```{r}
-parse_mean_se <- function(mse,within_between,n){
-  cond1=str_extract(mse, "m1.*\\),")
-  cond2=str_extract(mse, "m2.*\\)")
-  m1=str_extract(cond1, "m1=.*\\(") |> str_sub(4,-2) |> as.numeric()
-  m2=str_extract(cond2, "m2=.*\\(") |> str_sub(4,-2) |> as.numeric()
-  se1=str_extract(cond1, "\\(.*\\),") |> str_sub(2,-3) |> as.numeric()
-  se2=str_extract(cond2, "\\(.*\\)") |> str_sub(2,-2) |> as.numeric()
-  
-  per_group_n=ifelse(within_between=="within",n, n/2)
-  sd1=se1*sqrt(per_group_n-1) # assume equal groups
-  sd2=se2*sqrt(per_group_n-1)
-  sd_pool=sqrt((sd1**2+sd2**2)/2) # assume equal groups
-  se_pool=sd_pool/sqrt(n-1)
-  d_calc=abs(m1-m2/sd_pool) # note we force all positive and then fix later 
-  tval=(m1-m2)/se_pool |> abs()
-  df=ifelse(within_between=="within", n-1, n-2)
-  pval=pt(q=tval, df=df, lower.tail=FALSE)*2
-  return(data.frame("df_1"=df,"df_2"=NA,"tstat"=tval, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=NA, "ES"=m1-m2, "SE"=se_pool))
-}
-
+source(here("code","helper","parse_stats.R"))
 ```
 
 
 ```{r}
-
-
-parse_beta_se <- function(raw_stat){
-    beta=str_extract(raw_stat, "b=.*\\(") |> str_sub(3,-2) |> as.numeric()
-    se=str_extract(raw_stat, "\\(.*\\)") |> str_sub(2,-2) |> as.numeric()
-    #zval=beta/se
-    #pval=2*pnorm(zval, lower.tail=F)
-return(data.frame("df_1"=NA,"df_2"=NA,"tstat"=NA, "fstat"=NA, "p_calc"=NA, "d_calc"=NA, "N_calc"=NA, "ES"=beta, "SE"=se))
-}
-
-```
-
-```{r}
-
-parse_beta_ci <- function(raw_stat){
-  beta=str_extract(raw_stat, "b=.*\\[") |> str_sub(3,-2) |> as.numeric()
-  low=str_extract(raw_stat, "\\[.*,") |> str_sub(2,-2) |> as.numeric()
-  high=str_extract(raw_stat, ",.*\\]") |> str_sub(2,-2) |> as.numeric()
-  se=high-low/(2*1.96)
- #zval=beta/se
-    #pval=2*pnorm(zval, lower.tail=F)
-  return(data.frame("df_1"=NA,"df_2"=NA,"tstat"=NA, "fstat"=NA, "p_calc"=NA, "d_calc"=NA, "N_calc"=NA, "ES"=beta, "SE"=se))
-}
-
-#this is just to deal with yang2018 where we have d's given and bci
-#ex <- "d: 1.40 ; bci: b=1.72 [1.44, 2.00]"
-parse_dbci <- function(raw_stat){
-  bci = str_extract(raw_stat, ";.*") |> str_sub(2,-1)
-  beta=str_extract(bci, "b=.*\\[") |> str_sub(3,-2) |> as.numeric()
-  low=str_extract(bci, "\\[.*,") |> str_sub(2,-2) |> as.numeric()
-  high=str_extract(bci, ",.*\\]") |> str_sub(2,-2) |> as.numeric()
-  se=high-low/(2*1.96)
-
-  dval = str_extract(raw_stat, ".*;") |> str_sub(3,-2) |> as.numeric()
-  return(data.frame("df_1"=NA,"df_2"=NA,"tstat"=NA, "fstat"=NA, "p_calc"=NA, "d_calc"=dval, "N_calc"=NA, "ES"=beta, "SE"=se))
-}
-#parse_dbci(ex)
-
-```
-
-```{r}
-
-do_blanks <- function(){
-  return(data.frame("df_1"=NA,"df_2"=NA,"tstat"=NA, "fstat"=NA, "p_calc"=NA, "d_calc"=NA, "N_calc"=NA, "ES"=NA, "SE"=NA))
-}
-do_parsing=function(raw_stat, within_between,n){
-  if (is.na(raw_stat)) {return (do_blanks())}
-  if (str_sub(raw_stat,1,1)=="t"){return(parse_t(raw_stat, within_between))}
-  if (str_sub(raw_stat,1,1)=="F"){return(parse_f(raw_stat, within_between))}
-  if (str_sub(raw_stat,1,4)=="prop"){return(parse_prop(raw_stat))}
-  if (str_sub(raw_stat,1,7)=="rawprop"){return(parse_raw_prop(raw_stat))}
-  if (str_sub(raw_stat, 1,3)=="MCI"){return(parse_mean_ci(raw_stat, within_between,n))}
-  if (str_sub(raw_stat, 1,3)=="MSD"){return(parse_mean_sd(raw_stat, within_between,n))}
-  if (str_sub(raw_stat, 1,3)=="MSE"){return(parse_mean_se(raw_stat, within_between,n))}
-  if (str_sub(raw_stat, 1,8)=="wilcoxon"){return(parse_wilcoxon(raw_stat))}
-  if (str_sub(raw_stat, 1,3)=="bse"){return(parse_beta_se(raw_stat))}
-  if (str_sub(raw_stat, 1,3)=="bci"){return(parse_beta_ci(raw_stat))}
-  if (str_sub(raw_stat, 1,1)=="d"){return(parse_dbci(raw_stat))}
-
-
-  return (do_blanks())
-}
-```
-
-
-```{r}
-
 test <- d_val |> 
   mutate(target_raw_stat=gsub(" ","",target_raw_stat),
          target=pmap(list(target_raw_stat, within_between,target_N), do_parsing),
@@ -332,9 +103,6 @@ test <- d_val |>
          rep=pmap(list(replication_raw_stat, within_between,replication_N), do_parsing)) |> 
   unnest(cols=c(target, rep), names_sep="_") |> 
   rowwise()
-
-                       
-  
 ```
 
 ## what didn't parse
@@ -351,60 +119,26 @@ test |> filter(is.na(rep_ES)) |> filter(!is.na(replication_raw_stat)) |> pull(re
 # PredInt and P_orig
 
 ```{r}
-library(metafor)
-
-d_es <-  test |> 
-  mutate(target_d_calc=abs(target_d_calc),
-         target_ES=abs(target_ES),
-         rep_d_calc=case_when(
-           same_dir=="yes" ~ abs(rep_d_calc),
-           same_dir=="no" ~-abs(rep_d_calc),
-           T ~ as.numeric(NA)
-          ),
-         rep_ES=case_when(
-           same_dir=="yes" ~ abs(rep_ES),
-           same_dir=="no" ~-abs(rep_ES),
-           T ~ as.numeric(NA)
-         ))
-         
+source(here("code","helper","stats.R"))
 ```
 
+Compute prediction intervals and p_orig.
+
 ```{r}
-do_pred_int <- function(target_ES, target_SE, rep_ES, rep_SE){
-  if(!is.na(target_ES)&!is.na(rep_ES)){
-    return(Replicate::pred_int(target_ES, target_SE**2, rep_ES, rep_SE**2)$rep.inside)
-  }
-  return(NA)
-}
-
-do_p_orig <- function(target_ES, target_SE, rep_ES, rep_SE){
-  if(!is.na(target_ES)&!is.na(rep_ES)){
-    return(Replicate::p_orig(target_ES, target_SE**2,rep_ES, t2=0, rep_SE**2))
-  }
-  return(NA)
-}
-
-do_subjective_rep <- function(replicated_instructor_code, replicated_report_code, adjudicated_replication_code){
-  if (is.na(replicated_instructor_code)){return(as.numeric(NA))}
-  if (is.na(replicated_report_code)){return(as.numeric(NA))}
-  if (replicated_instructor_code==replicated_report_code){ return(replicated_instructor_code)}
-  if (!is.na(adjudicated_replication_code)){return (adjudicated_replication_code)}
-  return(as.numeric(NA))
-}
 d_es_predInt <- d_es |> 
   rowwise() |> 
-         mutate(
-           predInt=do_pred_int(target_ES, target_SE, rep_ES, rep_SE),
-           p_orig=do_p_orig(target_ES, target_SE, rep_ES, rep_SE),
-           sub_rep= do_subjective_rep(replicated_instructor_code, replicated_report_code, adjudicated_replication_code))
-           
-                
-              
+  mutate(predInt = do_pred_int(target_ES, target_SE, rep_ES, rep_SE),
+         p_orig = do_p_orig(target_ES, target_SE, rep_ES, rep_SE),
+         sub_rep = do_subjective_rep(replicated_instructor_code, 
+                                     replicated_report_code, 
+                                     adjudicated_replication_code))
 ```
 
 # viz SMD
-```{r}
 
+First pass plots. 
+
+```{r}
 d_es_predInt |> ggplot(aes(x=target_d_calc, y=rep_d_calc, color=p_orig))+
   geom_point()+
   coord_cartesian(xlim=c(0,2), ylim=c(-1,3))+
@@ -420,17 +154,25 @@ d_es_predInt |> ggplot(aes(x=target_d_calc, y=rep_d_calc, color=predInt))+
   geom_hline(yintercept=0)+
   scale_color_viridis(discrete=T, direction=-1)+
   labs(color="rep in predInt", x="Original SMD", y="Replication SMD")
-
-d_es_predInt |> ggplot(aes(x=target_d_calc, y=rep_d_calc, color=sub_rep))+
-  geom_point()+
-  coord_cartesian(xlim=c(0,2), ylim=c(-1,3))+
-  geom_abline(slope=1, intercept=0)+
-  geom_hline(yintercept=0)+
-  scale_color_viridis(discrete=F, direction=-1)+
-  labs(color="subrep", x="Original SMD", y="Replication SMD")
-
 ```
-# viz ES any scale 
+
+Working more on the visualization with subjective rep status.
+
+```{r}
+d_es_predInt |> 
+  filter(target_d_calc < 5, rep_d_calc < 5) |>
+  ggplot(aes(x=target_d_calc, y=rep_d_calc, color=sub_rep))+
+  geom_point() +
+  geom_abline(slope=1, intercept=0, lty = 2)+
+  geom_smooth(method = "lm") + 
+  geom_hline(yintercept = 0, lty = 2)+
+  scale_color_viridis(discrete=F, direction = -1, 
+                      name = "Subjective Replication Success")+
+  labs(color="subrep", x="Original SMD", y="Replication SMD") + 
+  theme(legend.position = "bottom")
+```
+
+
 ```{r}
 library(ggstance)
 d_es_predInt |> ggplot(aes(x=target_ES, 
@@ -442,7 +184,7 @@ d_es_predInt |> ggplot(aes(x=target_ES,
                            color=p_orig))+
   geom_linerange(alpha=.5)+
   geom_linerangeh(alpha=.5)+
-    geom_point()+
+  geom_point()+
   coord_cartesian(xlim=c(-1,12), ylim=c(-1,12))+
   geom_abline(slope=1, intercept=0)+
   geom_hline(yintercept=0)+
@@ -458,7 +200,7 @@ d_es_predInt |> ggplot(aes(x=target_ES,
                            color=p_orig))+
   geom_linerange(alpha=.5)+
   geom_linerangeh(alpha=.5)+
-    geom_point()+
+  geom_point()+
   coord_cartesian(xlim=c(-1,2), ylim=c(-1,2))+
   geom_abline(slope=1, intercept=0)+
   geom_hline(yintercept=0)+
@@ -474,7 +216,7 @@ d_es_predInt |> ggplot(aes(x=target_ES,
                            color=predInt))+
   geom_linerange(alpha=.5)+
   geom_linerangeh(alpha=.5)+
-    geom_point()+
+  geom_point()+
   coord_cartesian(xlim=c(-1,12), ylim=c(-1,12))+
   geom_abline(slope=1, intercept=0)+
   geom_hline(yintercept=0)+
@@ -490,7 +232,7 @@ d_es_predInt |> ggplot(aes(x=target_ES,
                            color=predInt))+
   geom_linerange(alpha=.5)+
   geom_linerangeh(alpha=.5)+
-    geom_point()+
+  geom_point()+
   coord_cartesian(xlim=c(-1,2), ylim=c(-1,2))+
   geom_abline(slope=1, intercept=0)+
   geom_hline(yintercept=0)+
@@ -506,7 +248,7 @@ d_es_predInt |> ggplot(aes(x=target_ES,
                            color=sub_rep))+
   geom_linerange(alpha=.5)+
   geom_linerangeh(alpha=.5)+
-    geom_point()+
+  geom_point()+
   coord_cartesian(xlim=c(-1,12), ylim=c(-1,12))+
   geom_abline(slope=1, intercept=0)+
   geom_hline(yintercept=0)+
@@ -522,7 +264,7 @@ d_es_predInt |> ggplot(aes(x=target_ES,
                            color=sub_rep))+
   geom_linerange(alpha=.5)+
   geom_linerangeh(alpha=.5)+
-    geom_point()+
+  geom_point()+
   coord_cartesian(xlim=c(-1,2), ylim=c(-1,2))+
   geom_abline(slope=1, intercept=0)+
   geom_hline(yintercept=0)+
@@ -539,12 +281,12 @@ message("total rows")
 d_es_predInt |> filter(!status %in% c("missing", "non-experiment", "reproduction")) |> nrow()
 
 d_check_nas <- d_es_predInt |> filter(!status %in% c("missing", "non-experiment", "reproduction")) |> ungroup() |>
-    select(include, target_lastauthor_year, status, academic_year, subfield, target_year,
-           stanford_internal,open_data, open_materials, target_on_turk,
-           replication_on_turk, within_between, single_vignette, repeated_measure,
-           target_N, replication_N,
-           target_p_calc, target_d_calc, rep_p_calc, rep_d_calc,
-           predInt, p_orig, sub_rep) 
+  select(include, target_lastauthor_year, status, academic_year, subfield, target_year,
+         stanford_internal,open_data, open_materials, target_on_turk,
+         replication_on_turk, within_between, single_vignette, repeated_measure,
+         target_N, replication_N,
+         target_p_calc, target_d_calc, rep_p_calc, rep_d_calc,
+         predInt, p_orig, sub_rep) 
 
 message("number of rows for subjective w/ demographic/experimental")
 
@@ -554,10 +296,10 @@ message("actual")
 
 d_check_nas |> filter(include %in% c("stats", "pred_int", "exp")) |>
   select(target_lastauthor_year, status, academic_year,  target_year,
-                      sub_rep, subfield,
-           stanford_internal,open_data, open_materials, target_on_turk,
-           replication_on_turk, within_between, single_vignette, repeated_measure,
-           target_N, replication_N) |> filter(across(everything(), ~!is.na(.))) |> nrow()
+         sub_rep, subfield,
+         stanford_internal,open_data, open_materials, target_on_turk,
+         replication_on_turk, within_between, single_vignette, repeated_measure,
+         target_N, replication_N) |> filter(across(everything(), ~!is.na(.))) |> nrow()
 
 message("number of rows for predInt/p_orig w/ demographic/experimental")
 message("expected")
@@ -566,11 +308,11 @@ message("actual")
 
 
 d_check_nas |> filter(include %in% c("stats", "pred_int")) |>  select(target_lastauthor_year, status, academic_year, target_year,
-                      sub_rep, subfield,
-           stanford_internal,open_data, open_materials, target_on_turk,
-           replication_on_turk, within_between, single_vignette, repeated_measure,
-           target_N, replication_N, predInt, p_orig) |> 
- # filter(if_any(everything(), ~is.na(.)))
+                                                                      sub_rep, subfield,
+                                                                      stanford_internal,open_data, open_materials, target_on_turk,
+                                                                      replication_on_turk, within_between, single_vignette, repeated_measure,
+                                                                      target_N, replication_N, predInt, p_orig) |> 
+  # filter(if_any(everything(), ~is.na(.)))
   filter(across(everything(), ~!is.na(.))) |> nrow()
 
 message("number of complete rows for full analysis")
@@ -595,22 +337,22 @@ d_for_model <- d_es_predInt |>
          log_sample =log(target_N),
          log_ratio_ss = log(replication_N/target_N),
          change_platform=ifelse(replication_on_turk==target_on_turk,0,1),
-  #this codes 1 if the original was in person, but replication turk/prolific,
-  # 0 if they were both on turk/prolific or both in-person (rare, but happens a few times)
-        open_data=ifelse(open_data=="yes", 1,0),
+         #this codes 1 if the original was in person, but replication turk/prolific,
+         # 0 if they were both on turk/prolific or both in-person (rare, but happens a few times)
+         open_data=ifelse(open_data=="yes", 1,0),
          open_mat=ifelse(open_materials=="yes", 1,0),
          stanford=ifelse(stanford_internal=="yes", 1,0),
-        is_within=case_when(
-            within_between=="within" ~ 1,
-            within_between=="mixed" ~ 1,
-            within_between=="between" ~ 0),
-    log_trials=log(repeated_measure),
-  predInt=as.numeric(predInt)) |> 
+         is_within=case_when(
+           within_between=="within" ~ 1,
+           within_between=="mixed" ~ 1,
+           within_between=="between" ~ 0),
+         log_trials=log(repeated_measure),
+         predInt=as.numeric(predInt)) |> 
   select(include, target_lastauthor_year, academic_year, subfield, 
          pub_year, log_p, log_sample, log_ratio_ss, change_platform, target_d_calc,
-           stanford, open_data, open_mat, 
+         stanford, open_data, open_mat, 
          is_within, single_vignette, log_trials, 
-           predInt, p_orig, sub_rep)
+         predInt, p_orig, sub_rep)
 
 summary(d_for_model)
 
@@ -625,7 +367,7 @@ z_data <- d_for_model |>
 
 back_convert <- d_for_model |> 
   summarize(across(c("pub_year","log_p", "log_sample", "log_ratio_ss","target_d_calc", "log_trials"), ~mean(., na.rm=T), .names="mean_{.col}"),
-         across(c("pub_year","log_p", "log_sample", "log_ratio_ss","target_d_calc", "log_trials"), ~sd(.,na.rm=T), .names="sd_{.col}"))
+            across(c("pub_year","log_p", "log_sample", "log_ratio_ss","target_d_calc", "log_trials"), ~sd(.,na.rm=T), .names="sd_{.col}"))
 
 
 ```
@@ -637,13 +379,13 @@ back_convert <- d_for_model |>
 #   mutate(check_pub=pub_year - z_pub_year*back_convert$sd_pub_year+back_convert$mean_pub_year) |> 
 #   filter(check_pub > .00001)
 ```
-  
+
 ## tier 1 data
 ```{r}
 data_tier1 <- z_data |> filter(include %in% c("stats", "exp", "pred_int")) |>
   mutate(sub_rep=sub_rep*4+1) |>  #remap to 1-5 scale
-select(academic_year, sub_rep, 
-                               z_pub_year, subfield, open_data, open_mat, stanford, change_platform, z_log_ratio_ss, is_within, single_vignette, z_log_sample, z_log_trials) 
+  select(academic_year, sub_rep, 
+         z_pub_year, subfield, open_data, open_mat, stanford, change_platform, z_log_ratio_ss, is_within, single_vignette, z_log_sample, z_log_trials) 
 
 ```
 
@@ -651,17 +393,17 @@ select(academic_year, sub_rep,
 ```{r}
 data_tier2 <- z_data |> filter(include %in% c("stats", "pred_int")) |>
   select(academic_year, sub_rep, 
-                               p_orig, predInt,
-                               z_pub_year, subfield, open_data, open_mat, stanford, change_platform, z_log_ratio_ss, is_within, single_vignette, z_log_sample, z_log_trials) 
+         p_orig, predInt,
+         z_pub_year, subfield, open_data, open_mat, stanford, change_platform, z_log_ratio_ss, is_within, single_vignette, z_log_sample, z_log_trials) 
 ```
 
 ## tier 3 data
 ```{r}
 data_tier3 <- z_data |>  filter(include %in% c("stats")) |>
   select(academic_year, sub_rep, 
-                               p_orig, predInt,
-                               z_target_d_calc, z_log_p, 
-                               z_pub_year, subfield, open_data, open_mat, stanford, change_platform, z_log_ratio_ss, is_within, single_vignette, z_log_sample, z_log_trials) 
+         p_orig, predInt,
+         z_target_d_calc, z_log_p, 
+         z_pub_year, subfield, open_data, open_mat, stanford, change_platform, z_log_ratio_ss, is_within, single_vignette, z_log_sample, z_log_trials) 
 ```
 
 # Models
@@ -677,14 +419,14 @@ priors <- c(set_prior("horseshoe(3)", class="b"),
 tier1_subjective <- brm(sub_rep ~ z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
                           z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
                           (z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
-                          z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials | academic_year),
+                             z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials | academic_year),
                         family="cumulative", # runs on 1-5 data
                         data=data_tier1,
                         file=here(model_location, "tier1_subjective"),
                         prior=priors, 
                         control=list(adapt_delta=.99),
                         backend="cmdstanr"
-                        )
+)
 ```
 
 
@@ -694,35 +436,24 @@ tier1_subjective <- brm(sub_rep ~ z_pub_year + subfield + open_data +  open_mat 
 ```{r, eval=F}
 
 strong_priors <- c(set_prior("horseshoe(3, par_ratio=.33)", class="b"),
-            set_prior("normal(0,.5)", class="sd"),
-            set_prior("lkj(1)", class="cor"))
-tier1_subjective_strong_prior<- brm(sub_rep ~ z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
-                          z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
-                          (z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
-                          z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials | academic_year),
-                        family="cumulative", # runs on 1-5 data
-                        data=data_tier1,
-                        file=here(model_location, "tier1_subjective_prior"),
-                        prior=strong_priors, 
-                        control=list(adapt_delta=.99),
-                        backend="cmdstanr"
-                        )
-```
+                   set_prior("normal(0,.5)", class="sd"),
+                   set_prior("lkj(1)", class="cor"))
 
-```{r, eval=F}
-
-strong_priors_no_ranef <- c(set_prior("horseshoe(3, par_ratio=.33)", class="b"),
-            set_prior("normal(0,.5)", class="sd"))
-tier1_subjective_strong_prior<- brm(sub_rep ~ z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
-                          z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
-                          (1 | academic_year),
-                        family="cumulative", # runs on 1-5 data
-                        data=data_tier1,
-                        file=here(model_location, "tier1_subjective_prior_no_ranef"),
-                        prior=strong_priors_no_ranef, 
-                        control=list(adapt_delta=.99),
-                        backend="cmdstanr"
-                        )
+tier1_subjective_strong_prior <- brm(sub_rep ~ z_pub_year +
+                                       subfield + open_data +  
+                                       open_mat + stanford + change_platform + 
+                                       z_log_ratio_ss + is_within + 
+                                       single_vignette + z_log_sample + 
+                                       z_log_trials + 
+                                       (z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
+                                          z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials | academic_year),
+                                     family="cumulative", # runs on 1-5 data
+                                     data=data_tier1,
+                                     file=here(model_location, "tier1_subjective_prior"),
+                                     prior=strong_priors, 
+                                     control=list(adapt_delta=.99),
+                                     backend="cmdstanr"
+)
 ```
 
 ```{r}
@@ -730,42 +461,42 @@ tier1_subjective_strong_prior<- brm(sub_rep ~ z_pub_year + subfield + open_data 
 # bad linear
 
 tier1_subjective_linear<- brm(sub_rep ~ z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
-                          z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
-                          (z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
-                          z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials | academic_year),
-                       # family="cumulative", # runs on 1-5 data
-                        data=data_tier1 |> mutate(sub_rep=(sub_rep-1)/4),
-                        file=here(model_location, "tier1_subjective_linear"),
-                        prior=strong_priors, 
-                        control=list(adapt_delta=.99),
-                        backend="cmdstanr"
-                        )
+                                z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
+                                (z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
+                                   z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials | academic_year),
+                              # family="cumulative", # runs on 1-5 data
+                              data=data_tier1 |> mutate(sub_rep=(sub_rep-1)/4),
+                              file=here(model_location, "tier1_subjective_linear"),
+                              prior=strong_priors, 
+                              control=list(adapt_delta=.99),
+                              backend="cmdstanr"
+)
 
 tier1_subjective_linear2<- brm(sub_rep ~ z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
-                          z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
-                          (z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
-                          z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials | academic_year),
-                       # family="cumulative", # runs on 1-5 data
-                        data=data_tier1 |> mutate(sub_rep=(sub_rep-1)/4),
-                        file=here(model_location, "tier1_subjective_linear2"),
-                        prior=priors, 
-                        control=list(adapt_delta=.99),
-                        backend="cmdstanr"
-                        )
+                                 z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
+                                 (z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
+                                    z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials | academic_year),
+                               # family="cumulative", # runs on 1-5 data
+                               data=data_tier1 |> mutate(sub_rep=(sub_rep-1)/4),
+                               file=here(model_location, "tier1_subjective_linear2"),
+                               prior=priors, 
+                               control=list(adapt_delta=.99),
+                               backend="cmdstanr"
+)
 ```
 
 ```{r}
 tier1_subjective_beta<- brm(sub_rep ~ z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
-                          z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
-                          (z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
-                          z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials | academic_year),
-                        family="beta", # runs on 1-5 data
-                        data=data_tier1 |> mutate(sub_rep=(sub_rep-1)/4*.98+.01),
-                        file=here(model_location, "tier1_subjective_beta"),
-                        prior=strong_priors, 
-                        control=list(adapt_delta=.99),
-                        backend="cmdstanr"
-                        )
+                              z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
+                              (z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
+                                 z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials | academic_year),
+                            family="beta", # runs on 1-5 data
+                            data=data_tier1 |> mutate(sub_rep=(sub_rep-1)/4*.98+.01),
+                            file=here(model_location, "tier1_subjective_beta"),
+                            prior=strong_priors, 
+                            control=list(adapt_delta=.99),
+                            backend="cmdstanr"
+)
 
 ```
 
@@ -774,19 +505,21 @@ tier1_subjective_beta<- brm(sub_rep ~ z_pub_year + subfield + open_data +  open_
 ```{r}
 
 boring_logistic <- glm(sub_rep ~ z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
-                          z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials,
-                        family=binomial, 
-                        data=data_tier1 |> mutate(sub_rep=(sub_rep-1)/4),
+                         z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials,
+                       family=binomial, 
+                       data=data_tier1 |> mutate(sub_rep=(sub_rep-1)/4),
                        
-                        )
-library(glmnet)
+)
+```
 
+regularized
+```{r}
 predictors <- data_tier1 |> select(z_pub_year, open_data, open_mat, stanford, change_platform, 
-                          z_log_ratio_ss, is_within, single_vignette, z_log_sample, z_log_trials)
+                                   z_log_ratio_ss, is_within, single_vignette, z_log_sample, z_log_trials)
 
 yvals <- data_tier1 |> mutate(sub_rep=(sub_rep-1)/4) |> pull(sub_rep)
 lasso_linear <- cv.glmnet(predictors, yvals |> as.matrix(), 
-                        family="gaussian", alpha=1)
+                          family="gaussian", alpha=1)
 
 lasso_linear2 <- glmnet(predictors, yvals, 
                         family="gaussian", alpha=1)
@@ -801,23 +534,23 @@ dat <- data_tier1 |> mutate(is.cog=ifelse(subfield=="cognitive", 1,0),
                             is.other=ifelse(subfield=="other-psych", 1,0),
                             is.non=ifelse(subfield=="non-psych",1,0)) |> 
   select(is.cog, is.soc, is.other, is.non, z_pub_year, open_data, open_mat, stanford, change_platform, 
-                          z_log_ratio_ss, is_within, single_vignette, z_log_sample, z_log_trials) 
+         z_log_ratio_ss, is_within, single_vignette, z_log_sample, z_log_trials) 
 
 corr_mat <- round(cor(dat),2) 
 
 # Install and load reshape2 package
 library(reshape2)
 
- 
+
 # reduce the size of correlation matrix
 melted_corr_mat <- melt(corr_mat)
 # head(melted_corr_mat)
- 
+
 # plotting the correlation heatmap
 library(ggplot2)
 ggplot(data = melted_corr_mat, aes(x=Var1, y=Var2,
                                    fill=value)) + scale_fill_viridis()+
-geom_tile(alpha=.7)+theme(axis.text.x = element_text(angle = 40, vjust = 1, hjust=1))+geom_text(aes(label=value), size=3)
+  geom_tile(alpha=.7)+theme(axis.text.x = element_text(angle = 40, vjust = 1, hjust=1))+geom_text(aes(label=value), size=3)
 
 corr_mat |> as_tibble(rownames="value2") |> pivot_longer(cols=!value2, names_to="value1", values_to = "corr") |> arrange(corr) |> filter(value2 <value1) |> View()
 
@@ -828,35 +561,35 @@ corr_mat |> as_tibble(rownames="value2") |> pivot_longer(cols=!value2, names_to=
 ## Tier 2 and 3
 ```{r, eval=F}
 tier2_predint <- brm(pred_int ~ z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
-                          z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
-                          (z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
+                       z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
+                       (z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
                           z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials | academic_year),
-                        family="bernoulli",
-                        data=data_tier2,
-                        file=here(model_location, "tier2_predint"),
-                        prior=priors, 
-                        control=list(adapt_delta=.99),
-                        backend="cmdstanr")
+                     family="bernoulli",
+                     data=data_tier2,
+                     file=here(model_location, "tier2_predint"),
+                     prior=priors, 
+                     control=list(adapt_delta=.99),
+                     backend="cmdstanr")
 ```
 
 ```{r, eval=F}
 tier2_porig <- brm(porig ~ z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
-                          z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
-                          (z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
-                          z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials | academic_year),
-                        data=data_tier2,
-                        file=here(model_location, "tier2_porig"),
-                        prior=priors, 
-                        control=list(adapt_delta=.99),
-                        backend="cmdstanr")
+                     z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
+                     (z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
+                        z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials | academic_year),
+                   data=data_tier2,
+                   file=here(model_location, "tier2_porig"),
+                   prior=priors, 
+                   control=list(adapt_delta=.99),
+                   backend="cmdstanr")
 ```
 
 ```{r, eval=F}
 tier3_subjective <- brm(sub_rep ~ z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
                           z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
-                           z_target_d_calc + z_log_p+ 
+                          z_target_d_calc + z_log_p+ 
                           (z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
-                          z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
+                             z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
                              z_target_d_calc + z_log_p| academic_year),
                         family="bernoulli",
                         data=data_tier3,
@@ -868,31 +601,147 @@ tier3_subjective <- brm(sub_rep ~ z_pub_year + subfield + open_data +  open_mat 
 
 ```{r, eval=F}
 tier3_predint <- brm(predint ~ z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
+                       z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
+                       z_target_d_calc + z_log_p+ 
+                       (z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
                           z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
-                           z_target_d_calc + z_log_p+ 
-                          (z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
-                          z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
-                             z_target_d_calc + z_log_p| academic_year),
-                        family="bernoulli",
-                        data=data_tier3,
-                        file=here(model_location, "tier3_predint"),
-                        prior=priors, 
-                        control=list(adapt_delta=.99),
-                        backend="cmdstanr")
+                          z_target_d_calc + z_log_p| academic_year),
+                     family="bernoulli",
+                     data=data_tier3,
+                     file=here(model_location, "tier3_predint"),
+                     prior=priors, 
+                     control=list(adapt_delta=.99),
+                     backend="cmdstanr")
 ```
 
 ```{r, eval=F}
 tier3_porig <- brm(p_orig ~ z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
-                          z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
-                           z_target_d_calc + z_log_p+ 
-                          (z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
-                          z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
-                             z_target_d_calc + z_log_p| academic_year),
-                        family=(link="logit"),
-                        data=data_tier3,
-                        file=here(model_location, "tier3_porig"),
-                        prior=priors, 
-                        control=list(adapt_delta=.99),
-                        #backend="cmdstanr"
-                   )
+                     z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
+                     z_target_d_calc + z_log_p+ 
+                     (z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
+                        z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
+                        z_target_d_calc + z_log_p| academic_year),
+                   family=(link="logit"),
+                   data=data_tier3,
+                   file=here(model_location, "tier3_porig"),
+                   prior=priors, 
+                   control=list(adapt_delta=.99),
+                   #backend="cmdstanr"
+)
+```
+
+# Random exploratory analyses
+
+## Correlations
+
+```{r}
+sub_cor <- function(var, stat = "estimate") {
+  if (stat == "estimate") {
+    cor.test(data_tier1$sub_rep, pull(data_tier1, {{var}}))$estimate
+  } else {
+    cor.test(data_tier1$sub_rep, pull(data_tier1, {{var}}))$p.value
+  }
+}
+
+preds <- c("z_pub_year", "open_data",  "open_mat", "stanford", "change_platform", 
+           "z_log_ratio_ss", "is_within", "single_vignette", "z_log_sample", 
+           "z_log_trials")
+
+cors <- tibble(preds = preds) |>
+  mutate(r = sapply(preds, function(x) sub_cor(x, stat = "estimate")),
+         p = sapply(preds, function(x) sub_cor(x, stat = "p")))
+
+knitr::kable(cors, digits = 3)
+```
+
+## Principal components
+
+Principal components are not very interpretable. 
+
+```{r}
+pcs <- select(data_tier1, 
+              z_pub_year, open_data,  open_mat, stanford, change_platform, 
+              z_log_ratio_ss, is_within, single_vignette, z_log_sample, z_log_trials) |>
+  princomp()
+
+summary(pcs)
+pcs$loadings
+plot(pcs)
+biplot(pcs)
+```
+
+## Model exploration
+
+```{r}
+mod <- lm(sub_rep ~ z_pub_year + subfield + open_data + open_mat + 
+            stanford + change_platform + 
+            z_log_ratio_ss + is_within + 
+            single_vignette + z_log_sample + z_log_trials,
+          data = data_tier1 )
+summary(mod)
+```
+
+Repeating regularized
+
+```{r}
+predictors <- data_tier1 |> 
+  select(z_pub_year, open_data, open_mat, stanford, change_platform, 
+         z_log_ratio_ss, is_within, single_vignette, z_log_sample, z_log_trials) |>
+  as.data.frame() |>
+  as.matrix()
+
+lasso_linear <- cv.glmnet(predictors, data_tier1$sub_rep, 
+                          family="gaussian", alpha=1)
+
+coef(lasso_linear, s = "lambda.min")
+coef(lasso_linear, s = "lambda.1se")
+```
+
+## Bayesian tinkering
+
+Let's try super strong priors, consolidating a few very highly correlated variables. 
+
+```{r}
+normal_priors <- c(set_prior("horseshoe(3)", class="b"),
+                   set_prior("normal(0,.5)", class="sd"))
+
+brm(sub_rep ~ z_pub_year + subfield + open_data + open_mat + stanford + change_platform + z_log_ratio_ss + is_within + single_vignette + z_log_sample +  z_log_trials + 
+      (1 | academic_year),
+    # family = "linear", # runs on 1-5 data
+    data = data_tier1,
+    prior = normal_priors, 
+    iter = 10000, warmup = 2000,
+    control = list(adapt_delta=.99),
+    backend = "cmdstanr")
+```
+
+And let's see if it's the link
+
+
+```{r}
+normal_priors <- c(set_prior("horseshoe(3)", class="b"),
+                   set_prior("normal(0,.5)", class="sd"))
+
+# make it in the .005 - .995 range
+data_tier1$sub_rep01 <- ((data_tier1$sub_rep-1)/5) * .99 + .005
+
+
+brm(sub_rep01 ~ z_pub_year + subfield + open_data + open_mat + stanford + change_platform + z_log_ratio_ss + is_within + single_vignette + z_log_sample +  z_log_trials + 
+      (1 | academic_year),
+    family = "beta", # runs on 1-5 data
+    data = data_tier1,
+    prior = normal_priors, 
+    iter = 10000, warmup = 2000,
+    control = list(adapt_delta=.99),
+    backend = "cmdstanr")
+```
+
+## Models of clusters of predictors
+
+```{r}
+mod <- lm(sub_rep ~ 
+            is_within + 
+            single_vignette +  z_log_trials,
+          data = data_tier1 )
+summary(mod)
 ```
