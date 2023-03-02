@@ -687,6 +687,145 @@ tier1_subjective <- brm(sub_rep ~ z_pub_year + subfield + open_data +  open_mat 
                         )
 ```
 
+
+
+## Exploring stuff for Tier 1
+
+```{r, eval=F}
+
+strong_priors <- c(set_prior("horseshoe(3, par_ratio=.33)", class="b"),
+            set_prior("normal(0,.5)", class="sd"),
+            set_prior("lkj(1)", class="cor"))
+tier1_subjective_strong_prior<- brm(sub_rep ~ z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
+                          z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
+                          (z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
+                          z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials | academic_year),
+                        family="cumulative", # runs on 1-5 data
+                        data=data_tier1,
+                        file=here(model_location, "tier1_subjective_prior"),
+                        prior=strong_priors, 
+                        control=list(adapt_delta=.99),
+                        backend="cmdstanr"
+                        )
+```
+
+```{r, eval=F}
+
+strong_priors_no_ranef <- c(set_prior("horseshoe(3, par_ratio=.33)", class="b"),
+            set_prior("normal(0,.5)", class="sd"))
+tier1_subjective_strong_prior<- brm(sub_rep ~ z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
+                          z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
+                          (1 | academic_year),
+                        family="cumulative", # runs on 1-5 data
+                        data=data_tier1,
+                        file=here(model_location, "tier1_subjective_prior_no_ranef"),
+                        prior=strong_priors_no_ranef, 
+                        control=list(adapt_delta=.99),
+                        backend="cmdstanr"
+                        )
+```
+
+```{r}
+
+# bad linear
+
+tier1_subjective_linear<- brm(sub_rep ~ z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
+                          z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
+                          (z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
+                          z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials | academic_year),
+                       # family="cumulative", # runs on 1-5 data
+                        data=data_tier1 |> mutate(sub_rep=(sub_rep-1)/4),
+                        file=here(model_location, "tier1_subjective_linear"),
+                        prior=strong_priors, 
+                        control=list(adapt_delta=.99),
+                        backend="cmdstanr"
+                        )
+
+tier1_subjective_linear2<- brm(sub_rep ~ z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
+                          z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
+                          (z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
+                          z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials | academic_year),
+                       # family="cumulative", # runs on 1-5 data
+                        data=data_tier1 |> mutate(sub_rep=(sub_rep-1)/4),
+                        file=here(model_location, "tier1_subjective_linear2"),
+                        prior=priors, 
+                        control=list(adapt_delta=.99),
+                        backend="cmdstanr"
+                        )
+```
+
+```{r}
+tier1_subjective_beta<- brm(sub_rep ~ z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
+                          z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
+                          (z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
+                          z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials | academic_year),
+                        family="beta", # runs on 1-5 data
+                        data=data_tier1 |> mutate(sub_rep=(sub_rep-1)/4*.98+.01),
+                        file=here(model_location, "tier1_subjective_beta"),
+                        prior=strong_priors, 
+                        control=list(adapt_delta=.99),
+                        backend="cmdstanr"
+                        )
+
+```
+
+### frequentism
+
+```{r}
+
+boring_logistic <- glm(sub_rep ~ z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
+                          z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials,
+                        family=binomial, 
+                        data=data_tier1 |> mutate(sub_rep=(sub_rep-1)/4),
+                       
+                        )
+library(glmnet)
+
+predictors <- data_tier1 |> select(z_pub_year, open_data, open_mat, stanford, change_platform, 
+                          z_log_ratio_ss, is_within, single_vignette, z_log_sample, z_log_trials)
+
+yvals <- data_tier1 |> mutate(sub_rep=(sub_rep-1)/4) |> pull(sub_rep)
+lasso_linear <- cv.glmnet(predictors, yvals |> as.matrix(), 
+                        family="gaussian", alpha=1)
+
+lasso_linear2 <- glmnet(predictors, yvals, 
+                        family="gaussian", alpha=1)
+```
+
+## correlation
+
+```{r}
+library("lattice")
+dat <- data_tier1 |> mutate(is.cog=ifelse(subfield=="cognitive", 1,0),
+                            is.soc=ifelse(subfield=="social", 1,0),
+                            is.other=ifelse(subfield=="other-psych", 1,0),
+                            is.non=ifelse(subfield=="non-psych",1,0)) |> 
+  select(is.cog, is.soc, is.other, is.non, z_pub_year, open_data, open_mat, stanford, change_platform, 
+                          z_log_ratio_ss, is_within, single_vignette, z_log_sample, z_log_trials) 
+
+corr_mat <- round(cor(dat),2) 
+
+# Install and load reshape2 package
+library(reshape2)
+
+ 
+# reduce the size of correlation matrix
+melted_corr_mat <- melt(corr_mat)
+# head(melted_corr_mat)
+ 
+# plotting the correlation heatmap
+library(ggplot2)
+ggplot(data = melted_corr_mat, aes(x=Var1, y=Var2,
+                                   fill=value)) + scale_fill_viridis()+
+geom_tile(alpha=.7)+theme(axis.text.x = element_text(angle = 40, vjust = 1, hjust=1))+geom_text(aes(label=value), size=3)
+
+corr_mat |> as_tibble(rownames="value2") |> pivot_longer(cols=!value2, names_to="value1", values_to = "corr") |> arrange(corr) |> filter(value2 <value1) |> View()
+
+corr_mat |> as_tibble(rownames="value2") |> pivot_longer(cols=!value2, names_to="value1", values_to = "corr") |> arrange(desc(corr)) |> filter(value2 <value1)
+
+```
+
+## Tier 2 and 3
 ```{r, eval=F}
 tier2_predint <- brm(pred_int ~ z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
                           z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
