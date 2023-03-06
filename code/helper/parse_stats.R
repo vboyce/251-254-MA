@@ -74,8 +74,7 @@ parse_raw_prop <- function(propval){
 }
 #parse_raw_prop(ex)
 
-
-parse_mean_ci <- function(mci,within_between,n){
+parse_mean_ci2 <- function(mci,within_between,n){
   # parsing 
   cond1=str_extract(mci, "m1.*\\],")
   cond2=str_extract(mci, "m2.*\\]")
@@ -101,7 +100,7 @@ parse_mean_ci <- function(mci,within_between,n){
 }
 
 
-parse_mean_sd <- function(msd,within_between,n){
+parse_mean_sd2 <- function(msd,within_between,n){
   cond1=str_extract(msd, "m1.*\\),")
   cond2=str_extract(msd, "m2.*\\)")
   m1=str_extract(cond1, "m1=.*\\(") |> str_sub(4,-2) |> as.numeric()
@@ -117,6 +116,36 @@ parse_mean_sd <- function(msd,within_between,n){
   pval=pt(q=tval, df=df, lower.tail=FALSE)*2
   return(data.frame("df_1"=df,"df_2"=NA,"tstat"=tval, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=NA, "ES"=m1-m2, "SE"=se_pool))
 }
+#foo <- "MSD4:m1=3.26(1.91),m2=5.40(1.59),m3=3.67(2.00),m4=4.67(2.06)"
+
+parse_mean_sd4 <- function(msd,within_between,n){
+  cond1=str_extract(msd, "m1.*\\),m2")
+  cond2=str_extract(msd, "m2.*\\),m3")
+  cond3=str_extract(msd, "m3.*\\),")
+  cond4=str_extract(msd, "m4.*\\)")
+  
+  m1=str_extract(cond1, "m1=.*\\(") |> str_sub(4,-2) |> as.numeric()
+  m2=str_extract(cond2, "m2=.*\\(") |> str_sub(4,-2) |> as.numeric()
+  m3=str_extract(cond3, "m3=.*\\(") |> str_sub(4,-2) |> as.numeric()
+  m4=str_extract(cond4, "m4=.*\\(") |> str_sub(4,-2) |> as.numeric()
+  
+  sd1=str_extract(cond1, "\\(.*\\),") |> str_sub(2,-3) |> as.numeric()
+  sd2=str_extract(cond2, "\\(.*\\)") |> str_sub(2,-3) |> as.numeric()
+  sd3=str_extract(cond3, "\\(.*\\)") |> str_sub(2,-3) |> as.numeric()
+  sd4=str_extract(cond4, "\\(.*\\)") |> str_sub(2,-2) |> as.numeric()
+  
+  #diff in diff
+  m_diff=m1-m2-m3+m4
+  sd_pool=sqrt((sd1**2+sd2**2+sd3**2+sd4**2)/2)
+  se_pool=sd_pool/sqrt(n-1)
+  d_calc=abs(m_diff/sd_pool) # note we force all positive and then fix later 
+  tval=(m_diff)/se_pool |> abs()
+  df=ifelse(within_between=="within", n-1, n-2)
+  pval=pt(q=tval, df=df, lower.tail=FALSE)*2
+  return(data.frame("df_1"=df,"df_2"=NA,"tstat"=tval, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=NA, "ES"=m_diff, "SE"=se_pool))
+}
+
+#parse_mean_sd4(foo, "between", 10)
 
 
 parse_mean_se <- function(mse,within_between,n){
@@ -183,8 +212,9 @@ do_parsing=function(raw_stat, within_between,n){
   if (str_sub(raw_stat,1,1)=="F"){return(parse_f(raw_stat, within_between))}
   if (str_sub(raw_stat,1,4)=="prop"){return(parse_prop(raw_stat))}
   if (str_sub(raw_stat,1,7)=="rawprop"){return(parse_raw_prop(raw_stat))}
-  if (str_sub(raw_stat, 1,3)=="MCI"){return(parse_mean_ci(raw_stat, within_between,n))}
-  if (str_sub(raw_stat, 1,3)=="MSD"){return(parse_mean_sd(raw_stat, within_between,n))}
+  if (str_sub(raw_stat, 1,4)=="MCI2"){return(parse_mean_ci2(raw_stat, within_between,n))}
+  if (str_sub(raw_stat, 1,4)=="MSD2"){return(parse_mean_sd2(raw_stat, within_between,n))}
+  if (str_sub(raw_stat, 1,4)=="MSD4"){return(parse_mean_sd4(raw_stat, within_between,n))}#for diff in diff
   if (str_sub(raw_stat, 1,3)=="MSE"){return(parse_mean_se(raw_stat, within_between,n))}
   if (str_sub(raw_stat, 1,8)=="wilcoxon"){return(parse_wilcoxon(raw_stat))}
   if (str_sub(raw_stat, 1,3)=="bse"){return(parse_beta_se(raw_stat))}
