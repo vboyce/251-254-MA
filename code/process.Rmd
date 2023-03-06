@@ -540,7 +540,7 @@ gather_draws(`b_[a-zA-Z_(): ]+`, regex=TRUE) |> mutate(Term=str_sub(.variable, 3
   stat_pointinterval(color="#440154")+labs(y="", x="Estimate, 66%, 95% CrI")+theme(axis.text=element_text(size=11))
 ```
 
-```{r, eval=F}
+```{r, eval=T}
 tier3_porig <- brm(p_orig ~ z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
                      z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
                      z_target_d_calc + z_log_p+ 
@@ -561,10 +561,10 @@ gather_draws(`b_[a-zA-Z_(): ]+`, regex=TRUE) |> mutate(Term=str_sub(.variable, 3
   ggplot(aes(y = reorder(Term, Estimate, mean), x = Estimate)) + geom_vline(xintercept=0)+
   stat_pointinterval(color="#440154")+labs(y="", x="Estimate, 66%, 95% CrI")+theme(axis.text=element_text(size=11))
 ```
- 
+
 ## Sensitivity analysis TODO
 
-# Random exploratory analyses
+# Exploratory working
 
 ## correlation
 
@@ -598,77 +598,42 @@ ggplot(data = melted_corr_mat, aes(x=Var1, y=Var2,
 
 ```
 
+including tier 3 predictors
 
-## other bayesian models
+```{r}
+dat <- data_tier3 |> mutate(is.cog=ifelse(subfield=="cognitive", 1,0),
+                            is.soc=ifelse(subfield=="social", 1,0),
+                            is.other=ifelse(subfield=="other-psych", 1,0),
+                            is.non=ifelse(subfield=="non-psych",1,0)) |> 
+  select(is.cog, is.soc, is.other, is.non,stanford, z_pub_year, open_data, open_mat,  change_platform, 
+         z_log_ratio_ss, z_log_sample, single_vignette, z_log_trials, is_within, z_log_p, z_target_d_calc) 
 
-```{r, eval=F}
+corr_mat <- round(cor(dat),2) 
 
-strong_priors <- c(set_prior("horseshoe(3, par_ratio=.33)", class="b"),
-                   set_prior("normal(0,.5)", class="sd"),
-                   set_prior("lkj(1)", class="cor"))
+# Install and load reshape2 package
 
-tier1_subjective_strong_prior <- brm(sub_rep ~ z_pub_year +
-                                       subfield + open_data +  
-                                       open_mat + stanford + change_platform + 
-                                       z_log_ratio_ss + is_within + 
-                                       single_vignette + z_log_sample + 
-                                       z_log_trials + 
-                                       (z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
-                                          z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials | academic_year),
-                                     family="cumulative", # runs on 1-5 data
-                                     data=data_tier1,
-                                     file=here(model_location, "tier1_subjective_prior"),
-                                     prior=strong_priors, 
-                                     control=list(adapt_delta=.99),
-                                     backend="cmdstanr"
-)
-```
 
-```{r, eval=F}
+# reduce the size of correlation matrix
+melted_corr_mat <-melt(corr_mat)
+# head(melted_corr_mat)
 
-# bad linear
+# plotting the correlation heatmap
+ggplot(data = melted_corr_mat, aes(x=Var1, y=Var2,
+                                   fill=value)) + #scale_fill_viridis()+
+  scale_fill_gradient2(low="#440154",high="#FDE725FF")+
+  geom_tile(alpha=.7)+theme(axis.text.x = element_text(angle = 40, vjust = 1, hjust=1))+geom_text(aes(label=value), size=3)+
+  labs(x="", y="", fill="Correlation")
 
-tier1_subjective_linear<- brm(sub_rep ~ z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
-                                z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
-                                (z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
-                                   z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials | academic_year),
-                              # family="cumulative", # runs on 1-5 data
-                              data=data_tier1 |> mutate(sub_rep=(sub_rep-1)/4),
-                              file=here(model_location, "tier1_subjective_linear"),
-                              prior=strong_priors, 
-                              control=list(adapt_delta=.99),
-                              backend="cmdstanr"
-)
+#corr_mat |> as_tibble(rownames="value2") |> pivot_longer(cols=!value2, names_to="value1", values_to = "corr") |> arrange(corr) |> filter(value2 <value1) |> View()
 
-tier1_subjective_linear2<- brm(sub_rep ~ z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
-                                 z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
-                                 (z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
-                                    z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials | academic_year),
-                               # family="cumulative", # runs on 1-5 data
-                               data=data_tier1 |> mutate(sub_rep=(sub_rep-1)/4),
-                               file=here(model_location, "tier1_subjective_linear2"),
-                               prior=priors, 
-                               control=list(adapt_delta=.99),
-                               backend="cmdstanr"
-)
-```
-
-```{r, eval=F}
-tier1_subjective_beta<- brm(sub_rep ~ z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
-                              z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
-                              (z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
-                                 z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials | academic_year),
-                            family="beta", # runs on 1-5 data
-                            data=data_tier1 |> mutate(sub_rep=(sub_rep-1)/4*.98+.01),
-                            file=here(model_location, "tier1_subjective_beta"),
-                            prior=strong_priors, 
-                            control=list(adapt_delta=.99),
-                            backend="cmdstanr"
-)
+#corr_mat |> as_tibble(rownames="value2") |> pivot_longer(cols=!value2, names_to="value1", values_to = "corr") |> arrange(desc(corr)) |> filter(value2 <value1)
 
 ```
 
-## frequentism
+
+
+
+## Frequentist Lassoes
 
 ```{r}
 
@@ -680,10 +645,10 @@ boring_logistic <- glm(sub_rep ~ z_pub_year + subfield + open_data +  open_mat +
 )
 ```
 
-regularized
+regularized tier 1 sub
 ```{r}
-predictors <- data_tier1 |> mutate(social=ifelse(subfield=="social", 1,0),other=ifelse(subfield=="other-psych",1,0), non=ifelse(subfield=="non-psych", 1,0)) |> 
-  select(z_pub_year, open_data, open_mat, stanford, change_platform, social, other, non, 
+predictors <- data_tier1 |> mutate(social=ifelse(subfield=="social", 1,0),other_psych=ifelse(subfield=="other-psych",1,0), non_psych=ifelse(subfield=="non-psych", 1,0)) |> 
+  select(z_pub_year, open_data, open_mat, stanford, change_platform, social, other_psych, non_psych, 
                                    z_log_ratio_ss, is_within, single_vignette, z_log_sample, z_log_trials) |> as.matrix()
 
 yvals <- data_tier1 |> mutate(sub_rep=(sub_rep-1)/4) |> pull(sub_rep)
@@ -695,20 +660,20 @@ lasso_linear2 <- glmnet(predictors, yvals,
 
 ```{r}
 
-to_plot <- lasso_linear2$beta |> as.matrix() |> as.tibble(rownames="var") |> pivot_longer(`s0`:`s71`) |> mutate(time=str_sub(name, 2,-1) |> as.numeric())
+to_plot <- lasso_linear2$beta |> as.matrix() |> as.tibble(rownames="var") |> pivot_longer(!var) |> mutate(time=str_sub(name, 2,-1) |> as.numeric())
 
 
-ggplot(to_plot, aes(x=time, y=value, color=var, label=var))+geom_line()+geom_label_repel(data=to_plot |> filter(time==70), min.segment.length = 100, nudge_x = 10, na.rm = TRUE)+ theme(legend.position="none")+ scale_color_tableau("Classic 20")+
-  coord_cartesian(xlim=c(0,80), ylim=c(-.2, .3))+theme(axis.text.x=element_blank(), axis.title.x=element_blank(), axis.ticks.x=element_blank())
+ggplot(to_plot, aes(x=time, y=value, color=var, label=var))+geom_line()+geom_label_repel(data=to_plot |> filter(time==70), min.segment.length = 100, nudge_x = 15, na.rm = TRUE)+ theme(legend.position="none")+ scale_color_tableau("Classic 20")+
+  coord_cartesian(xlim=c(0,90), ylim=c(-.2, .3))+theme(axis.text.x=element_blank(), axis.title.x=element_blank(), axis.ticks.x=element_blank())
 
 ```
 
 regularized p_orig
 
 ```{r}
-dat <- data_tier2 |> filter(!is.na(p_orig)) |>  mutate(social=ifelse(subfield=="social", 1,0),other=ifelse(subfield=="other-psych",1,0), non=ifelse(subfield=="non-psych", 1,0))
-predictors <- dat |> select(z_pub_year, open_data, open_mat, #stanford, 
-                            change_platform, social, non, other,
+dat <- data_tier2 |> filter(!is.na(p_orig)) |>  mutate(social=ifelse(subfield=="social", 1,0),other_psych=ifelse(subfield=="other-psych",1,0), non_psych=ifelse(subfield=="non-psych", 1,0))
+predictors <- dat |> select(z_pub_year, open_data, open_mat, stanford, 
+                            change_platform, social, non_psych, other_psych,
                                    z_log_ratio_ss, is_within, single_vignette, z_log_sample, z_log_trials) |> as.matrix()
 
 yvals <- dat|> pull(p_orig)
@@ -724,23 +689,71 @@ lasso_linear_predint <- glmnet(predictors, yvals,
 ```
 
 ```{r}
-to_plot <- lasso_linear_porig$beta |> as.matrix() |> as.tibble(rownames="var") |> pivot_longer(`s0`:`s72`) |> mutate(time=str_sub(name, 2,-1) |> as.numeric())
+to_plot <- lasso_linear_porig$beta |> as.matrix() |> as.tibble(rownames="var") |> pivot_longer(!var) |> mutate(time=str_sub(name, 2,-1) |> as.numeric())
 
 
-ggplot(to_plot, aes(x=time, y=value, color=var, label=var))+geom_line()+geom_label_repel(data=to_plot |> filter(time==70), min.segment.length = 100, nudge_x = 10, na.rm = TRUE)+ theme(legend.position="none")+ scale_color_tableau("Classic 20")+
-  coord_cartesian(xlim=c(0,80), ylim=c(-.2, .3))+theme(axis.text.x=element_blank(), axis.title.x=element_blank(), axis.ticks.x=element_blank())
+ggplot(to_plot, aes(x=time, y=value, color=var, label=var))+geom_line()+geom_label_repel(data=to_plot |> filter(time==70), min.segment.length = 100, nudge_x = 15, na.rm = TRUE)+ theme(legend.position="none")+ scale_color_tableau("Classic 20")+
+  coord_cartesian(xlim=c(0,90), ylim=c(-.2, .3))+theme(axis.text.x=element_blank(), axis.title.x=element_blank(), axis.ticks.x=element_blank())
 ```
 
 ```{r}
-to_plot <- lasso_linear_predint$beta |> as.matrix() |> as.tibble(rownames="var") |> pivot_longer(`s0`:`s58`) |> mutate(time=str_sub(name, 2,-1) |> as.numeric())
+to_plot <- lasso_linear_predint$beta |> as.matrix() |> as.tibble(rownames="var") |> pivot_longer(!var) |> mutate(time=str_sub(name, 2,-1) |> as.numeric())
 
 
-ggplot(to_plot, aes(x=time, y=value, color=var, label=var))+geom_line()+geom_label_repel(data=to_plot |> filter(time==55), min.segment.length = 100, nudge_x = 10, na.rm = TRUE)+ theme(legend.position="none")+ scale_color_tableau("Classic 20")+
-  coord_cartesian(xlim=c(0,70))+theme(axis.text.x=element_blank(), axis.title.x=element_blank(), axis.ticks.x=element_blank())
+ggplot(to_plot, aes(x=time, y=value, color=var, label=var))+geom_line()+geom_label_repel(data=to_plot |> filter(time==55), min.segment.length = 100, nudge_x = 15, na.rm = TRUE)+ theme(legend.position="none")+ scale_color_tableau("Classic 20")+
+  coord_cartesian(xlim=c(0,80))+theme(axis.text.x=element_blank(), axis.title.x=element_blank(), axis.ticks.x=element_blank())
 
 ```
 
+Tier 3
 
+```{r}
+dat <- data_tier3 |> filter(!is.na(p_orig)) |>  mutate(social=ifelse(subfield=="social", 1,0),other_psych=ifelse(subfield=="other-psych",1,0), non_psych=ifelse(subfield=="non-psych", 1,0))
+predictors <- dat |> select(z_pub_year, open_data, open_mat, stanford, 
+                            change_platform, social, non_psych, other_psych,
+                                   z_log_ratio_ss, is_within, single_vignette, z_log_sample, z_log_trials, z_target_d_calc, z_log_p) |> as.matrix()
+
+yvals <- dat |> pull(sub_rep)
+lasso_3sub <- glmnet(predictors, yvals, 
+                        family="gaussian", alpha=1)
+yvals <- dat|> pull(p_orig)
+
+
+lasso_3porig <- glmnet(predictors, yvals, 
+                        family="gaussian", alpha=1)
+
+yvals <- dat |> pull(predInt)
+
+lasso_3predint <- glmnet(predictors, yvals, 
+                        family="binomial", alpha=1)
+```
+
+```{r}
+to_plot <- lasso_3sub$beta |> as.matrix() |> as.tibble(rownames="var") |> pivot_longer(!var) |> mutate(time=str_sub(name, 2,-1) |> as.numeric())
+
+
+ggplot(to_plot, aes(x=time, y=value, color=var, label=var))+geom_line()+geom_label_repel(data=to_plot |> filter(time==69), min.segment.length = 100, nudge_x = 15, na.rm = TRUE)+ theme(legend.position="none")+ scale_color_tableau("Classic 20")+
+  coord_cartesian(xlim=c(0,90))+theme(axis.text.x=element_blank(), axis.title.x=element_blank(), axis.ticks.x=element_blank())
+
+```
+
+```{r}
+to_plot <- lasso_3predint$beta |> as.matrix() |> as.tibble(rownames="var") |> pivot_longer(!var) |> mutate(time=str_sub(name, 2,-1) |> as.numeric())
+
+
+ggplot(to_plot, aes(x=time, y=value, color=var, label=var))+geom_line()+geom_label_repel(data=to_plot |> filter(time==60), min.segment.length = 100, nudge_x = 15, na.rm = TRUE)+ theme(legend.position="none")+ scale_color_tableau("Classic 20")+
+  coord_cartesian(xlim=c(0,90))+theme(axis.text.x=element_blank(), axis.title.x=element_blank(), axis.ticks.x=element_blank())
+
+```
+
+```{r}
+to_plot <- lasso_3porig$beta |> as.matrix() |> as.tibble(rownames="var") |> pivot_longer(!var) |> mutate(time=str_sub(name, 2,-1) |> as.numeric())
+
+
+ggplot(to_plot, aes(x=time, y=value, color=var, label=var))+geom_line()+geom_label_repel(data=to_plot |> filter(time==71), min.segment.length = 100, nudge_x = 15, na.rm = TRUE)+ theme(legend.position="none")+ scale_color_tableau("Classic 20")+
+  coord_cartesian(xlim=c(0,90))+theme(axis.text.x=element_blank(), axis.title.x=element_blank(), axis.ticks.x=element_blank())
+
+```
 
 ## Correlations
 
@@ -764,97 +777,6 @@ cors <- tibble(preds = preds) |>
 knitr::kable(cors, digits = 3)
 ```
 
-## Principal components
-
-Principal components are not very interpretable. 
-
-```{r}
-pcs <- select(data_tier1, 
-              z_pub_year, open_data,  open_mat, stanford, change_platform, 
-              z_log_ratio_ss, is_within, single_vignette, z_log_sample, z_log_trials) |>
-  princomp()
-
-summary(pcs)
-pcs$loadings
-plot(pcs)
-biplot(pcs)
-```
-
-## Model exploration
-
-```{r}
-mod <- lm(sub_rep ~ z_pub_year + subfield + open_data + open_mat + 
-            stanford + change_platform + 
-            z_log_ratio_ss + is_within + 
-            single_vignette + z_log_sample + z_log_trials,
-          data = data_tier1 )
-summary(mod)
-```
-
-Repeating regularized
-
-```{r}
-predictors <- data_tier1 |> 
-  select(z_pub_year, open_data, open_mat, stanford, change_platform, 
-         z_log_ratio_ss, is_within, single_vignette, z_log_sample, z_log_trials) |>
-  as.data.frame() |>
-  as.matrix()
-
-lasso_linear <- cv.glmnet(predictors, data_tier1$sub_rep, 
-                          family="gaussian", alpha=1)
-
-coef(lasso_linear, s = "lambda.min")
-coef(lasso_linear, s = "lambda.1se")
-```
-
-## Bayesian tinkering
-
-Let's try super strong priors, consolidating a few very highly correlated variables. 
-
-```{r, eval=F}
-normal_priors <- c(set_prior("horseshoe(3)", class="b"),
-                   set_prior("normal(0,.5)", class="sd"))
-
-brm(sub_rep ~ z_pub_year + subfield + open_data + open_mat + stanford + change_platform + z_log_ratio_ss + is_within + single_vignette + z_log_sample +  z_log_trials + 
-      (1 | academic_year),
-    # family = "linear", # runs on 1-5 data
-    data = data_tier1,
-    prior = normal_priors, 
-    iter = 10000, warmup = 2000,
-    control = list(adapt_delta=.99),
-    backend = "cmdstanr")
-```
-
-And let's see if it's the link
-
-
-```{r, eval=F}
-normal_priors <- c(set_prior("horseshoe(3)", class="b"),
-                   set_prior("normal(0,.5)", class="sd"))
-
-# make it in the .005 - .995 range
-data_tier1$sub_rep01 <- ((data_tier1$sub_rep-1)/5) * .99 + .005
-
-
-brm(sub_rep01 ~ z_pub_year + subfield + open_data + open_mat + stanford + change_platform + z_log_ratio_ss + is_within + single_vignette + z_log_sample +  z_log_trials + 
-      (1 | academic_year),
-    family = "beta", # runs on 1-5 data
-    data = data_tier1,
-    prior = normal_priors, 
-    iter = 10000, warmup = 2000,
-    control = list(adapt_delta=.99),
-    backend = "cmdstanr")
-```
-
-## Models of clusters of predictors
-
-```{r}
-mod <- lm(sub_rep ~ 
-            is_within + 
-            single_vignette +  z_log_trials,
-          data = data_tier1 )
-summary(mod)
-```
 
 
 ## Individual predictor - outcome correlations
@@ -965,6 +887,171 @@ ggplot(dat, aes(x=log_sample, y=p_orig, color=p_orig))+geom_point()+geom_smooth(
 ggplot(dat, aes(x=log_trials, y=p_orig, color=p_orig))+geom_point()+geom_smooth(method="lm")+scale_color_viridis()
 
 ```
+# Exploratory even randomer
+
+## Model exploration
+
+```{r}
+mod <- lm(sub_rep ~ z_pub_year + subfield + open_data + open_mat + 
+            stanford + change_platform + 
+            z_log_ratio_ss + is_within + 
+            single_vignette + z_log_sample + z_log_trials,
+          data = data_tier1 )
+summary(mod)
+```
+
+Repeating regularized
+
+```{r}
+predictors <- data_tier1 |> 
+  select(z_pub_year, open_data, open_mat, stanford, change_platform, 
+         z_log_ratio_ss, is_within, single_vignette, z_log_sample, z_log_trials) |>
+  as.data.frame() |>
+  as.matrix()
+
+lasso_linear <- cv.glmnet(predictors, data_tier1$sub_rep, 
+                          family="gaussian", alpha=1)
+
+coef(lasso_linear, s = "lambda.min")
+coef(lasso_linear, s = "lambda.1se")
+```
+
+## Principal components
+
+Principal components are not very interpretable. 
+
+```{r}
+pcs <- select(data_tier1, 
+              z_pub_year, open_data,  open_mat, stanford, change_platform, 
+              z_log_ratio_ss, is_within, single_vignette, z_log_sample, z_log_trials) |>
+  princomp()
+
+summary(pcs)
+pcs$loadings
+plot(pcs)
+biplot(pcs)
+```
+
+## Bayesian tinkering
+
+Let's try super strong priors, consolidating a few very highly correlated variables. 
+
+```{r, eval=F}
+normal_priors <- c(set_prior("horseshoe(3)", class="b"),
+                   set_prior("normal(0,.5)", class="sd"))
+
+brm(sub_rep ~ z_pub_year + subfield + open_data + open_mat + stanford + change_platform + z_log_ratio_ss + is_within + single_vignette + z_log_sample +  z_log_trials + 
+      (1 | academic_year),
+    # family = "linear", # runs on 1-5 data
+    data = data_tier1,
+    prior = normal_priors, 
+    iter = 10000, warmup = 2000,
+    control = list(adapt_delta=.99),
+    backend = "cmdstanr")
+```
+
+And let's see if it's the link
+
+
+```{r, eval=F}
+normal_priors <- c(set_prior("horseshoe(3)", class="b"),
+                   set_prior("normal(0,.5)", class="sd"))
+
+# make it in the .005 - .995 range
+data_tier1$sub_rep01 <- ((data_tier1$sub_rep-1)/5) * .99 + .005
+
+
+brm(sub_rep01 ~ z_pub_year + subfield + open_data + open_mat + stanford + change_platform + z_log_ratio_ss + is_within + single_vignette + z_log_sample +  z_log_trials + 
+      (1 | academic_year),
+    family = "beta", # runs on 1-5 data
+    data = data_tier1,
+    prior = normal_priors, 
+    iter = 10000, warmup = 2000,
+    control = list(adapt_delta=.99),
+    backend = "cmdstanr")
+```
+
+
+
+## Models of clusters of predictors
+
+```{r}
+mod <- lm(sub_rep ~ 
+            is_within + 
+            single_vignette +  z_log_trials,
+          data = data_tier1 )
+summary(mod)
+```
+
+
+## other bayesian models
+
+```{r, eval=F}
+
+strong_priors <- c(set_prior("horseshoe(3, par_ratio=.33)", class="b"),
+                   set_prior("normal(0,.5)", class="sd"),
+                   set_prior("lkj(1)", class="cor"))
+
+tier1_subjective_strong_prior <- brm(sub_rep ~ z_pub_year +
+                                       subfield + open_data +  
+                                       open_mat + stanford + change_platform + 
+                                       z_log_ratio_ss + is_within + 
+                                       single_vignette + z_log_sample + 
+                                       z_log_trials + 
+                                       (z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
+                                          z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials | academic_year),
+                                     family="cumulative", # runs on 1-5 data
+                                     data=data_tier1,
+                                     file=here(model_location, "tier1_subjective_prior"),
+                                     prior=strong_priors, 
+                                     control=list(adapt_delta=.99),
+                                     backend="cmdstanr"
+)
+```
+
+```{r, eval=F}
+
+# bad linear
+
+tier1_subjective_linear<- brm(sub_rep ~ z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
+                                z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
+                                (z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
+                                   z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials | academic_year),
+                              # family="cumulative", # runs on 1-5 data
+                              data=data_tier1 |> mutate(sub_rep=(sub_rep-1)/4),
+                              file=here(model_location, "tier1_subjective_linear"),
+                              prior=strong_priors, 
+                              control=list(adapt_delta=.99),
+                              backend="cmdstanr"
+)
+
+tier1_subjective_linear2<- brm(sub_rep ~ z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
+                                 z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
+                                 (z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
+                                    z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials | academic_year),
+                               # family="cumulative", # runs on 1-5 data
+                               data=data_tier1 |> mutate(sub_rep=(sub_rep-1)/4),
+                               file=here(model_location, "tier1_subjective_linear2"),
+                               prior=priors, 
+                               control=list(adapt_delta=.99),
+                               backend="cmdstanr"
+)
+```
+
+```{r, eval=F}
+tier1_subjective_beta<- brm(sub_rep ~ z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
+                              z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
+                              (z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
+                                 z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials | academic_year),
+                            family="beta", # runs on 1-5 data
+                            data=data_tier1 |> mutate(sub_rep=(sub_rep-1)/4*.98+.01),
+                            file=here(model_location, "tier1_subjective_beta"),
+                            prior=strong_priors, 
+                            control=list(adapt_delta=.99),
+                            backend="cmdstanr"
+)
+
+```
 
 
 ## TODO predictive
@@ -990,5 +1077,5 @@ select(academic_year, sub_rep,
             
 foo <- predict(tier1_subjective, newdata=fake_data)
 
-bar <- fitted(tier1_subjective,newdata=fake_data)
+bar <- fitted(tier1_subjective, newdata=fake_data)
 ```
