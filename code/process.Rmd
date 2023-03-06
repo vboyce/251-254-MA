@@ -20,7 +20,12 @@ library(brms)
 library(rstan)
 library(googledrive)
 library(glmnet)
-
+library(tidybayes)
+library(ggstance)
+library("lattice")
+library(reshape2)
+library(ggrepel)
+library(ggthemes)
 
 rstan_options(auto_write = TRUE)
 options(mc.cores = parallel::detectCores())
@@ -189,7 +194,6 @@ d_es_predInt |>
 
 
 ```{r}
-library(ggstance)
 d_es_predInt |> ggplot(aes(x=target_ES, 
                            xmin=target_ES-target_SE*1.96,
                            xmax=target_ES+target_SE*1.96, 
@@ -423,6 +427,8 @@ data_tier3 <- z_data |>  filter(include %in% c("stats")) |>
 
 # Pre-reg'd Models
 
+Note: tier 2 and 3 models are subject to change as a few more studies might in fact have useable stats & some of the effect size extraction might be incorrect. 
+
 ```{r}
 
 priors <- c(set_prior("horseshoe(3)", class="b"),
@@ -445,7 +451,6 @@ tier1_subjective <- brm(sub_rep ~ z_pub_year + subfield + open_data +  open_mat 
 ```
 
 ```{r}
-library(tidybayes)
 tier1_subjective |> 
 gather_draws(`b_[a-zA-Z_(): ]+`, regex=TRUE) |> mutate(Term=str_sub(.variable, 3,-1) |> str_replace("M","_"), Estimate=.value) |> 
   ggplot(aes(y = reorder(Term, Estimate, mean), x = Estimate)) + geom_vline(xintercept=0)+
@@ -453,8 +458,8 @@ gather_draws(`b_[a-zA-Z_(): ]+`, regex=TRUE) |> mutate(Term=str_sub(.variable, 3
 ```
 
 
-```{r, eval=F}
-tier2_predint <- brm(pred_int ~ z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
+```{r, eval=T}
+tier2_predint <- brm(predInt ~ z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
                        z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
                        (z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
                           z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials | academic_year),
@@ -466,8 +471,15 @@ tier2_predint <- brm(pred_int ~ z_pub_year + subfield + open_data +  open_mat + 
                      backend="cmdstanr")
 ```
 
-```{r, eval=F}
-tier2_porig <- brm(porig ~ z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
+```{r}
+tier2_predint |> 
+gather_draws(`b_[a-zA-Z_(): ]+`, regex=TRUE) |> mutate(Term=str_sub(.variable, 3,-1) |> str_replace("M","_"), Estimate=.value) |> filter(Term!="Intercept") |> 
+  ggplot(aes(y = reorder(Term, Estimate, mean), x = Estimate)) + geom_vline(xintercept=0)+
+  stat_pointinterval(color="#440154")+labs(y="", x="Estimate, 66%, 95% CrI")+theme(axis.text=element_text(size=11))
+```
+
+```{r, eval=T}
+tier2_porig <- brm(p_orig ~ z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
                      z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
                      (z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
                         z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials | academic_year),
@@ -478,23 +490,36 @@ tier2_porig <- brm(porig ~ z_pub_year + subfield + open_data +  open_mat + stanf
                    backend="cmdstanr")
 ```
 
-```{r, eval=F}
+```{r}
+tier2_porig |> 
+gather_draws(`b_[a-zA-Z_(): ]+`, regex=TRUE) |> mutate(Term=str_sub(.variable, 3,-1) |> str_replace("M","_"), Estimate=.value) |> filter(Term!="Intercept") |> 
+  ggplot(aes(y = reorder(Term, Estimate, mean), x = Estimate)) + geom_vline(xintercept=0)+
+  stat_pointinterval(color="#440154")+labs(y="", x="Estimate, 66%, 95% CrI")+theme(axis.text=element_text(size=11))
+```
+```{r, eval=T}
 tier3_subjective <- brm(sub_rep ~ z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
                           z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
                           z_target_d_calc + z_log_p+ 
                           (z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
                              z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
                              z_target_d_calc + z_log_p| academic_year),
-                        family="bernoulli",
-                        data=data_tier3,
+                        family="cumulative",
+                        data=data_tier3 |> mutate(sub_rep=sub_rep*4+1),
                         file=here(model_location, "tier3_subjective"),
                         prior=priors, 
                         control=list(adapt_delta=.99),
                         backend="cmdstanr")
 ```
 
-```{r, eval=F}
-tier3_predint <- brm(predint ~ z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
+```{r}
+tier3_subjective |> 
+gather_draws(`b_[a-zA-Z_(): ]+`, regex=TRUE) |> mutate(Term=str_sub(.variable, 3,-1) |> str_replace("M","_"), Estimate=.value) |> 
+  ggplot(aes(y = reorder(Term, Estimate, mean), x = Estimate)) + geom_vline(xintercept=0)+
+  stat_pointinterval(color="#440154")+labs(y="", x="Estimate, 66%, 95% CrI")+theme(axis.text=element_text(size=11))
+```
+
+```{r, eval=T}
+tier3_predint <- brm(predInt ~ z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
                        z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
                        z_target_d_calc + z_log_p+ 
                        (z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
@@ -508,6 +533,13 @@ tier3_predint <- brm(predint ~ z_pub_year + subfield + open_data +  open_mat + s
                      backend="cmdstanr")
 ```
 
+```{r}
+tier3_predint |> 
+gather_draws(`b_[a-zA-Z_(): ]+`, regex=TRUE) |> mutate(Term=str_sub(.variable, 3,-1) |> str_replace("M","_"), Estimate=.value) |> filter(Term!="Intercept") |> 
+  ggplot(aes(y = reorder(Term, Estimate, mean), x = Estimate)) + geom_vline(xintercept=0)+
+  stat_pointinterval(color="#440154")+labs(y="", x="Estimate, 66%, 95% CrI")+theme(axis.text=element_text(size=11))
+```
+
 ```{r, eval=F}
 tier3_porig <- brm(p_orig ~ z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
                      z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
@@ -515,21 +547,28 @@ tier3_porig <- brm(p_orig ~ z_pub_year + subfield + open_data +  open_mat + stan
                      (z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
                         z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
                         z_target_d_calc + z_log_p| academic_year),
-                   family=(link="logit"),
                    data=data_tier3,
                    file=here(model_location, "tier3_porig"),
                    prior=priors, 
                    control=list(adapt_delta=.99),
-                   #backend="cmdstanr"
+                   backend="cmdstanr"
 )
 ```
+
+```{r}
+tier3_porig |> 
+gather_draws(`b_[a-zA-Z_(): ]+`, regex=TRUE) |> mutate(Term=str_sub(.variable, 3,-1) |> str_replace("M","_"), Estimate=.value) |> filter(Term!="Intercept") |> 
+  ggplot(aes(y = reorder(Term, Estimate, mean), x = Estimate)) + geom_vline(xintercept=0)+
+  stat_pointinterval(color="#440154")+labs(y="", x="Estimate, 66%, 95% CrI")+theme(axis.text=element_text(size=11))
+```
+ 
+## Sensitivity analysis TODO
 
 # Random exploratory analyses
 
 ## correlation
 
 ```{r}
-library("lattice")
 dat <- data_tier1 |> mutate(is.cog=ifelse(subfield=="cognitive", 1,0),
                             is.soc=ifelse(subfield=="social", 1,0),
                             is.other=ifelse(subfield=="other-psych", 1,0),
@@ -540,7 +579,6 @@ dat <- data_tier1 |> mutate(is.cog=ifelse(subfield=="cognitive", 1,0),
 corr_mat <- round(cor(dat),2) 
 
 # Install and load reshape2 package
-library(reshape2)
 
 
 # reduce the size of correlation matrix
@@ -548,7 +586,6 @@ melted_corr_mat <-melt(corr_mat)
 # head(melted_corr_mat)
 
 # plotting the correlation heatmap
-library(ggplot2)
 ggplot(data = melted_corr_mat, aes(x=Var1, y=Var2,
                                    fill=value)) + #scale_fill_viridis()+
   scale_fill_gradient2(low="#440154",high="#FDE725FF")+
@@ -657,8 +694,7 @@ lasso_linear2 <- glmnet(predictors, yvals,
 ```
 
 ```{r}
-library(ggrepel)
-library(ggthemes)
+
 to_plot <- lasso_linear2$beta |> as.matrix() |> as.tibble(rownames="var") |> pivot_longer(`s0`:`s71`) |> mutate(time=str_sub(name, 2,-1) |> as.numeric())
 
 
@@ -931,7 +967,7 @@ ggplot(dat, aes(x=log_trials, y=p_orig, color=p_orig))+geom_point()+geom_smooth(
 ```
 
 
-### TODO predictive
+## TODO predictive
 
 ```{r}
 # cognitive, within, foobar trials, foobar participants, etc etc 
