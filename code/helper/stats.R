@@ -23,7 +23,7 @@ d_es <-  test |>
 
 
 do_pred_int <- function(target_ES, target_SE, rep_ES, rep_SE){
-  if(!is.na(target_ES)&!is.na(rep_ES)){
+  if(!is.na(target_ES)&!is.na(rep_ES)&!is.na(target_SE)&!is.na(rep_SE)){
     return(Replicate::pred_int(target_ES, target_SE**2, rep_ES, rep_SE**2)$rep.inside)
   }
   return(NA)
