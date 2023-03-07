@@ -186,9 +186,11 @@ d_es_predInt |>
   geom_smooth(method = "lm") + 
   geom_hline(yintercept = 0, lty = 2)+
   scale_color_viridis(discrete=F, direction = 1, 
-                      name = "Subjective Replication Success")+
+                      name = "Subjective\nReplication\nSuccess\n")+
   labs(color="subrep", x="Original SMD", y="Replication SMD") + 
-  theme(legend.position = "bottom")
+  theme(legend.position = "right")
+
+ggsave(here("plots/smd.pdf"))
 
 ```
 
@@ -455,6 +457,9 @@ tier1_subjective |>
 gather_draws(`b_[a-zA-Z_(): ]+`, regex=TRUE) |> mutate(Term=str_sub(.variable, 3,-1) |> str_replace("M","_"), Estimate=.value) |> 
   ggplot(aes(y = reorder(Term, Estimate, mean), x = Estimate)) + geom_vline(xintercept=0)+
   stat_pointinterval(color="#440154")+labs(y="", x="Estimate, 66%, 95% CrI predicting subjective replication score")+theme(axis.text=element_text(size=11))
+
+ggsave(here("plots/tier1.pdf"))
+
 ```
 
 
@@ -475,7 +480,10 @@ tier2_predint <- brm(predInt ~ z_pub_year + subfield + open_data +  open_mat + s
 tier2_predint |> 
 gather_draws(`b_[a-zA-Z_(): ]+`, regex=TRUE) |> mutate(Term=str_sub(.variable, 3,-1) |> str_replace("M","_"), Estimate=.value) |> filter(Term!="Intercept") |> 
   ggplot(aes(y = reorder(Term, Estimate, mean), x = Estimate)) + geom_vline(xintercept=0)+
-  stat_pointinterval(color="#440154")+labs(y="", x="Estimate, 66%, 95% CrI predicting replication in predictive interval")+theme(axis.text=element_text(size=11))
+  stat_pointinterval(color="#440154")+labs(y="", x="Estimate, 66%, 95% CrI predicting replication in prediction interval")+theme(axis.text=element_text(size=11))
+
+ggsave(here("plots/tier2_pred.pdf"))
+
 ```
 
 ```{r, eval=T}
@@ -495,6 +503,9 @@ tier2_porig |>
 gather_draws(`b_[a-zA-Z_(): ]+`, regex=TRUE) |> mutate(Term=str_sub(.variable, 3,-1) |> str_replace("M","_"), Estimate=.value) |> filter(Term!="Intercept") |> 
   ggplot(aes(y = reorder(Term, Estimate, mean), x = Estimate)) + geom_vline(xintercept=0)+
   stat_pointinterval(color="#440154")+labs(y="", x="Estimate, 66%, 95% CrI predicting p_original")+theme(axis.text=element_text(size=11))
+
+ggsave(here("plots/porig.pdf"))
+
 ```
 ```{r, eval=T}
 tier3_subjective <- brm(sub_rep ~ z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
@@ -516,6 +527,8 @@ tier3_subjective |>
 gather_draws(`b_[a-zA-Z_(): ]+`, regex=TRUE) |> mutate(Term=str_sub(.variable, 3,-1) |> str_replace("M","_"), Estimate=.value) |> 
   ggplot(aes(y = reorder(Term, Estimate, mean), x = Estimate)) + geom_vline(xintercept=0)+
   stat_pointinterval(color="#440154")+labs(y="", x="Estimate, 66%, 95% CrI predicting subjective replication with stats predictors")+theme(axis.text=element_text(size=11))
+
+ggsave(here("plots/tier3sub.pdf"))
 ```
 
 ```{r, eval=T}
@@ -537,7 +550,10 @@ tier3_predint <- brm(predInt ~ z_pub_year + subfield + open_data +  open_mat + s
 tier3_predint |> 
 gather_draws(`b_[a-zA-Z_(): ]+`, regex=TRUE) |> mutate(Term=str_sub(.variable, 3,-1) |> str_replace("M","_"), Estimate=.value) |> filter(Term!="Intercept") |> 
   ggplot(aes(y = reorder(Term, Estimate, mean), x = Estimate)) + geom_vline(xintercept=0)+
-  stat_pointinterval(color="#440154")+labs(y="", x="Estimate, 66%, 95% CrI predicting predictive interval with stats predictors")+theme(axis.text=element_text(size=11))
+  stat_pointinterval(color="#440154")+labs(y="", x="Estimate, 66%, 95% CrI predicting prediction interval with stats predictors")+theme(axis.text=element_text(size=11))
+
+ggsave(here("plots/tier3pred.pdf"))
+
 ```
 
 ```{r, eval=T}
@@ -560,6 +576,9 @@ tier3_porig |>
 gather_draws(`b_[a-zA-Z_(): ]+`, regex=TRUE) |> mutate(Term=str_sub(.variable, 3,-1) |> str_replace("M","_"), Estimate=.value) |> filter(Term!="Intercept") |> 
   ggplot(aes(y = reorder(Term, Estimate, mean), x = Estimate)) + geom_vline(xintercept=0)+
   stat_pointinterval(color="#440154")+labs(y="", x="Estimate, 66%, 95% CrI predicting p_original with stats predictors")+theme(axis.text=element_text(size=11))
+
+ggsave(here("plots/tier3porig.pdf"))
+
 ```
 
 ## Sensitivity analysis TODO
@@ -591,6 +610,9 @@ ggplot(data = melted_corr_mat, aes(x=Var1, y=Var2,
   scale_fill_gradient2(low="#440154",high="#FDE725FF")+
   geom_tile(alpha=.7)+theme(axis.text.x = element_text(angle = 40, vjust = 1, hjust=1))+geom_text(aes(label=value), size=3)+
   labs(x="", y="", fill="Correlation")
+
+ggsave(here("plots/corr.pdf"))
+
 
 #corr_mat |> as_tibble(rownames="value2") |> pivot_longer(cols=!value2, names_to="value1", values_to = "corr") |> arrange(corr) |> filter(value2 <value1) |> View()
 
@@ -627,6 +649,7 @@ ggplot(data = melted_corr_mat, aes(x=Var1, y=Var2,
 #corr_mat |> as_tibble(rownames="value2") |> pivot_longer(cols=!value2, names_to="value1", values_to = "corr") |> arrange(corr) |> filter(value2 <value1) |> View()
 
 #corr_mat |> as_tibble(rownames="value2") |> pivot_longer(cols=!value2, names_to="value1", values_to = "corr") |> arrange(desc(corr)) |> filter(value2 <value1)
+ggsave(here("plots/corr_all.pdf"))
 
 ```
 
@@ -667,6 +690,9 @@ ggplot(to_plot, aes(x=time, y=value, color=var, label=var))+geom_line()+geom_lab
   annotate("text", x=40, y=.3,label="Predicting subjective replication", color="black", size=5, hjust=1)+scale_color_tableau("Classic 20")+
   coord_cartesian(xlim=c(0,90), ylim=c(-.2, .3))+theme(axis.text.x=element_blank(), axis.title.x=element_blank(), axis.ticks.x=element_blank(), legend.position="none")
 
+ggsave(here("plots/tier1_lasso.pdf"))
+
+
 ```
 
 regularized p_orig
@@ -697,6 +723,9 @@ ggplot(to_plot, aes(x=time, y=value, color=var, label=var))+geom_line()+geom_lab
     annotate("text", x=30, y=.15,label="Predicting p-original", color="black", size=5, hjust=1)+
 theme(legend.position="none")+ scale_color_tableau("Classic 20")+
   coord_cartesian(xlim=c(0,90))+theme(axis.text.x=element_blank(), axis.title.x=element_blank(), axis.ticks.x=element_blank(), legend.position="none")
+
+ggsave(here("plots/tier2_lasso_porig.pdf"))
+
 ```
 
 ```{r}
@@ -704,9 +733,11 @@ to_plot <- lasso_linear_predint$beta |> as.matrix() |> as.tibble(rownames="var")
 
 
 ggplot(to_plot, aes(x=time, y=value, color=var, label=var))+geom_line()+geom_label_repel(data=to_plot |> filter(time==55), min.segment.length = 100, nudge_x = 15, na.rm = TRUE)+
-      annotate("text", x=30, y=1.3,label="Predicting predictive interval", color="black", size=5, hjust=1)+ 
+      annotate("text", x=30, y=1.3,label="Predicting prediction interval", color="black", size=5, hjust=1)+ 
 theme(legend.position="none")+ scale_color_tableau("Classic 20")+
   coord_cartesian(xlim=c(0,80))+theme(axis.text.x=element_blank(), axis.title.x=element_blank(), axis.ticks.x=element_blank())
+
+ggsave(here("plots/tier2_lasso_pred.pdf"))
 
 ```
 
@@ -742,6 +773,8 @@ ggplot(to_plot, aes(x=time, y=value, color=var, label=var))+geom_line()+geom_lab
 theme(legend.position="none")+ scale_color_tableau("Classic 20")+
   coord_cartesian(xlim=c(0,90))+theme(axis.text.x=element_blank(), axis.title.x=element_blank(), axis.ticks.x=element_blank())
 
+ggsave(here("plots/tier3_lasso_sub.pdf"))
+
 ```
 
 ```{r}
@@ -749,9 +782,11 @@ to_plot <- lasso_3predint$beta |> as.matrix() |> as.tibble(rownames="var") |> pi
 
 
 ggplot(to_plot, aes(x=time, y=value, color=var, label=var))+geom_line()+geom_label_repel(data=to_plot |> filter(time==60), min.segment.length = 100, nudge_x = 15, na.rm = TRUE)+ theme(legend.position="none")+ scale_color_tableau("Classic 20")+
-      annotate("text", x=40, y=.25,label="Predicting predictive interval", color="black", size=5, hjust=1)+
+      annotate("text", x=40, y=1.5,label="Predicting prediction interval", color="black", size=5, hjust=1)+
   
   coord_cartesian(xlim=c(0,90))+theme(axis.text.x=element_blank(), axis.title.x=element_blank(), axis.ticks.x=element_blank())
+
+ggsave(here("plots/tier3_lasso_pred.pdf"))
 
 ```
 
@@ -764,6 +799,8 @@ ggplot(to_plot, aes(x=time, y=value, color=var, label=var))+geom_line()+geom_lab
 
   theme(legend.position="none")+ scale_color_tableau("Classic 20")+
   coord_cartesian(xlim=c(0,90))+theme(axis.text.x=element_blank(), axis.title.x=element_blank(), axis.ticks.x=element_blank())
+
+ggsave(here("plots/tier3_lasso_porig.pdf"))
 
 ```
 
@@ -799,30 +836,71 @@ dat <- data_tier1 |> mutate(sub_rep=((sub_rep-1)/4) |> factor(levels=c("0","0.25
 
 ggplot(dat, aes(x=sub_rep, fill=sub_rep))+geom_bar(stat="count", position="dodge")+scale_fill_viridis(discrete=T)+theme(legend.position = "none", axis.text=element_text(size=11))+labs(y="Count", x="Subjective Replication score")
 
+ggsave(here("plots/score_all.pdf"))
+
 ggplot(dat, aes(x=subfield, fill=sub_rep))+geom_bar(stat="count", position="dodge")+scale_fill_viridis(discrete=T)+theme( axis.text=element_text(size=11), axis.title.x=element_blank())
+
+ggsave(here("plots/subfield.pdf"))
+
 
 dat |> mutate(open_mat=ifelse(open_mat, "Open materials", "No open materials"), open_data=ifelse(open_data, "Open data", "No open data")) |> ggplot( aes(x=open_data |> factor(), fill=sub_rep))+geom_bar(stat="count", position="dodge")+scale_fill_viridis(discrete=T)+facet_wrap(.~open_mat)+theme(axis.title.x=element_blank())+theme( axis.text=element_text(size=11))
 
+ggsave(here("plots/openness.pdf"))
+
+
  ggplot(dat, aes(x=ifelse(stanford, "Stanford affiliation", "No Stanford affiliation"), fill=sub_rep))+geom_bar(stat="count", position="dodge")+scale_fill_viridis(discrete=T)+theme( axis.text=element_text(size=11), axis.title.x=element_blank())
 
+ ggsave(here("plots/stanford.pdf"))
+
+ 
 ggplot(dat, aes(x=ifelse(change_platform,"Switch to online","Same modality"), fill=sub_rep))+geom_bar(stat="count", position="dodge")+scale_fill_viridis(discrete=T)+theme( axis.text=element_text(size=11), axis.title.x=element_blank())
+
+ggsave(here("plots/modality.pdf"))
+
 
 ggplot(dat, aes(x=ifelse(is_within, "Within", "Between"), fill=sub_rep))+geom_bar(stat="count", position="dodge")+scale_fill_viridis(discrete=T)+theme(axis.title.x=element_blank())+theme( axis.text=element_text(size=11))
 
+ggsave(here("plots/within.pdf"))
+
 ggplot(dat, aes(x=ifelse(single_vignette, "1 vignette", "multiple vignettes"), fill=sub_rep))+geom_bar(stat="count", position="dodge")+scale_fill_viridis(discrete=T)+theme(axis.title.x=element_blank())+theme( axis.text=element_text(size=11))
+
+ggsave(here("plots/vignette.pdf"))
+
 ```
 
 ```{r}
 # using d for model to get non-z-scored version
 ggplot(d_for_model, aes(x=pub_year, y=sub_rep, color=sub_rep))+geom_jitter()+geom_smooth(method="lm")+scale_color_viridis()+theme( axis.text=element_text(size=11))
 
+ggsave(here("plots/pubyear.pdf"))
+
+
 ggplot(d_for_model, aes(x=log_ratio_ss, y=log_sample, color=sub_rep))+geom_point()+scale_color_viridis()+theme( axis.text=element_text(size=11))
+
+ggsave(here("plots/ss_v_sample.pdf"))
 
 ggplot(d_for_model, aes(x=log_ratio_ss, y=sub_rep, color=sub_rep))+geom_jitter()+geom_smooth(method="lm")+scale_color_viridis()+theme( axis.text=element_text(size=11))
 
+ggsave(here("plots/ss_ratio.pdf"))
+
+ggplot(d_for_model, aes(x=log_trials, y=log_sample, color=sub_rep))+geom_jitter()+geom_smooth(method="lm")+scale_color_viridis()+theme( axis.text=element_text(size=11))
+
+ggsave(here("plots/sample_v_trials.pdf"))
+
+ggplot(d_for_model, aes(x=log_trials+log_sample, y=sub_rep, color=sub_rep))+geom_jitter()+geom_smooth(method="lm")+scale_color_viridis()+theme( axis.text=element_text(size=11))+labs(x="Trials * Subjects (log scale)")
+
+ggsave(here("plots/trial_sample.pdf"))
+
+
 ggplot(d_for_model, aes(x=log_sample, y=sub_rep, color=sub_rep))+geom_jitter()+geom_smooth(method="lm")+scale_color_viridis()+theme( axis.text=element_text(size=11))
 
+ggsave(here("plots/log_sample.pdf"))
+
+
 ggplot(d_for_model, aes(x=log_trials, y=sub_rep, color=sub_rep))+geom_jitter()+geom_smooth(method="lm")+scale_color_viridis()+theme( axis.text=element_text(size=11))
+
+ggsave(here("plots/log_trials.pdf"))
+
 
 ```
 
