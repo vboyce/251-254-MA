@@ -74,6 +74,38 @@ parse_raw_prop <- function(propval){
 }
 #parse_raw_prop(ex)
 
+#foo = "MSD1:m1=49.9(11),comp=50"
+parse_mean_sd1 <- function(msd,within_between,n){
+  cond1=str_extract(msd, "m1.*\\),")
+  comp=str_extract(msd, "comp.*")|> str_sub(6,-1) |> as.numeric()
+  m1=str_extract(cond1, "m1=.*\\(") |> str_sub(4,-2) |> as.numeric()
+  sd1=str_extract(cond1, "\\(.*\\),") |> str_sub(2,-3) |> as.numeric()
+  #
+  se=sd1/sqrt(n-1)
+  d_calc=abs(m1-comp)/sd1 # note we force all positive and then fix later 
+  tval=(m1-comp)/se |> abs()
+  df=n-1
+  pval=pt(q=tval, df=df, lower.tail=FALSE)*2
+  return(data.frame("df_1"=df,"df_2"=NA,"tstat"=tval, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=NA, "ES"=m1-comp, "SE"=se))
+}
+
+#parse_mean_sd1(foo, "within", 5)
+
+
+parse_mean_se1 <- function(mse,within_between,n){
+  cond1=str_extract(mse, "m1.*\\),")
+  comp=str_extract(mse, "comp.*")|> str_sub(6,-1) |> as.numeric()
+  m1=str_extract(cond1, "m1=.*\\(") |> str_sub(4,-2) |> as.numeric()
+  se1=str_extract(cond1, "\\(.*\\),") |> str_sub(2,-3) |> as.numeric()
+  #
+  sd1=se1*sqrt(n-1)
+  d_calc=abs(m1-comp)/sd1 # note we force all positive and then fix later 
+  tval=(m1-comp)/se1 |> abs()
+  df=n-1
+  pval=pt(q=tval, df=df, lower.tail=FALSE)*2
+  return(data.frame("df_1"=df,"df_2"=NA,"tstat"=tval, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=NA, "ES"=m1-comp, "SE"=se1))
+}
+
 parse_mean_ci2 <- function(mci,within_between,n){
   # parsing 
   cond1=str_extract(mci, "m1.*\\],")
@@ -85,19 +117,21 @@ parse_mean_ci2 <- function(mci,within_between,n){
   high1=str_extract(cond1, ",.*\\]") |> str_sub(2,-2) |> as.numeric()
   high2=str_extract(cond2, ",.*\\]") |> str_sub(2,-2) |> as.numeric()
   # calculations 
-  se1=high1-low1/(2*1.96)
-  se2=high2-low2/(2*1.96)
+  se1=(high1-low1)/(2*1.96)
+  se2=(high2-low2)/(2*1.96)
   per_group_n=ifelse(within_between=="within",n, n/2)
   sd1=se1*sqrt(per_group_n-1) # assume equal groups
   sd2=se2*sqrt(per_group_n-1)
   sd_pool=sqrt((sd1**2+sd2**2)/2) # assume equal groups
   se_pool=sd_pool/sqrt(n-1)
-  d_calc=abs(m1-m2/sd_pool) # note we force all positive and then fix later 
+  d_calc=abs(m1-m2)/sd_pool # note we force all positive and then fix later 
   tval=(m1-m2)/se_pool |> abs()
   df=ifelse(within_between=="within", n-1, n-2)
   pval=pt(q=tval, df=df, lower.tail=FALSE)*2
   return(data.frame("df_1"=df,"df_2"=NA,"tstat"=tval, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=NA, "ES"=m1-m2, "SE"=se_pool))
 }
+
+
 
 
 parse_mean_sd2 <- function(msd,within_between,n){
@@ -110,7 +144,7 @@ parse_mean_sd2 <- function(msd,within_between,n){
   #
   sd_pool=sqrt((sd1**2+sd2**2)/2) # assume equal groups
   se_pool=sd_pool/sqrt(n-1)
-  d_calc=abs(m1-m2/sd_pool) # note we force all positive and then fix later 
+  d_calc=abs(m1-m2)/sd_pool # note we force all positive and then fix later 
   tval=(m1-m2)/se_pool |> abs()
   df=ifelse(within_between=="within", n-1, n-2)
   pval=pt(q=tval, df=df, lower.tail=FALSE)*2
@@ -136,7 +170,7 @@ parse_mean_sd4 <- function(msd,within_between,n){
   
   #diff in diff
   m_diff=m1-m2-m3+m4
-  sd_pool=sqrt((sd1**2+sd2**2+sd3**2+sd4**2)/2)
+  sd_pool=sqrt((sd1**2+sd2**2+sd3**2+sd4**2)/4)
   se_pool=sd_pool/sqrt(n-1)
   d_calc=abs(m_diff/sd_pool) # note we force all positive and then fix later 
   tval=(m_diff)/se_pool |> abs()
@@ -147,8 +181,34 @@ parse_mean_sd4 <- function(msd,within_between,n){
 
 #parse_mean_sd4(foo, "between", 10)
 
+parse_mean_se4 <- function(msd,within_between,n){
+  cond1=str_extract(msd, "m1.*\\),m2")
+  cond2=str_extract(msd, "m2.*\\),m3")
+  cond3=str_extract(msd, "m3.*\\),")
+  cond4=str_extract(msd, "m4.*\\)")
+  
+  m1=str_extract(cond1, "m1=.*\\(") |> str_sub(4,-2) |> as.numeric()
+  m2=str_extract(cond2, "m2=.*\\(") |> str_sub(4,-2) |> as.numeric()
+  m3=str_extract(cond3, "m3=.*\\(") |> str_sub(4,-2) |> as.numeric()
+  m4=str_extract(cond4, "m4=.*\\(") |> str_sub(4,-2) |> as.numeric()
+  
+  se1=str_extract(cond1, "\\(.*\\),") |> str_sub(2,-3) |> as.numeric()
+  se2=str_extract(cond2, "\\(.*\\)") |> str_sub(2,-3) |> as.numeric()
+  se3=str_extract(cond3, "\\(.*\\)") |> str_sub(2,-3) |> as.numeric()
+  se4=str_extract(cond4, "\\(.*\\)") |> str_sub(2,-2) |> as.numeric()
+  
+  #diff in diff
+  m_diff=m1-m2-m3+m4
+  se_pool=sqrt(se1**2+se2**2+se3**2+se4**2)
+  sd_pool=se_pool*sqrt(n-1)
+  d_calc=abs(m_diff/sd_pool) # note we force all positive and then fix later 
+  tval=(m_diff)/se_pool |> abs()
+  df=ifelse(within_between=="within", n-1, n-2)
+  pval=pt(q=tval, df=df, lower.tail=FALSE)*2
+  return(data.frame("df_1"=df,"df_2"=NA,"tstat"=tval, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "N_calc"=NA, "ES"=m_diff, "SE"=se_pool))
+}
 
-parse_mean_se <- function(mse,within_between,n){
+parse_mean_se2 <- function(mse,within_between,n){
   cond1=str_extract(mse, "m1.*\\),")
   cond2=str_extract(mse, "m2.*\\)")
   m1=str_extract(cond1, "m1=.*\\(") |> str_sub(4,-2) |> as.numeric()
@@ -161,7 +221,7 @@ parse_mean_se <- function(mse,within_between,n){
   sd2=se2*sqrt(per_group_n-1)
   sd_pool=sqrt((sd1**2+sd2**2)/2) # assume equal groups
   se_pool=sd_pool/sqrt(n-1)
-  d_calc=abs(m1-m2/sd_pool) # note we force all positive and then fix later 
+  d_calc=abs(m1-m2)/sd_pool # note we force all positive and then fix later 
   tval=(m1-m2)/se_pool |> abs()
   df=ifelse(within_between=="within", n-1, n-2)
   pval=pt(q=tval, df=df, lower.tail=FALSE)*2
@@ -182,7 +242,7 @@ parse_beta_ci <- function(raw_stat){
   beta=str_extract(raw_stat, "b=.*\\[") |> str_sub(3,-2) |> as.numeric()
   low=str_extract(raw_stat, "\\[.*,") |> str_sub(2,-2) |> as.numeric()
   high=str_extract(raw_stat, ",.*\\]") |> str_sub(2,-2) |> as.numeric()
-  se=high-low/(2*1.96)
+  se=(high-low)/(2*1.96)
   #zval=beta/se
   #pval=2*pnorm(zval, lower.tail=F)
   return(data.frame("df_1"=NA,"df_2"=NA,"tstat"=NA, "fstat"=NA, "p_calc"=NA, "d_calc"=NA, "N_calc"=NA, "ES"=beta, "SE"=se))
@@ -195,7 +255,7 @@ parse_dbci <- function(raw_stat){
   beta=str_extract(bci, "b=.*\\[") |> str_sub(3,-2) |> as.numeric()
   low=str_extract(bci, "\\[.*,") |> str_sub(2,-2) |> as.numeric()
   high=str_extract(bci, ",.*\\]") |> str_sub(2,-2) |> as.numeric()
-  se=high-low/(2*1.96)
+  se=(high-low)/(2*1.96)
   
   dval = str_extract(raw_stat, ".*;") |> str_sub(3,-2) |> as.numeric()
   return(data.frame("df_1"=NA,"df_2"=NA,"tstat"=NA, "fstat"=NA, "p_calc"=NA, "d_calc"=dval, "N_calc"=NA, "ES"=beta, "SE"=se))
@@ -210,13 +270,20 @@ do_parsing=function(raw_stat, within_between,n){
   if (is.na(raw_stat)) {return (do_blanks())}
   if (str_sub(raw_stat,1,1)=="t"){return(parse_t(raw_stat, within_between))}
   if (str_sub(raw_stat,1,1)=="F"){return(parse_f(raw_stat, within_between))}
+  
   if (str_sub(raw_stat,1,4)=="prop"){return(parse_prop(raw_stat))}
   if (str_sub(raw_stat,1,7)=="rawprop"){return(parse_raw_prop(raw_stat))}
+  
+  if (str_sub(raw_stat, 1,4)=="MSD1"){return(parse_mean_sd1(raw_stat, within_between,n))} #comparision with 0 or chance as specified 
+  if (str_sub(raw_stat, 1,4)=="MSE1"){return(parse_mean_se1(raw_stat, within_between,n))}
+  
   if (str_sub(raw_stat, 1,4)=="MCI2"){return(parse_mean_ci2(raw_stat, within_between,n))}
   if (str_sub(raw_stat, 1,4)=="MSD2"){return(parse_mean_sd2(raw_stat, within_between,n))}
+  if (str_sub(raw_stat, 1,4)=="MSE2"){return(parse_mean_se2(raw_stat, within_between,n))}
+  
   if (str_sub(raw_stat, 1,4)=="MSD4"){return(parse_mean_sd4(raw_stat, within_between,n))}#for diff in diff
-  if (str_sub(raw_stat, 1,3)=="MSE"){return(parse_mean_se(raw_stat, within_between,n))}
-  if (str_sub(raw_stat, 1,8)=="wilcoxon"){return(parse_wilcoxon(raw_stat))}
+  if (str_sub(raw_stat, 1,4)=="MSE4"){return(parse_mean_se4(raw_stat, within_between,n))}
+
   if (str_sub(raw_stat, 1,3)=="bse"){return(parse_beta_se(raw_stat))}
   if (str_sub(raw_stat, 1,3)=="bci"){return(parse_beta_ci(raw_stat))}
   if (str_sub(raw_stat, 1,1)=="d"){return(parse_dbci(raw_stat))}
