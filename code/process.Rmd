@@ -181,9 +181,10 @@ Working more on the visualization with subjective rep status.
 d_es_predInt |> 
   filter(target_d_calc < 5, rep_d_calc < 5) |>
   ggplot(aes(x=target_d_calc, y=rep_d_calc, color=sub_rep))+
-  geom_point() +
+ 
   geom_abline(slope=1, intercept=0, lty = 2)+
   geom_smooth(method = "lm") + 
+   geom_point(size=2.5) +
   geom_hline(yintercept = 0, lty = 2)+
   scale_color_viridis(discrete=F, direction = 1, 
                       name = "Subjective\nReplication\nSuccess\n")+
@@ -807,23 +808,28 @@ ggsave(here("plots/tier3_lasso_porig.pdf"))
 ## Correlations
 
 ```{r}
+for_cor <- data_tier1 |> mutate(social=ifelse(subfield=="social", 1,0),other_psych=ifelse(subfield=="other-psych",1,0), non_psych=ifelse(subfield=="non-psych", 1,0)) 
 sub_cor <- function(var, stat = "estimate") {
   if (stat == "estimate") {
-    cor.test(data_tier1$sub_rep, pull(data_tier1, {{var}}))$estimate
+    cor.test(for_cor$sub_rep, pull(for_cor, {{var}}))$estimate
   } else {
-    cor.test(data_tier1$sub_rep, pull(data_tier1, {{var}}))$p.value
+    cor.test(for_cor$sub_rep, pull(for_cor, {{var}}))$p.value
   }
 }
 
+
+
 preds <- c("z_pub_year", "open_data",  "open_mat", "stanford", "change_platform", 
            "z_log_ratio_ss", "is_within", "single_vignette", "z_log_sample", 
-           "z_log_trials")
+           "z_log_trials", "social", "other_psych", "non_psych")
 
 cors <- tibble(preds = preds) |>
   mutate(r = sapply(preds, function(x) sub_cor(x, stat = "estimate")),
-         p = sapply(preds, function(x) sub_cor(x, stat = "p")))
+         p = sapply(preds, function(x) sub_cor(x, stat = "p"))) |> 
+  mutate(Predictors=factor(preds, levels=c("social", "other_psych", "non_psych", "is_within", "single_vignette", "change_platform", "open_data", "open_mat", "stanford", "z_pub_year", "z_log_trials", "z_log_sample", "z_log_ratio_ss"), labels=c("Social", "Other psych", "Non psych", "Within subjects", "Single vignette", "Switch to online", "Open data", "Open materials", "Stanford", "Publication year", "Log trials", "Log original sample size", "Log rep/orig sample"))) |> arrange(Predictors) |> select(Predictors, r, p)
 
-knitr::kable(cors, digits = 3)
+library(kableExtra)
+knitr::kable(cors, digits = 3, align='rcc') |> kable_styling(full_width=F, htmltable_class = "lightable-classic-2", font_size=40) 
 ```
 
 
@@ -834,35 +840,34 @@ knitr::kable(cors, digits = 3)
 ```{r}
 dat <- data_tier1 |> mutate(sub_rep=((sub_rep-1)/4) |> factor(levels=c("0","0.25", "0.5", "0.75", "1")))
 
-ggplot(dat, aes(x=sub_rep, fill=sub_rep))+geom_bar(stat="count", position="dodge")+scale_fill_viridis(discrete=T)+theme(legend.position = "none", axis.text=element_text(size=11))+labs(y="Count", x="Subjective Replication score")
+ggplot(dat, aes(x=sub_rep, fill=sub_rep))+geom_bar(stat="count", position="dodge")+scale_fill_viridis(discrete=T)+theme(legend.position = "none", axis.text=element_text(size=14), axis.title=element_text(size=14))+labs(y="Count", x="Subjective Replication score")
 
 ggsave(here("plots/score_all.pdf"))
 
-ggplot(dat, aes(x=subfield, fill=sub_rep))+geom_bar(stat="count", position="dodge")+scale_fill_viridis(discrete=T)+theme( axis.text=element_text(size=11), axis.title.x=element_blank())
+dat |> mutate(subfield=factor(subfield, levels=c("cognitive", "social", "other-psych", "non-psych"), labels=c("Cognitive\npsychology", "Social\npsychology", "Other\npsychology", "Not\npsychology"))) |> ggplot(aes(x=subfield, fill=sub_rep))+geom_bar(stat="count", position="dodge")+scale_fill_viridis(discrete=T)+theme(axis.text=element_text(size=14), axis.title=element_text(size=14), axis.title.x=element_blank())+labs(y="Count")
 
 ggsave(here("plots/subfield.pdf"))
 
 
-dat |> mutate(open_mat=ifelse(open_mat, "Open materials", "No open materials"), open_data=ifelse(open_data, "Open data", "No open data")) |> ggplot( aes(x=open_data |> factor(), fill=sub_rep))+geom_bar(stat="count", position="dodge")+scale_fill_viridis(discrete=T)+facet_wrap(.~open_mat)+theme(axis.title.x=element_blank())+theme( axis.text=element_text(size=11))
+dat |> mutate(open_mat=ifelse(open_mat, "Open materials", "No open materials"), open_data=ifelse(open_data, "Open data", "No open data")) |> ggplot( aes(x=open_data |> factor(), fill=sub_rep))+geom_bar(stat="count", position="dodge")+scale_fill_viridis(discrete=T)+facet_wrap(.~open_mat)+theme(axis.text=element_text(size=14), axis.title=element_text(size=14), axis.title.x=element_blank(), strip.text = element_text(size=14))+labs(y="Count")
 
 ggsave(here("plots/openness.pdf"))
 
 
- ggplot(dat, aes(x=ifelse(stanford, "Stanford affiliation", "No Stanford affiliation"), fill=sub_rep))+geom_bar(stat="count", position="dodge")+scale_fill_viridis(discrete=T)+theme( axis.text=element_text(size=11), axis.title.x=element_blank())
-
- ggsave(here("plots/stanford.pdf"))
+ # ggplot(dat, aes(x=ifelse(stanford, "Stanford affiliation", "No Stanford affiliation"), fill=sub_rep))+geom_bar(stat="count", position="dodge")+scale_fill_viridis(discrete=T)+theme( axis.text=element_text(size=11), axis.title.x=element_blank())
+ # ggsave(here("plots/stanford.pdf"))
 
  
-ggplot(dat, aes(x=ifelse(change_platform,"Switch to online","Same modality"), fill=sub_rep))+geom_bar(stat="count", position="dodge")+scale_fill_viridis(discrete=T)+theme( axis.text=element_text(size=11), axis.title.x=element_blank())
+ggplot(dat, aes(x=ifelse(change_platform,"Switch to online","Same modality"), fill=sub_rep))+geom_bar(stat="count", position="dodge")+scale_fill_viridis(discrete=T)+theme(axis.text=element_text(size=14), axis.title=element_text(size=14), axis.title.x=element_blank())+labs(y="Count")
 
 ggsave(here("plots/modality.pdf"))
 
 
-ggplot(dat, aes(x=ifelse(is_within, "Within", "Between"), fill=sub_rep))+geom_bar(stat="count", position="dodge")+scale_fill_viridis(discrete=T)+theme(axis.title.x=element_blank())+theme( axis.text=element_text(size=11))
+ggplot(dat, aes(x=ifelse(is_within, "Within", "Between"), fill=sub_rep))+geom_bar(stat="count", position="dodge")+scale_fill_viridis(discrete=T)+theme(axis.text=element_text(size=14), axis.title=element_text(size=14), axis.title.x=element_blank())+labs(y="Count")
 
 ggsave(here("plots/within.pdf"))
 
-ggplot(dat, aes(x=ifelse(single_vignette, "1 vignette", "multiple vignettes"), fill=sub_rep))+geom_bar(stat="count", position="dodge")+scale_fill_viridis(discrete=T)+theme(axis.title.x=element_blank())+theme( axis.text=element_text(size=11))
+ggplot(dat, aes(x=ifelse(single_vignette, "Single vignette", "Multiple vignettes"), fill=sub_rep))+geom_bar(stat="count", position="dodge")+scale_fill_viridis(discrete=T)+theme(axis.text=element_text(size=14), axis.title=element_text(size=14), axis.title.x=element_blank())+labs(y="Count")
 
 ggsave(here("plots/vignette.pdf"))
 
@@ -909,6 +914,8 @@ Note: predInt may not be reliably calculated in some cases. Dealing with numbers
 
 ```{r}
 dat <- d_for_model |> filter(!is.na(predInt)) |>  mutate(predInt=predInt |> factor())
+
+# d_for_model |> filter(!is.na(predInt)) |>  mutate(porig.num=ifelse(p_orig>.05, 1,0))|> summarize(pred=mean(predInt), por=mean(p_orig), pornum=mean(porig.num))
 
 ggplot(dat, aes(x=predInt, fill=predInt))+geom_bar(stat="count", position="dodge")+scale_fill_viridis(discrete=T)
 
