@@ -56,6 +56,8 @@ tables: TRUE # Needed to be able to include tables
 #     footrulewidth: 0pt
 
 header-includes:
+ - \usepackage{tikz}
+ - \usetikzlibrary{positioning,chains}
  - \usepackage{setspace}\singlespacing
  - \renewcommand{\textfraction}{0.00}
  - \renewcommand{\topfraction}{1}
@@ -82,22 +84,17 @@ library("bookdown")
 library("rticles")
  library(here)
  library(tidyverse)
-library(patchwork)
  library(brms)
- library(lme4)
- library(tidybayes)
- library(mgcv)
- library(cowplot)
- library(gridExtra)
-library(broom.mixed)
-library(tidymv)
-library(mgcViz)
+library(tidybayes)
 library(kableExtra)
+library(viridis)
 #r_refs("r-references.bib", append=F)
 theme_set(theme_bw())
 options(knitr.table.format = "pdf")
 
 model_location="code/models"
+
+d <- read_csv(here("data", "processed_data.csv"))
 ```
 
 <!---------------------- Abstract --------------------->
@@ -112,13 +109,6 @@ One keyword; Yet another keyword
 :::
 
 <!------------ Main text -------------------->
-
-
-```{r, eval=F}
-f <- googledrive::as_dribble("https://docs.google.com/spreadsheets/d/1UT6KLRujn6iEQ_s01_4yNfFYqc7hAWTpB-t9mdDp0O8/edit#gid=0")
-googledrive::drive_download(f, path=here("data","raw_data.xlsx"), overwrite=T)
-
-```
 
 # TODO list
 - need to do supplement with the stuff we preregistered (sensitivity analysis, all models)
@@ -156,9 +146,167 @@ Studies vary along a number of dimensions, including statistical properties, sub
 
 # results
 
+
+```{=latex}
+\definecolor{bad}{HTML}{FFCCCB}
+		\definecolor{meh}{HTML}{efefef}
+			\definecolor{good}{HTML}{abcdff}
+	\tikzset{
+		mynode/.style={
+			draw, rectangle, align=center, text width=4.5cm, scale=1, font=\small, inner sep=.5ex},
+		arrow/.style={
+		 very thick,->,>=stealth}
+	}
+	
+\begin{figure}[ht]
+	
+	\begin{tikzpicture}[
+		node distance=.8cm,
+		start chain=1 going below,
+		every join/.style=arrow,
+		]
+		\coordinate[on chain=1] (tc);
+		\node[mynode, on chain=1, fill=meh] (n2)
+		{\textbf{210} projects from 2011-2022};
+		\node[mynode, join, on chain=1, fill=meh] (n3)
+		{\textbf{189} original - replication pairs};
+		\node[mynode, join, on chain=1, fill=meh] (n4)
+		{\textbf{177} experimental pairs};
+		\node[mynode, join, on chain=1, fill=good] (n5)
+		{\textbf{176} pairs included};
+		\node[mynode, join, on chain=1, fill=good] (n6)
+		{\textbf{131} pairs with ES};
+		\node[mynode, join, on chain=1, fill=good] (n7)
+		{\textbf{107} pairs with SMD};
+		
+		
+		\begin{scope}[start chain=going right]
+			\chainin (n2);
+			\node[mynode, join, on chain, fill=bad]
+			{ \textbf{2} missing projects \\ \textbf{19} reproducibility projects};
+			\chainin (n3);
+			\node[mynode, join, on chain, fill=bad]
+			{\textbf{12} non-experimental pairs};
+			\chainin (n4);
+			\node[mynode, join, on chain, fill=bad]
+			{\textbf{1} pair missing sample size};
+		\end{scope}
+	\end{tikzpicture}
+\caption{Which studies were excluded for what reasons, and how many original-replication pairs are left.}\label{fig:prisma}
+\end{figure}
+
+```
+
+
+```{r smd, out.height="25%", fig.width=5, fig.height=3, fig.pos="ht", fig.cap="TODO caption here"}
+d |> 
+  filter(target_d_calc < 5, rep_d_calc < 5) |>
+  ggplot(aes(x=target_d_calc, y=rep_d_calc, color=sub_rep))+
+ 
+  geom_abline(slope=1, intercept=0, lty = 2)+
+  geom_smooth(method = "lm") + 
+   geom_point(size=2.5) +
+  geom_hline(yintercept = 0, lty = 2)+
+  scale_color_viridis(discrete=F, direction = 1, 
+                      name = "Subjective\nReplication\nSuccess\n")+
+  labs(color="subrep", x="Original SMD", y="Replication SMD") + 
+  theme(legend.position = "right")
+
+```
+
+```{r mod-results, out.height="25%", fig.width=5, fig.height=3, fig.pos="ht", fig.cap="TODO caption here"}
+tier1_subjective <- read_rds(here(model_location, "tier1_subjective.rds"))
+tier1_subjective |> 
+gather_draws(`b_[a-zA-Z_(): ]+`, regex=TRUE) |> mutate(Term=str_sub(.variable, 3,-1) |> str_replace("M","_"), Estimate=.value) |> mutate(Term=factor(Term, levels=c("subfieldsocial", "subfieldother_psych", "subfieldnon_psych", "is_within", "single_vignette", "change_platform", "open_data", "open_mat", "stanford", "z_pub_year", "z_log_trials", "z_log_sample", "z_log_ratio_ss"), labels=c("Social", "Other psych", "Non psych", "Within subjects", "Single vignette", "Switch to online", "Open data", "Open materials", "Stanford", "Publication year", "Log trials", "Log original sample size", "Log rep/orig sample"))) |> 
+  ggplot(aes(y = reorder(Term, Estimate, mean), x = Estimate)) + geom_vline(xintercept=0)+
+  stat_pointinterval(color="#440154")+labs(y="", x="Estimate, 66%, 95% CrI predicting subjective replication score")+theme(axis.text=element_text(size=11))
+
+```
+
+```{r}
+
+for_cor <- read_csv(here("data","for_model.csv")) |> filter(include %in% c("stats", "exp", "pred_int")) |>
+  select(sub_rep, 
+         pub_year, subfield, open_data, open_mat, stanford, change_platform, log_ratio_ss, is_within, single_vignette, log_sample, log_trials) |> mutate(social=ifelse(subfield=="social", 1,0),other_psych=ifelse(subfield=="other-psych",1,0), non_psych=ifelse(subfield=="non-psych", 1,0)) 
+sub_cor <- function(var, stat = "estimate") {
+  if (stat == "estimate") {
+    cor.test(for_cor$sub_rep, pull(for_cor, {{var}}))$estimate
+  } else {
+    cor.test(for_cor$sub_rep, pull(for_cor, {{var}}))$p.value
+  }
+}
+
+
+
+preds <- c("pub_year", "open_data",  "open_mat", "stanford", "change_platform", 
+           "log_ratio_ss", "is_within", "single_vignette", "log_sample", 
+           "log_trials", "social", "other_psych", "non_psych")
+
+cors <- tibble(preds = preds) |>
+  mutate(r = sapply(preds, function(x) sub_cor(x, stat = "estimate")),
+         p = sapply(preds, function(x) sub_cor(x, stat = "p"))) |> 
+  mutate(Predictors=factor(preds, levels=c("social", "other_psych", "non_psych", "is_within", "single_vignette", "change_platform", "open_data", "open_mat", "stanford", "pub_year", "log_trials", "log_sample", "log_ratio_ss"), labels=c("Social", "Other psych", "Non psych", "Within subjects", "Single vignette", "Switch to online", "Open data", "Open materials", "Stanford", "Publication year", "Log trials", "Log original sample size", "Log rep/orig sample"))) |> arrange(r) |> select(Predictors, r, p)
+
+library(kableExtra)
+knitr::kable(cors, digits = 3, align='rcc',format="latex", position="!h", caption="TODO the correlation of individual predictors with subjective replication outcomes. For subfield, cognitive psychology is treated as the baseline condition.") |> kable_styling(full_width=F, font_size=10) 
+
+```
+
+```{r}
+dat <- read_csv(here("data","for_model.csv")) |> filter(include %in% c("stats", "exp", "pred_int")) |> mutate(sub_rep=as.factor(sub_rep))
+
+
+sub_with_leg <- dat |> mutate(subfield=factor(subfield, levels=c("cognitive", "social", "other-psych", "non-psych"), 
+                                              labels=c("Cognitive\npsychology", "Social\npsychology", "Other\npsychology", "Not\npsychology"))) |>
+  ggplot(aes(x=subfield, fill=sub_rep))+
+  geom_bar(stat="count", position="dodge")+
+  scale_fill_viridis(discrete=T)+
+  theme(axis.text=element_text(size=14), axis.title=element_text(size=14), axis.title.x=element_blank())+
+  labs(y="Count", fill="Subjective \n replication \n score")
+
+leg <- get_legend(sub_with_leg)
+
+subfield <- sub_with_leg+theme(legend.position="none")
+
+open <- dat |> mutate(openness=case_when(
+  open_mat==1& open_data==1 ~ "Open materials \n Open data",
+  open_mat==1 ~ "Open materials \n No open data",
+  open_data==1 ~ "No open materials \n Open data",
+  T ~ "No open materials \n No open data")) |> 
+  ggplot( aes(x=openness |> factor(), fill=sub_rep))+
+  geom_bar(stat="count", position="dodge")+
+  scale_fill_viridis(discrete=T)+
+  theme(axis.text=element_text(size=14), axis.title=element_text(size=14), axis.title.x=element_blank(), legend.position="none")+
+  labs(y="Count")
+
+modal <- ggplot(dat, aes(x=ifelse(change_platform,"Switch to online","Same modality"), fill=sub_rep))+
+  geom_bar(stat="count", position="dodge")+
+  scale_fill_viridis(discrete=T)+
+  theme(axis.text=element_text(size=14), axis.title=element_text(size=14), axis.title.x=element_blank(), legend.position="none")+
+  labs(y="Count")
+
+
+within <- ggplot(dat, aes(x=ifelse(is_within, "Within", "Between"), fill=sub_rep))+
+  geom_bar(stat="count", position="dodge")+
+  scale_fill_viridis(discrete=T)+
+  theme(axis.text=element_text(size=14), axis.title=element_text(size=14), axis.title.x=element_blank(), legend.position="none")+
+  labs(y="Count")
+
+
+vignette <- ggplot(dat, aes(x=ifelse(single_vignette, "Single vignette", "Multiple vignettes"), fill=sub_rep))+
+  geom_bar(stat="count", position="dodge")+
+  scale_fill_viridis(discrete=T)+
+  theme(axis.text=element_text(size=14), axis.title=element_text(size=14), axis.title.x=element_blank(), legend.position="none")+
+  labs(y="Count")
+
+top_row <- plot_grid(subfield, modal, leg, rel_widths=c(1,.5,.5), nrow=1)
+mid_row <- plot_grid(open, within, vignette, rel_widths=c(1,.5,.5), nrow=1)
+plot_grid (top_row, mid_row, nrow=2)
+```
+
 As our primary outcome measure, we use a subjective measure of replication success. At the end of the class, the instruction team coded each project on a 0-1 scale indicating whether or not it replicated. This allows for nuance around marginal effects, covers studies with a broad range of statistical outcomes (including those that do not lend themselves to NHST), and includes studies with multiple important outcome measures. For robustness, first author independently coded all projects on the same scale off of the final write-ups. Disagreements (which occured foobar % of the time) were resolved by discussion between first and third authors. 
 
-Over the years, there have been a number of student projects, of these we are able to include foobar (see PRISMA). Because of variance in the experimental designs and reporting practices, we have variable statistical information. To address this, we conducted a series of models, balancing between including as many data points as possible, and including potentially relevant outcome and predictor variables. Here we focus on one set of models, the prediction of subjective replication outcome on the basis of the whole dataset without the statistical predictors. Other model results, including those from a sensitivity analysis, are available in the supplement. 
+Over the years, there have been a number of student projects, of these we are able to include foobar (see Figure \ref{fig:prisma}). Because of variance in the experimental designs and reporting practices, we have variable statistical information. To address this, we conducted a series of models, balancing between including as many data points as possible, and including potentially relevant outcome and predictor variables. Here we focus on one set of models, the prediction of subjective replication outcome on the basis of the whole dataset without the statistical predictors. Other model results, including those from a sensitivity analysis, are available in the supplement. 
 
 # discussion
 

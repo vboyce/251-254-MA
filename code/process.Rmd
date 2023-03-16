@@ -44,13 +44,20 @@ Download
 f <- googledrive::as_dribble("https://docs.google.com/spreadsheets/d/1UT6KLRujn6iEQ_s01_4yNfFYqc7hAWTpB-t9mdDp0O8/edit#gid=0")
 googledrive::drive_download(f, path=here("data","raw_data.xlsx"), overwrite=T)
 
+raw <- readxl::read_xlsx(here("data","raw_data.xlsx"), 
+                       sheet="aligned data", skip=1) |> select(target_lastauthor_year, sensitivity, include,
+         status, status_explanation,  academic_year, journal, target_cite, article_link, study_number,  subfield, target_year, stanford_internal, 
+         open_data, open_materials, target_on_turk, replication_on_turk, 
+         within_between, single_vignette, repeated_measure,
+         target_N, target_raw_stat, effect_description, same_dir, replication_N,
+         replication_raw_stat, replicated_instructor_code, replicated_report_code,
+         adjudicated_replication_code) |> write_csv(here("data","raw_data.csv"))
 ```
 
 Read in cache.
 
 ```{r}
-d <- readxl::read_xlsx(here("data","raw_data.xlsx"), 
-                       sheet="aligned data", skip=1) |> 
+d <- read_csv(here("data", "raw_data.csv")) |> 
   select(target_lastauthor_year, sensitivity, include,
          status, academic_year, subfield, target_year, stanford_internal, 
          open_data, open_materials, target_on_turk, replication_on_turk, 
@@ -73,13 +80,10 @@ d |> filter(!status %in% c("missing", "non-experiment", "reproduction")) |> tall
 d |> group_by(include) |> tally()
 
 ```
-We have maybe as many as 177 at least for some analyses. 
-
 Descriptions: 
 
 - "done" -- fully coded, can be used for whatever is specified in other column 
-- "ES_direction" -- we don't have the direction coded 
-- "ask" -- might be salvageable, but I have questions about coding
+- "cannot tell direction" -- have stats for an effect, but can't tell which direction it is in
 - "unusable" -- got as far as I can, and it does not have complete descriptives
 - "missing" -- student didn't finish or we don't have write-up
 - "non-experiment" -- student replicated something that was not an experiment
@@ -126,7 +130,7 @@ test |> filter(is.na(rep_ES)) |> filter(!is.na(replication_raw_stat)) |> select(
 source(here("code","helper","stats.R"))
 ```
 
-Compute prediction intervals and p_orig.
+Compute prediction intervals and p_orig, write processed data to file. 
 
 ```{r}
 
@@ -150,7 +154,7 @@ d_es_predInt <- d_es |>
          p_orig = do_p_orig(target_ES, target_SE, rep_ES, rep_SE),
          sub_rep = do_subjective_rep(replicated_instructor_code, 
                                      replicated_report_code, 
-                                     adjudicated_replication_code))
+                                     adjudicated_replication_code)) |> write_csv(here("data","processed_data.csv"))
 ```
 
 # viz SMD
@@ -382,7 +386,7 @@ d_for_model <- d_es_predInt |>
          pub_year, log_p, log_sample, log_ratio_ss, change_platform, target_d_calc,
          stanford, open_data, open_mat, 
          is_within, single_vignette, log_trials, 
-         predInt, p_orig, sub_rep)
+         predInt, p_orig, sub_rep) |> write_csv(here("data","for_model.csv"))
 
 summary(d_for_model)
 
