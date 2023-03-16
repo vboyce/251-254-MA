@@ -88,6 +88,7 @@ library("rticles")
 library(tidybayes)
 library(kableExtra)
 library(viridis)
+library(cowplot)
 #r_refs("r-references.bib", append=F)
 theme_set(theme_bw())
 options(knitr.table.format = "pdf")
@@ -252,7 +253,7 @@ knitr::kable(cors, digits = 3, align='rcc',format="latex", position="!h", captio
 
 ```
 
-```{r}
+```{r predictors-graph, out.width="100%", fig.width=8, fig.height=4, fig.pos="ht", fig.cap="y-axes are counts of studies in each category, with each subjective replication score. TODO caption here"}
 dat <- read_csv(here("data","for_model.csv")) |> filter(include %in% c("stats", "exp", "pred_int")) |> mutate(sub_rep=as.factor(sub_rep))
 
 
@@ -261,8 +262,9 @@ sub_with_leg <- dat |> mutate(subfield=factor(subfield, levels=c("cognitive", "s
   ggplot(aes(x=subfield, fill=sub_rep))+
   geom_bar(stat="count", position="dodge")+
   scale_fill_viridis(discrete=T)+
-  theme(axis.text=element_text(size=14), axis.title=element_text(size=14), axis.title.x=element_blank())+
-  labs(y="Count", fill="Subjective \n replication \n score")
+    coord_cartesian(ylim=c(0,55), expand=F)+
+  theme(axis.title.x=element_blank(), axis.title.y=element_blank())+
+  labs(fill="Subjective\nreplication\nscore")
 
 leg <- get_legend(sub_with_leg)
 
@@ -276,31 +278,31 @@ open <- dat |> mutate(openness=case_when(
   ggplot( aes(x=openness |> factor(), fill=sub_rep))+
   geom_bar(stat="count", position="dodge")+
   scale_fill_viridis(discrete=T)+
-  theme(axis.text=element_text(size=14), axis.title=element_text(size=14), axis.title.x=element_blank(), legend.position="none")+
-  labs(y="Count")
+    coord_cartesian(ylim=c(0,55), expand=F)+
+  theme(axis.title.x=element_blank(), axis.title.y=element_blank(), legend.position="none")
 
-modal <- ggplot(dat, aes(x=ifelse(change_platform,"Switch to online","Same modality"), fill=sub_rep))+
+modal <- ggplot(dat, aes(x=ifelse(change_platform,"Switch to online\n","Same modality\n"), fill=sub_rep))+
   geom_bar(stat="count", position="dodge")+
   scale_fill_viridis(discrete=T)+
-  theme(axis.text=element_text(size=14), axis.title=element_text(size=14), axis.title.x=element_blank(), legend.position="none")+
-  labs(y="Count")
+    coord_cartesian(ylim=c(0,55), expand=F)+
+  theme(axis.title.y=element_blank(), axis.title.x=element_blank(), legend.position="none")
 
 
-within <- ggplot(dat, aes(x=ifelse(is_within, "Within", "Between"), fill=sub_rep))+
+within <- ggplot(dat, aes(x=ifelse(is_within, "Within \nsubjects", "Between\nsubjects"), fill=sub_rep))+
   geom_bar(stat="count", position="dodge")+
   scale_fill_viridis(discrete=T)+
-  theme(axis.text=element_text(size=14), axis.title=element_text(size=14), axis.title.x=element_blank(), legend.position="none")+
-  labs(y="Count")
+  coord_cartesian(ylim=c(0,55), expand=F)+
+  theme(axis.title.y=element_blank(), axis.title.x=element_blank(), legend.position="none")
 
 
-vignette <- ggplot(dat, aes(x=ifelse(single_vignette, "Single vignette", "Multiple vignettes"), fill=sub_rep))+
+vignette <- ggplot(dat, aes(x=ifelse(single_vignette, "Single \nvignette", "Multiple \nvignettes"), fill=sub_rep))+
   geom_bar(stat="count", position="dodge")+
   scale_fill_viridis(discrete=T)+
-  theme(axis.text=element_text(size=14), axis.title=element_text(size=14), axis.title.x=element_blank(), legend.position="none")+
-  labs(y="Count")
+    coord_cartesian(ylim=c(0,55), expand=F)+
+  theme(axis.title.y=element_blank(), axis.title.x=element_blank(), legend.position="none")
 
-top_row <- plot_grid(subfield, modal, leg, rel_widths=c(1,.5,.5), nrow=1)
-mid_row <- plot_grid(open, within, vignette, rel_widths=c(1,.5,.5), nrow=1)
+top_row <- plot_grid(subfield, within, vignette, rel_widths=c(1, .6, .6), nrow=1)
+mid_row <- plot_grid(open,  modal, leg, rel_widths=c(1.2, .6, .25), nrow=1)
 plot_grid (top_row, mid_row, nrow=2)
 ```
 
