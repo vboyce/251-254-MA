@@ -124,7 +124,11 @@ googledrive::drive_download(f, path=here("data","raw_data.xlsx"), overwrite=T)
 - need to do supplement with the stuff we preregistered (sensitivity analysis, all models)
 - somewhere need discussion of how nobody is estimating p(true), but we're just more honest about it 
 - meanings and codings of predictors (perhaps copied from pre-reg) should go in methods
-- how to introduce coding methods
+- how to introduce coding methods (outcome measures)
+- add key figs and tables (max 8)
+- many citations everywhere
+- link to open stuffs
+
 # introduction
 
 [replication: it's a hot issue and concerns around replication have done a lot, see crisis/revolution] Replication is a hot topic. Some argue that it is a cornerstone of a cumulative science, and findings of low replication rates are a problem. 
@@ -154,7 +158,116 @@ Studies vary along a number of dimensions, including statistical properties, sub
 
 As our primary outcome measure, we use a subjective measure of replication success. At the end of the class, the instruction team coded each project on a 0-1 scale indicating whether or not it replicated. This allows for nuance around marginal effects, covers studies with a broad range of statistical outcomes (including those that do not lend themselves to NHST), and includes studies with multiple important outcome measures. For robustness, first author independently coded all projects on the same scale off of the final write-ups. Disagreements (which occured foobar % of the time) were resolved by discussion between first and third authors. 
 
-Over the years, there have been a number of student projects, of these we are able to include foobar (see PRISMA). Because of variance in the experimental designs and reporting practices, we have variable statistical information. To address this, we conducted a series of models, balancing between including as many data points as possible, and including potentially relevant outcome and predictor variables. Here we focus on one set of models, the prediction of subjective replication outcome on the basis of the whole dataset without the statistical predictors. Other model results, including those from a sensitivity analysis, are avaiable in the supplement. 
+Over the years, there have been a number of student projects, of these we are able to include foobar (see PRISMA). Because of variance in the experimental designs and reporting practices, we have variable statistical information. To address this, we conducted a series of models, balancing between including as many data points as possible, and including potentially relevant outcome and predictor variables. Here we focus on one set of models, the prediction of subjective replication outcome on the basis of the whole dataset without the statistical predictors. Other model results, including those from a sensitivity analysis, are available in the supplement. 
+
+# discussion
+
+[who knows where this paragraph should go] Replications are one way of approximating whether an effect in the target paper is true, and how likely results are to replicate in some sort of platonic ideal world. There is no one answer here; replication projects measure something else that could be treated as an approximation. However, what a replication is really measuring is how likely it to get that effect given some conditions. Which the right conditions are is a potential point of contention (see discussion around closeness and sample size, power etc).  Here, we are explicit in what sample of replicators and replication conditions were are sampling, and thus what we can generalize to. We are estimating how likely replication is when done online by a graduate student, under constraints that are typical for graduate students (limited time, limited budget). As much of scientific process is in fact performed by graduate students, we think this in itself is an interesting question. It contrasts with questions like how likely something is to replicate when performed by an expert with a large budget (perhaps this is the right framing on Camerer) or when performed with extensive feedback from the original authors, etc. 
+
+We do not interpret our results as saying that all non-replications were false positives (presumably some are replicable under other circumstances and others are not). Some of the factors we look at are more easily interpreted as being about the original study than others. We do not assign causal explanation to the predictors because there are multiple plausible interpretations: they could be correlates of QRPs in the original, they could be correlates of harder-to-detect or more fragile effects, they could be correlates of less-close replications, they could even be correlates of another stronger predictor. 
+
+
+# methods
+Our pre-registration, code, and coded data is available at TODO OSF. 
+
+## outcome measures
+Our primary outcome of interest is experimenter and instructor rated replication success (0-1). We chose this outcome because A) it had been recorded for the majority of class replications at the time they were conducted, and B) it avoids some of the complex statistical issues associated with evaluating whether a replication is successful (e.g., is the p-value on the replication significant, do the confidence intervals not overlap, etc.).
+As a complement, we will also use the following statistical outcomes as additional measures of replication success. These will be evaluated on one “key” statistical test per paper (typically identified by the student at the time of replication, but occasionally selected by our team if the student reported several key tests; see below). 
+P_orig : what is the p value on the hypothesis that both results come from the same population
+PredInt: is the replication effect size within the prediction interval of the original effect size
+These measures are computed based on the replication project in Cancer Biology (RP:CB, Errington et al 2021). 
+
+## coding procedure
+In order to code the measured variables, we relied primarily on student replication reports. These were supplemented with spreadsheets for the class created at the time of the class and the original papers when student’s replications did not provide enough information or were unclear.
+
+### replication success
+The replication success was coded for many projects by the teaching staff in the year it was conducted. Replication success was independently coded by VB based on student’s replication reports -- this often but not always aligned with students’ assessments of whether the replication succeeded. Projects that were not given numeric codes by the teaching staff were coded for replication by MCF on the basis of the replication reports. Where VB’s coding disagreed with the staff/MCF’s code, the difference was resolved by discussion between VB and MCF. These were coded on a [0, .25, .5, .75, 1] scale. 
+
+### Demographic properties
+We coded the subfield of the original study as a 4 way factor: cognitive psychology, social psychology, other psychology, and non-psychology. For each paper, we coded its year of publication, whether it had open materials, whether it had open data, and whether it had been conducted using an online, crowd-sourced platform (i.e. MTurk or Prolific)
+
+### Experimental design properties
+
+Properties of the original experiment design were coded from the student’s replication reports which often included excerpts of the methods of the original. If this was insufficient, the original paper was referenced for clarification. To assess the role of repeated measures, we coded the number of trials seen per participant. We included filler trials and trials in all conditions, but excluded training or practice trials. We coded whether the manipulation in the study was instantiated in a single instance (“single vignette”). Studies with one induction or prime used per condition across participants were coded as having a single vignette. Studies with multiple instances of the manipulation (even if each participant only saw one) were coded as not being single vignette. While most studies with a signe vignette only had one trial and vice versa, there were studies with a single induction per condition, but multiple test trials, and studies with multiple scenarios instantiating the manipulation, only one scenario and 1 trial shown per participant.  
+
+We coded the number of subjects, post-exclusions. We coded whether a study had a between-subjects, within-subjects, or mixed design; for analyses mixed studies were counted as within-subjects designs. 
+
+### Properties of replication
+For the replication, we coded whether the replication was conducted on a crowd-sourced platform. Nearly all replications were, but a handful were done in person. For models, we coded whether the recruitment platfrom was changed between original and replication. This groups the few inperson replications in with the studies that were originally online and stayed online in a "no change" condition, in contrast with the studies that were originally in-person with online replications. 
+
+We coded the replication sample size (after exclusions). In our models, this was transformed to the log ratio of replication to original sample size. 
+
+As a control variable, we included whether the original authors were faculty at Stanford at the time of the replication. This is to account for potential non-independence of the replication (ex. if replicating an advisor's work, students may have access to extra information about methods). 
+
+We made note of studies that should be excluded from some of the sensitivity analyses, due to not quite aligned statistics, extremely small or unbalanced sample sizes, or key effects that were not key in the original. 
+
+### Determination and coding of key statistical measure
+For each paper, we used one “key measure of interest” for which we calculated the predictor variables of p-value and effect size and the statistical outcome measures p_orig and predInt. 
+If the student specified a key measure of interest and this was a measure that was reported in both the original paper and replication, we used that measure. When the student specified a single key measure, we used that; if a student specified multiple, equally important key measures, we used the first one. When students were not explicit about a key measure, we used other parts of their report (including introduction and power analysis) to determine what effect and therefore what result they considered key. In a few cases, we went back to the original paper to find what effect was considered the crucial one by the original authors. In a few cases, the measures reported by the student did not cleanly match their explicit or implicitly stated key measure; in these cases we picked the most important (or first) of the measures that were reported in both the original and replication. These decisions can be somewhat subjective but importantly they were made without reference to replication outcomes.
+
+Whenever possible, we used per-condition means and standard deviations, or the test statistic of the key measure and its corresponding degrees of freedom (ex. T test, F test). We took the original statistic from the replication report if it quoted the relevant analysis or from the original paper if not. We took the replication statistics from the replication report. 
+
+We then calculated p values, ES, p_orig, and predInt. In cases where the test statistic was not sufficiently reported, but p-values and/or effect sizes were, we will use the reported p-value and or effect size. 
+
+We choose to recalculate p values and effect sizes from the means or test statistic rather than use reported measures when possible because we think this approach is more reliable: The test statistic is more likely to have been outputted programmatically and copied directly into the text. In contrast, p-values are often reported as <.001 rather than as a point value, and effect size derivations may be error prone. By recording test statistics and using our available code to calculate other measures, we are transparent, as the test statistics are more likely to be unique and thus easy to search for in the papers, and all processing is documented in code. 
+
+In some cases, p-values and or effect sizes were not calculable either due to insufficient reporting (ex. reporting a p-value but no other statistics from a test) or key measures where p-values and effect sizes did not apply (ex. PCA as measure of interest). In some other cases, both original and replication reported beta estimates for a coefficient along with the beta’s standard error or confidence interval. In these cases, we did not have the information to calculate standardized effect sizes, but we used the beta values to calculate p_orig and predInt. 
+
+The direction of the effect of the replication was always coded consistently with the original study’s coding, so a positive effect was in the same direction as the original and a negative effect in the opposite direction. We separately coded whether the two effects were in the same direction, off of raw means or graphs. This is more reliable because F-tests don't include the direction of effect and also some students may have flipped the direction in coding for betas or t-tests. 
+
+
+
+## modelling 
+
+Due to the monotonic missingness of the data (see missingness discussion above), we have more predictor variables and outcome variables for some original-replication pairs than others. To take full advantage of the data, we will run a series of models, with some models having fewer predictors, but more data, and others having more predictors, but more limited data. 
+
+In brief, these models are:
+
+On all data:
+Subjective replication score ~ demographic & experimental predictors
+On subset of data with p_orig and pred_int:
+P_orig ~ demographic & experimental predictors
+In_pred_int ~ demographic & experimental predictors
+On subset of data with standardized effect size: 
+Subjective replication score ~ demographic & experimental & statistical predictors
+P_orig ~ demographic & experimental & statistical predictors
+In_pred_int ~ demographic & experimental & statistical predictors
+
+
+Modelling approach 
+
+The subjective replication scores were coded on [0, .25, .5, .75, 1], we will remap these to 1-5 and run an ordinal regression predicting replicate score. We will run logistic regressions predicting in_pred_int and linear regressions predicting P_orig. 
+
+All models will use a horseshoe prior in brms. All models will include random slopes for predictors nested within years of the class (year) to control for variation between cohorts of students. We do not include any interaction terms in the models. All numeric predictor variables will be z-scored after other transforms (e.g., logs) to ensure comparable regularization effects from the horseshoe prior. 
+
+Predictors:
+General Demographics
+Publication year 
+Field (coded as a 4-way factor: cognitive v social v other-psych v not-psych)
+Replication Closeness
+Open data (binary variable)
+Open materials (binary variable)
+Stanford affiliation of original study (binary variable)
+Change in platform as a binary scale (when both original and replication were on turk/prolific, or more rarely both were off turk/prolific are no-change; when original was off-turk/prolific but replication was on-turk/prolific are change)
+Ratio of Replication sample size to original sample size: log (replication / original ) 
+
+“Experimental” predictors
+Predictors
+Between versus within will be analyzed as a binary variable - for mixed designs, we will code these as within-participants if one component of the key analysis is within-participants. Our rationale is that there is some increase in precision of estimates based on having multiple observations per participant.
+Single vignette is a binary variable
+Number of trials per participant (coded on log scale)
+Original sample size (coded on log scale)
+
+“Statistical” Predictors
+Predictors
+Original p-value (coded on log scale)
+Original effect size (coded on normal scale)
+
+Sensitivity Analysis
+As a secondary sensitivity analysis, we will examine the subset of the data where the statistical tests have the same specification, the result is of primary importance in the original paper (i.e. not a manipulation check), and there were no big issues with the replication. In other words, we will do an analysis where we exclude studies where something was “borderline”.  
+
+Results of more models in supplement. 
+
 
 
 # Acknowledgements {-}
