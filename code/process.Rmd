@@ -347,7 +347,15 @@ message("actual")
 d_check_nas |> filter(include %in% c("stats")) |> filter(across(everything(), ~!is.na(.))) |> nrow()
 ```
 
+# how close subrep
 
+```{r}
+
+ d_es_predInt |> filter(include %in% c("stats", "pred_int", "exp")) |> mutate(match=replicated_instructor_code==replicated_report_code) |> ungroup() |>  mutate(abs_dif=abs(replicated_instructor_code-replicated_report_code)) |> summarize(foo=mean(abs_dif))
+
+
+
+```
 
 # code vars for models
 
@@ -667,6 +675,13 @@ boring_logistic <- glm(sub_rep ~ z_pub_year + subfield + open_data +  open_mat +
                        data=data_tier1 |> mutate(sub_rep=(sub_rep-1)/4),
                        
 )
+boring_logistic$coefficients |> as.tibble(rownames="coeff") |> mutate(odds=exp(value)) |> select(-value) |> filter(coeff!="(Intercept)") |> kable()
+
+fun <- glm(sub_rep ~  open_data *  open_mat,
+                       family=binomial, 
+                       data=data_tier1 |> mutate(sub_rep=(sub_rep-1)/4),
+                       
+)
 ```
 
 regularized tier 1 sub
@@ -688,8 +703,9 @@ to_plot <- lasso_linear2$beta |> as.matrix() |> as.tibble(rownames="var") |> piv
 
 
 ggplot(to_plot, aes(x=time, y=value, color=var, label=var))+geom_line()+geom_label_repel(data=to_plot |> filter(time==70), min.segment.length = 100, nudge_x = 15, na.rm = TRUE)+
-  annotate("text", x=40, y=.3,label="Predicting subjective replication", color="black", size=5, hjust=1)+scale_color_tableau("Classic 20")+
-  coord_cartesian(xlim=c(0,90), ylim=c(-.2, .3))+theme(axis.text.x=element_blank(), axis.title.x=element_blank(), axis.ticks.x=element_blank(), legend.position="none")
+  scale_color_tableau("Classic 20")+
+  labs(y="Coefficient", x="more regularized <-       Degree of regularization       -> less regularized        \nfew predictors <-                                                    -> many predictors   \n worse fit to data <-                                                    -> better fit to data        ")+
+  coord_cartesian(xlim=c(0,90), ylim=c(-.2, .3))+theme(axis.text.x=element_blank(), axis.title=element_text(size=14), axis.ticks.x=element_blank(), legend.position="none")
 
 ggsave(here("plots/tier1_lasso.pdf"))
 

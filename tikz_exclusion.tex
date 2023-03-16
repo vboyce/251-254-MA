@@ -1,0 +1,65 @@
+\documentclass[tikz,border=16pt]{standalone}
+\usetikzlibrary{positioning,chains}
+
+\begin{document}
+	
+	\definecolor{bad}{HTML}{FFCCCB}
+		\definecolor{meh}{HTML}{efefef}
+			\definecolor{good}{HTML}{abcdff}
+	\tikzset{
+		mynode/.style={
+			draw, rectangle, align=center, text width=4.5cm, scale=2, font=\small, inner sep=.5ex},
+		arrow/.style={
+		 very thick,->,>=stealth}
+	}
+	
+	\begin{tikzpicture}[
+		node distance=.8cm,
+		start chain=1 going below,
+		every join/.style=arrow,
+		]
+		% the chain in the center going below
+		\coordinate[on chain=1] (tc);
+		\node[mynode, on chain=1, fill=meh] (n2)
+		{\textbf{210} projects from 2011-2022};
+		\node[mynode, join, on chain=1, fill=meh] (n3)
+		{\textbf{189} original - replication pairs};
+		\node[mynode, join, on chain=1, fill=meh] (n4)
+		{\textbf{177} experimental pairs};
+		\node[mynode, join, on chain=1, fill=good] (n5)
+		{\textbf{176} pairs included};
+		\node[mynode, join, on chain=1, fill=good] (n6)
+		{\textbf{131} pairs with ES};
+		\node[mynode, join, on chain=1, fill=good] (n7)
+		{\textbf{107} pairs with SMD};
+		
+		
+		% the branches to the right
+		\begin{scope}[start chain=going right]
+			\chainin (n2);
+			\node[mynode, join, on chain, fill=bad]
+			{ \textbf{2} missing projects \\ \textbf{19} reproducibility projects};
+			\chainin (n3);
+			\node[mynode, join, on chain, fill=bad]
+			{\textbf{12} non-experimental pairs};
+			\chainin (n4);
+			\node[mynode, join, on chain, fill=bad]
+			{\textbf{1} pair missing methods detail};
+		\end{scope}
+
+YY student projects from 2011-2022",
+%"EXCLUDE_PHASE: ZZ missing, YY reproducibility excluded",
+%" # studies left",
+%"EXCLUDE_PHASE: YY studies non-experimental",
+%" # studies coded",
+%"EXCLUDE_PHASE: 1 study excluded for incomplete experimental info",
+%"# studies included in subjective regression",
+%"EXCLUDE_PHASE: # studies had insuffient stat reporting",
+%"# studies included in P_orig and pred_int",
+%" could not calculate SMD for # studies",
+%"# studies included in regressions with statistical"
+%		
+		
+		% the title
+	\end{tikzpicture}
+\end{document}
