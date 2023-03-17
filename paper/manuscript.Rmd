@@ -95,7 +95,7 @@ options(knitr.table.format = "pdf")
 
 model_location="code/models"
 
-d <- read_csv(here("data", "processed_data.csv"))
+d <- read_csv(here("data", "processed_data.csv")) |> filter(status!="unusable")
 ```
 
 <!---------------------- Abstract --------------------->
@@ -120,6 +120,7 @@ One keyword; Yet another keyword
 - long list of things to gesture at in intro
 - link to open stuffs
 - ** verify code for ES ** with someone
+- note that 4ish of these papers were previously reported in RP:P
 
 # Citation slush pile
 
@@ -128,63 +129,35 @@ prediction with humans @dreber2015; @forsell2019
 
 econ also has replications and issues @camerer2016
 
-RPP has been reanalysed and complained about a lot @etz2016;@gilbert2016;@patil2016
+moving goal posts around replication / interpreting results @nosek2020
 
-moving goal posts around replication / interpreting results @nosek2020 (also this is worth reading!)
+some sort of modeling of replications @pawel2020 
 
-some sort of modeling of replications @pawel2020 (worth reading!)
-
-note to self: got to S in going through the cites of the review paper
 # introduction
 
-[replication: it's a hot issue and concerns around replication have done a lot, see crisis/revolution] Replication is a hot topic. Some argue that it is a cornerstone of a cumulative science, and findings of low replication rates are a problem. Concerns about replication rates have become a large point of discussion in psychology and other fields. 
+[replication: it's a hot issue and concerns around replication have done a lot, see crisis/revolution] Concerns around the practices of science. Replication is a hot topic. Some argue that it is a cornerstone of a cumulative science, and findings of low replication rates are a problem. Concerns about replication rates have become a large point of discussion in psychology and other fields, with large scale replications spurring these discussions and providing the empirical data analyzed by all sides. 
 
 [ there's ... not a lot of empirics]To quantify and understand this problem, we need empirical data about replication attempts. However, due to the arduous nature of collecting samples of replications, there have not been many large-scale replication efforts, so all of the argumentation around predictors of replications and field-wide replication rates is fit to a small number of data points. 
 
 Many replications of individual effects have been performed, but these are less useful as pattern analysis because the varied sampling and reporting, and the fact they aren't all in one place. Also pub bias. 
 
-We are aware of three large-scale replication efforts replicating experimental results in the existing psychology literature. RP:P sampled roughly 100 studies from top psychology journals in 2008 [@openscienceconsortium2015]. They found an overall replication rate around 40%, which provided evidence to support growing concerns about the non-reliability of the literature. [idk, maybe worth framing that this was a big deal study when it came out]. TODO some discussion of how many papers have reanalysed this cutting the data different ways. 
+We are aware of three large-scale replication efforts replicating experimental results in the existing psychology literature. RP:P sampled roughly 100 studies from top psychology journals in 2008 [@openscienceconsortium2015]. They found an overall replication rate around 40%, which provided evidence to support growing concerns about the non-reliability of the literature. The RP:P dataset was itself much discussed and reanalyzed [@etz2016;@gilbert2016;@patil2016] [idk, maybe worth framing that this was a big deal study when it came out]. TODO some discussion of how many papers have reanalysed this cutting the data different ways. 
 
 The ManyLabs series of studies have also done large-scale replications of effects from psychology. Due to their primary goal of investigating different forms of hetereogeneity, their sampling has been non-representive, focusing on short studies with only two conditions. Across Many labs 1-3 foo bar replicated [@klein2014; @klein2018; @ebersole2016]. Many labs 5 was a re-replication attempt on 10 of RP:P and rescued 2/10 [@ebersole2020]. TODO look up details
 
 @camerer2018 replicated the 21 behaviors studies published in Nature and Science from 2010-2015 that did not require special populations or special equipment. They found a roughly 60% replication rate. 
 
-In addition to determining estimated overall replicaiton rates for fields and journals, there's also merit in knowing what features of experiments (and replication attempts) are predictive of replication success. Blah blah stakeholders and resources. There's some signal here, as people are able to predict replication success at above chance CITATIONS @hoogeveen2019. RP:P looked at how replication rates varied across subsamples of their studies. They found that cognitive psychology studies replicated at higher, but still low rates (50% v 25%) compared to social psychology. They also found that larger effect sizes and smaller p-values of original studies were predictive of replicating. TODO do we talk about any other correlates. There are reasons to believe that experimental factors such as number of items or between and within subject designs may also be predictive (cite our old paper), and could pontentially be some of the reason for subfield differences. 
+In addition to determining estimated overall replicaiton rates for fields and journals, there's also merit in knowing what features of experiments (and replication attempts) are predictive of replication success. Blah blah stakeholders and resources. There's some signal here, as people are able to predict replication success at above chance CITATIONS [@hoogeveen2019;@dreber2015; @forsell2019;@camerer2018]
 
-[could possibly frame with a bit of some=MCF have advocated teaching replication cite whatever, describe class, then thing? @frank2012; @hawkins]
-Here we introduce a new dataset of replications in the behavioral sciences, primarily psychology. Over the years 2011-2022, students in a graduate-level experimental methods class have conducted online replications as individual course projects. From this, we have 176 experimental replications that were codeable. This approximately doubles the set of experiments in the large-scale replication literature. We investigate predictors of replicability in this new dataset. 
+RP:P looked at how replication rates varied across subsamples of their studies [@openscienceconsortium2015]. They found that cognitive psychology studies replicated at higher, but still low rates (50% v 25%) compared to social psychology. They also found that larger effect sizes and smaller p-values of original studies were predictive of replicating. TODO do we talk about any other correlates. 
 
-## quick methods
-[some of this should actually just go in methods methods] Class, taught by last author, is an experimental methods class aimed at first-year graduate students, but taken by ... Since around 2015, it has been required for incoming PhD students in the Psychology Department. Over the course of a quarter long class, students work through their individual replication projects, from choosing a study, to reimplementing it, to creating analysis code, piloting the study, pre-registering it, and finally running a full data collection and writing up their results. Students are free to choose studies related to their interests, although recent articles from Psychological Science are the recommended path under uncertainty (leading to a high proportion of Psych science articles in this replication sample). While the sampling procedure is non-random, it is generally representative of studies that are of interest to and doable by first year grad students. 
+There are reasons to believe that experimental factors such as number of items or between and within subject designs may also be predictive (cite our old paper), and could pontentially be some of the reason for subfield differences. TODO maybe foreshadow that there are reasons to believe there are correlations!
 
-Studies vary along a number of dimensions, including statistical properties, subfield, and experimental properties. We leverage this naturally occurring variation to see if these properties predict replication success. 
+While many replications of individual studies are conducted, these may have been selected for non-representative reasons, such as a high prior on replicating (e.g. as a demonstration), or a low or uncertain prior (e.g. for a high-value study). When sampling is likely related to replicability, the studies are less good for estimating base rates and predictors of replicability in the literature as a whole. 
 
-# Results
+Prior literature, such as @frank2012 and @hawkins have advocated using research methods classes to conduct replications, both for the education and scientific value. 
 
-[again unclear the intro/ methods/results split]
-Over the years, there have been a number of student projects, of these we are able to include 176 (see Figure \ref{fig:prisma} for exclusions). Because of variance in the experimental designs and reporting practices, we have variable statistical information. To address this, we conducted a series of models, balancing between including as many data points as possible, and including potentially relevant outcome and predictor variables. Here we focus on one set of models, the prediction of subjective replication outcome on the basis of the whole dataset without the statistical predictors. Other model results, including those from a sensitivity analysis, are available in the supplement.
-
-As our primary outcome measure, we use a subjective measure of replication success. At the end of the class, the instruction team coded each project on a 0-1 scale indicating whether or not it replicated. This allows for nuance around marginal effects, covers studies with a broad range of statistical outcomes (including those that do not lend themselves to NHST), and includes studies with multiple important outcome measures. For robustness, first author independently coded all projects on the same scale off of the final write-ups. Disagreements (which occured foobar % of the time) were resolved by discussion between first and third authors. 
-
-As secondary outcomes, we also calculated prediction intervals following @errington2021 on the key measure of interest from each study. Because of variable statistics and reporting, this was calculable on FOOBAR studies. 
-
-## Overall replication rate 
-
-Across the 176 studies, the overall replication rate was 49% TODO derive in code. FOOBAR % of the studies had replication outcomes within the prediction interval of the original outcome. The average p_original value (median?) was TODO. 
-
-For the FOOBAR studies with SMD, we see cite FIGURE. 
-
-## Single predictors
-We drew a set of predictor variables from the correlational results of RP:P and our own intuitions about experimental factors that might impact replication success as well as some co-variates related to how close the replication would be. Many of these predictors individually correlate with subjective replication success (Figure \ref{tab:cor}. In particular, within-subjects designs, higher numbers of trials, and open data were predictive of replication. Single vignetted studies, social psychology studies, and original-replication pairs where the replication switched to online were less likely to replicate. Distributions of study outcomes across some of these properties are shown in Figure TODO. 
-
-Both social and cognitive psychology studies were well represented, and the cognitive psychology studies replicated at a FOOBAR higher rate. Within and between subjects designs were both common, and within replicated at YY more. Similarly, studies with multiple vignettes replicated FOOBAR more. However, there are strong correlations between these experimental features and between experimental features and subfield. 
-
-TODO say somthing about openness 
-
-The study sample is split between studies that kept the same modality as the original (generally meaning that the original study used an online crowd-sourced sample) and those that switched. While TODO cite online studies are respectable, this does decrease the closeness of the replication, and some studies done in person may not have been well adapted (ex. inductions may be weaker or attention checks inadequate to the new sample). 
-
-## Regression model
-We were interested in determining what the strongest predictors were, which ones are most meaningful, so we threw it all into a big ol regularlized regression model. Despite this, wide uncertainty due to parameterization and stuff. The coefficients see Figure 3 ... TODO 
+Here we introduce a new dataset of 176 replications of experimental studies from the social sciences, primarily psychology. These replications were conducted by students in graduate-level experimental methods class between 2011 and 2022 as individual course projects. This approximately doubles the set of experiments in the large-scale replication literature. We investigate predictors of replicability in this new dataset. 
 
 ```{=latex}
 \definecolor{bad}{HTML}{FFCCCB}
@@ -237,6 +210,16 @@ We were interested in determining what the strongest predictors were, which ones
 ```
 
 
+# Results
+
+PSYCH 251 is Stanford Psychology's graduate-level experimental methods class taught by MCF.  Over the course of 10 weeks, students choose a published finding to replicate, re-implement the study, write analysis code, pre-register their study, collect data using an online platform, and write up a structured replication report. Students are free to choose studies related to their research interests, with the default recommendation being an article from a recent year of Psychological Science. While this choice results in a non-random sampling of studies, the sample is representative of studies that are of interest to and doable by first year graduate students. 
+
+The sample of replicated studies reflects the variability of the literature, including studies from different subfields, using different experimental methods and statistical outcomes. We leverage the naturally occuraing variability in this sample of replications to examine how different demographic, experimental design, and statistical properties predict replication success. 
+
+We used a subjective rating of replication success as our primary outcome measure. The instruction team had coded a holistic measure of replication success for each project when they were turned in at the end of the course. For reliability, we had a separate rater (VB) independently code the replication success from the replication reports; discrepancies were resolved by discussion between MCF and VB. We focussed on this measure because it was applicable across the range of statistical measures and reporting practices and accommodated studies where there were multiple important outcome measures. 
+
+As a complement, we also used two statistical measure of replication on the subset of the data where they were computable (NUMBER, see Figure \ref{fig:prisma}). We measured p-original, the p-value on the null hypothesis that the original and replication statistics are from the same distribution, as a continuous variable, and we also determined whether the replication statistic fell within the prediction interval of the original statistic [@errington2021]. 
+
 ```{r smd, out.height="25%", fig.width=6, fig.height=3, fig.pos="ht", fig.cap="Relationship between SMD of the original study, SMD of the replication study, and subjective replication success rating, for those studies where SMD was applicable."}
 d |> 
   filter(target_d_calc < 5, rep_d_calc < 5) |>
@@ -253,14 +236,15 @@ d |>
 
 ```
 
-```{r mod-results, out.height="25%", fig.width=8, fig.height=3, fig.pos="ht", fig.cap="Coefficient estimates and uncertainty from a model predicting subjective replication scores from the full dataset."}
-tier1_subjective <- read_rds(here(model_location, "tier1_subjective.rds"))
-tier1_subjective |> 
-gather_draws(`b_[a-zA-Z_(): ]+`, regex=TRUE) |> mutate(Term=str_sub(.variable, 3,-1) |> str_replace("M","_"), Estimate=.value) |> mutate(Term=factor(Term, levels=c("subfieldsocial", "subfieldother_psych", "subfieldnon_psych", "is_within", "single_vignette", "change_platform", "open_data", "open_mat", "stanford", "z_pub_year", "z_log_trials", "z_log_sample", "z_log_ratio_ss"), labels=c("Social", "Other psych", "Non psych", "Within subjects", "Single vignette", "Switch to online", "Open data", "Open materials", "Stanford", "Publication year", "Log trials", "Log original sample size", "Log rep/orig sample"))) |> 
-  ggplot(aes(y = reorder(Term, Estimate, mean), x = Estimate)) + geom_vline(xintercept=0)+
-  stat_pointinterval(color="#440154")+labs(y="", x="Estimate, 66%, 95% CrI predicting subjective replication score")+theme(axis.text=element_text(size=11))
+## Overall replication rate 
 
+```{r}
+sub_rep_rate <- d |> summarize(m=mean(sub_rep)*100)
+
+pred_int_rate <- d |> filter(!is.na(predInt)) |> summarize(m=mean(as.numeric(predInt))*100)
+porig_rate <- d |> filter(!is.na(p_orig)) |> summarize(m=median(p_orig)*100)
 ```
+Across the 176 studies, the overall subjective replication rate was `r round(pluck(sub_rep_rate,1))`%. `r round(pluck(pred_int_rate,1))`% of the studies had replication outcomes within the prediction interval of the original outcome. The median p_original value was `r round(pluck(porig_rate, 1))`%. Figure \ref{fig:smd} shows the relationship between original SMD, replication SMD, and subjective replication score. Roughly speaking, there's a cluster of studies that replicate with similar effect sizes to the original and another cluster that fail to replicate with replication effect sizes near zero. On average, there is a diminution of effect sizes from original to replication. 
 
 ```{r cor}
 
@@ -290,6 +274,18 @@ library(kableExtra)
 knitr::kable(cors, digits = 3, align='rcc',format="latex", position="!h", caption="The correlation of individual predictors with subjective replication outcomes. For subfield, cognitive psychology is treated as the baseline condition.") |> kable_styling(full_width=F, font_size=10) 
 
 ```
+
+## Single predictors
+Properties of both the original study and the replication can influence whether or not the replication is a success. We chose a set of predictor variables from the correlational results of RP:P and our own intuitions about experimental factors that might impact replication success as well as some covariates related to how close the replication would be. A full description of these features is given in methods. 
+
+Many of these predictors individually correlate with subjective replication success (Table \ref{tab:cor}). Predictors of higher replicability included within-subjects designs, higher numbers of trials, and open data. Predictors of lower replicability included Single vignetted studies, social psychology studies, and original-replication pairs where the replication switched to online. 
+
+Distributions of study outcomes across some of these properties are shown in Figure \ref{fig:predictors-graph}. Both social and cognitive psychology studies were well represented, and the cognitive psychology studies replicated at twice the rate of social psychology studies. Within and between subjects designs were both common, and within replicated four times as much. Similarly, studies with multiple vignettes replicated 1.5 times more than single vignetted studies. However, there were strong correlations among these experimental features and between these experimental features and subfield. 
+
+Studies with open data, which almost always also had open materials, tended to replicate more than studies without open data, although this may be linked to temporal trends. 
+
+Nearly all replications studies were conducted online, but original studies were split between using in-person and online recruitment. Replications that switched to online were less likely to replicate than those that had the same modality as the original (generally both online, in a few cases both in-person).  While online studies in general show comparable results to studies conducted in person TODO CITATIONS, switching the modality does decrease the closeness of the replication, and some studies done in person may not have been well adapted (ex. inductions may be weaker or attention checks inadequate to the new sample). 
+
 
 ```{r predictors-graph, out.width="100%", fig.width=8, fig.height=4, fig.pos="ht", fig.cap="Distribution of subjective replication scores within categories. Bar heights are counts of studies."}
 dat <- read_csv(here("data","for_model.csv")) |> filter(include %in% c("stats", "exp", "pred_int")) |> mutate(sub_rep=as.factor(sub_rep))
@@ -345,8 +341,23 @@ plot_grid (top_row, mid_row, nrow=2)
 ```
 
  
+## Regression model
+While a number of the predictors show individual correlations with the subjective replication score, many of the predictors are also correlated with one another. In order to determine which predictors were the strongest, we ran a pre-registered regularized regression model (see Methods for details). The coefficient estimates are shown in Figure \ref{fig:mod-results}. Due to a large number of predictors coupled with a small and noisy dataset, even with strong regularization, there is much uncertainty around the coefficients. The general directions of coefficients are consistent with the effects of the predictors in isolation. Within-subjects designs seem an especially strong indicator of replicability TODO include estimate and range in text!
+
+```{r mod-results, out.height="25%", fig.width=8, fig.height=3, fig.pos="ht", fig.cap="Coefficient estimates and uncertainty from a model predicting subjective replication scores from the full dataset."}
+tier1_subjective <- read_rds(here(model_location, "tier1_subjective.rds"))
+tier1_subjective |> 
+gather_draws(`b_[a-zA-Z_(): ]+`, regex=TRUE) |> mutate(Term=str_sub(.variable, 3,-1) |> str_replace("M","_"), Estimate=.value) |> mutate(Term=factor(Term, levels=c("subfieldsocial", "subfieldother_psych", "subfieldnon_psych", "is_within", "single_vignette", "change_platform", "open_data", "open_mat", "stanford", "z_pub_year", "z_log_trials", "z_log_sample", "z_log_ratio_ss"), labels=c("Social", "Other psych", "Non psych", "Within subjects", "Single vignette", "Switch to online", "Open data", "Open materials", "Stanford", "Publication year", "Log trials", "Log original sample size", "Log rep/orig sample"))) |> 
+  ggplot(aes(y = reorder(Term, Estimate, mean), x = Estimate)) + geom_vline(xintercept=0)+
+  stat_pointinterval(color="#440154")+labs(y="", x="Estimate, 66%, 95% CrI predicting subjective replication score")+theme(axis.text=element_text(size=11))
+
+```
+
+Results from other models can be found in the supplement. TODO make this a true statement 
 
 # discussion
+
+blah blah we did a thing and it generally aligns with prior results. Overall replication rate is consistent with prior work, and we find cog greater than soc. However, by looking at a greater range of pr
 
 [who knows where this paragraph should go] Replications are one way of approximating whether an effect in the target paper is true, and how likely results are to replicate in some sort of platonic ideal world. There is no one answer here; replication projects measure something else that could be treated as an approximation. However, what a replication is really measuring is how likely it to get that effect given some conditions. Which the right conditions are is a potential point of contention (see discussion around closeness and sample size, power etc).  Here, we are explicit in what sample of replicators and replication conditions were are sampling, and thus what we can generalize to. We are estimating how likely replication is when done online by a graduate student, under constraints that are typical for graduate students (limited time, limited budget). As much of scientific process is in fact performed by graduate students, we think this in itself is an interesting question. It contrasts with questions like how likely something is to replicate when performed by an expert with a large budget (perhaps this is the right framing on Camerer) or when performed with extensive feedback from the original authors, etc. 
 
@@ -354,17 +365,21 @@ We do not interpret our results as saying that all non-replications were false p
 
 [ there is controversy here, but to even discuss it, we need empirics] Even those who argue that replication is not so essential still rely on data from replications to make their cases that replication rates are not as low as they seem and that these replication rates are acceptable. @lewandowsky2020
 
+circle back to the idea that student replications (either as class or before extension into their own work) would be valuable 
+
 # Methods
 Our pre-registration, code, and coded data are available at TODO OSF REPO. 
 
 ## Dataset
 The dataset of replication projects comes from class projects conducted in PSYCH 251 (earlier called PSYCH 24) a graduate-level experimental methods class taught by MCF from 2011 to 2022. Each student chose a study to replicate, implemented the study, wrote analysis code, pre-registered their replication, ran the study, and turned in a structured final report including methods, analytic plan, changes from the original study, confirmatory and exploratory analyses, and discussion of outcomes. Students were encouraged to do experimental replications, but some students chose to replicate correlational outcomes or do computational reproducibility projects instead. We cannot include the full student reports for confidentiality reasons, but we include an example as well as the template given to students in the repo. TODO example and template
 
+[some of this should actually just go in methods methods] Class, taught by last author, is an experimental methods class aimed at first-year graduate students, but taken by ... Since around 2015, it has been required for incoming PhD students in the Psychology Department.Students are free to choose studies related to their interests, although recent articles from Psychological Science are the recommended path under uncertainty (leading to a high proportion of Psych science articles in this replication sample). While the sampling procedure is non-random, it is generally representative of studies that are of interest to and doable by first year grad students. 
+
 ## Coding procedure
 We relied primarily on student reports to code the measured variables for the replications. We supplemented this with spreadsheets of information about projects from the time of the class and the original papers.
 
 ### Measures of replication success
-Our primary replication outcome is experimenter and instructor rated replication success (0-1). The subjective replication success was recorded by the teaching staff for the majority of class replications at the time they were conducted. Where the values were missing they were filled in by MCF on the basis of the reports. For all studies, replication success was independently coded by VB on the basis of the reports. Where VB’s coding disagreed with the staff/MCF’s code, the difference was resolved by discussion between VB and MCF. These were coded on a [0, .25, .5, .75, 1] scale. 
+Our primary replication outcome is experimenter and instructor rated replication success (0-1). The subjective replication success was recorded by the teaching staff for the majority of class replications at the time they were conducted. Where the values were missing they were filled in by MCF on the basis of the reports. For all studies, replication success was independently coded by VB on the basis of the reports. Where VB’s coding disagreed with the staff/MCF’s code, the difference was resolved by discussion between VB and MCF. These were coded on a [0, .25, .5, .75, 1] scale. TODO rate of coding discrepancy 
 
 This subjective replication outcome was chosen because it already existed, could be applied to all projects (regardless of type and detail of statistical reporting), and did not rely solely on one statistical measure. As a complement, we also identified a "key" statistical test for each paper (see below for details), and if possible, computed p_original and prediction interval at this statistic, following @errington2021. p_original was a continuous measure of the p-value on the hypothesis that the original and replication samples come from the same distribution. Prediction interval was a binary measure of whether the replication outcome fell within the prediction interval of the original outcome measure. 
 
