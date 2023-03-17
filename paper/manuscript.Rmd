@@ -121,6 +121,20 @@ One keyword; Yet another keyword
 - link to open stuffs
 - ** verify code for ES ** with someone
 
+# Citation slush pile
+
+predict w/ ML @altmejd2019
+prediction with humans @dreber2015; @forsell2019
+
+econ also has replications and issues @camerer2016
+
+RPP has been reanalysed and complained about a lot @etz2016;@gilbert2016;@patil2016
+
+moving goal posts around replication / interpreting results @nosek2020 (also this is worth reading!)
+
+some sort of modeling of replications @pawel2020 (worth reading!)
+
+note to self: got to S in going through the cites of the review paper
 # introduction
 
 [replication: it's a hot issue and concerns around replication have done a lot, see crisis/revolution] Replication is a hot topic. Some argue that it is a cornerstone of a cumulative science, and findings of low replication rates are a problem. Concerns about replication rates have become a large point of discussion in psychology and other fields. 
