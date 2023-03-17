@@ -1,4 +1,5 @@
 # considered using the effectsize package but afaik we don't care about estimating CI's here and there were optim problems with that
+# https://training.cochrane.org/handbook/current/chapter-06 may be relevant
 
 parse_t <- function(tval, within_between) {
   df=str_extract(tval, "\\(.*\\)") |> str_sub(2,-2) |> as.numeric()
