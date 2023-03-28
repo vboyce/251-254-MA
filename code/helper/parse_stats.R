@@ -258,17 +258,33 @@ parse_beta_ci <- function(raw_stat){
 
 #this is just to deal with yang2018 where we have d's given and bci
 #ex <- "d: 1.40 ; bci: b=1.72 [1.44, 2.00]"
-parse_dbci <- function(raw_stat){
+parse_dbci <- function(raw_stat,n){
   bci = str_extract(raw_stat, ";.*") |> str_sub(2,-1)
   beta=str_extract(bci, "b=.*\\[") |> str_sub(3,-2) |> as.numeric()
   low=str_extract(bci, "\\[.*,") |> str_sub(2,-2) |> as.numeric()
   high=str_extract(bci, ",.*\\]") |> str_sub(2,-2) |> as.numeric()
   se=(high-low)/(2*1.96)
-  
+  t=beta/se
+  df=n*2-1 # there are two trials / kid, so I think this makes sense? 
+  pval=pt(q=t, df=df, lower.tail=FALSE)*2
   dval = str_extract(raw_stat, ".*;") |> str_sub(3,-2) |> as.numeric()
-  return(data.frame("df_1"=NA,"df_2"=NA,"tstat"=NA, "fstat"=NA, "p_calc"=NA, "d_calc"=dval, "N_calc"=NA, "ES"=beta, "SE"=se))
+  return(data.frame("df_1"=NA,"df_2"=NA,"tstat"=NA, "fstat"=NA, "p_calc"=pval, "d_calc"=dval, "N_calc"=NA, "ES"=beta, "SE"=se))
 }
 #parse_dbci(ex)
+
+foo <- "pear: r=.75, n=45"
+parse_pearson <- function(raw_stat){
+  r=str_extract(raw_stat, "r=.*,") |> str_sub(3,-2) |> as.numeric()
+  n=str_extract(raw_stat, "n=.*") |> str_sub(3,-1) |> as.numeric()
+  d=2*r/sqrt(1-r**2) # using an approximation
+  se=4/n+d**2/(2*n)
+  t=d*sqrt(n)/2
+  pval=pt(q=t, df=n-2, lower.tail=FALSE)*2
+return(data.frame("df_1"=NA,"df_2"=NA,"tstat"=NA, "fstat"=NA, "p_calc"=pval, "d_calc"=d, "N_calc"=NA, "ES"=d, "SE"=se))
+  
+}
+
+parse_pearson(foo)
 
 
 do_blanks <- function(){
@@ -294,7 +310,8 @@ do_parsing=function(raw_stat, within_between,n){
 
   if (str_sub(raw_stat, 1,3)=="bse"){return(parse_beta_se(raw_stat))}
   if (str_sub(raw_stat, 1,3)=="bci"){return(parse_beta_ci(raw_stat))}
-  if (str_sub(raw_stat, 1,1)=="d"){return(parse_dbci(raw_stat))}
+  if (str_sub(raw_stat, 1,1)=="d"){return(parse_dbci(raw_stat,n))}
+  if (str_sub(raw_stat, 1,4)=="pear"){return(parse_pearson(raw_stat))}
   
   
   return (do_blanks())

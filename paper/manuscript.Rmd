@@ -190,9 +190,9 @@ Here we introduce a new dataset of 176 replications of experimental studies from
 		\node[mynode, join, on chain=1, fill=good] (n5)
 		{\textbf{176} pairs included};
 		\node[mynode, join, on chain=1, fill=good] (n6)
-		{\textbf{131} pairs with ES};
+		{\textbf{136} pairs with ES};
 		\node[mynode, join, on chain=1, fill=good] (n7)
-		{\textbf{107} pairs with SMD};
+		{\textbf{112} pairs with SMD};
 		
 		
 		\begin{scope}[start chain=going right]

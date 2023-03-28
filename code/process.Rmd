@@ -26,7 +26,7 @@ library("lattice")
 library(reshape2)
 library(ggrepel)
 library(ggthemes)
-
+library(knitr)
 rstan_options(auto_write = TRUE)
 options(mc.cores = parallel::detectCores())
 
@@ -75,7 +75,7 @@ Counts.
 d |> tally()
 d |> group_by(status) |> tally()
 
-d |> filter(!status %in% c("missing", "non-experiment", "reproduction")) |> tally()
+d |> filter(!status %in% c("missing", "non-experiment", "reproduction", "unusable")) |> tally()
 
 d |> group_by(include) |> tally()
 
@@ -90,7 +90,7 @@ Descriptions:
 - "reproduction" -- student did a reproduction and not replication 
 
 ```{r}
-d_val <- d |> filter(!status %in% c("missing", "non-experiment", "reproduction"))
+d_val <- d |> filter(!status %in% c("missing", "non-experiment", "reproduction", "unusable"))
 ```
 
 # Parsing
@@ -367,7 +367,7 @@ d_check_nas |> filter(include %in% c("stats")) |> filter(across(everything(), ~!
 d_for_model <- d_es_predInt |> 
   ungroup() |> 
   mutate(pub_year= target_year-mean(target_year),
-         log_p =log(target_p_calc),
+         log_p =ifelse(target_p_calc==0,-300, log(target_p_calc)), #prevent any -Inf problems!
          log_sample =log(target_N),
          log_ratio_ss = log(replication_N/target_N),
          change_platform=ifelse(replication_on_turk==target_on_turk,0,1),
@@ -382,7 +382,7 @@ d_for_model <- d_es_predInt |>
            within_between=="between" ~ 0),
          log_trials=log(repeated_measure),
          predInt=as.numeric(predInt)) |> 
-  select(include, target_lastauthor_year, academic_year, subfield, 
+  select(sensitivity, include, target_lastauthor_year, academic_year, subfield, 
          pub_year, log_p, log_sample, log_ratio_ss, change_platform, target_d_calc,
          stanford, open_data, open_mat, 
          is_within, single_vignette, log_trials, 
@@ -594,7 +594,122 @@ ggsave(here("plots/tier3porig.pdf"))
 
 ```
 
-## Sensitivity analysis TODO
+## Sensitivity analysis 
+
+### data
+
+```{r}
+data_sens <- z_data |> mutate(sensitivity=ifelse(is.na(sensitivity), include, sensitivity))
+
+data_sens1 <- data_sens |> filter(sensitivity %in% c("stats", "exp", "pred_int")) |>
+  mutate(sub_rep=sub_rep*4+1) |>  #remap to 1-5 scale
+  select(academic_year, sub_rep, 
+         z_pub_year, subfield, open_data, open_mat, stanford, change_platform, z_log_ratio_ss, is_within, single_vignette, z_log_sample, z_log_trials) 
+
+data_sens2 <- data_sens |> filter(sensitivity %in% c("stats", "pred_int")) |>
+  select(academic_year, sub_rep, 
+         p_orig, predInt,
+         z_pub_year, subfield, open_data, open_mat, stanford, change_platform, z_log_ratio_ss, is_within, single_vignette, z_log_sample, z_log_trials) 
+
+data_sens3 <- data_sens |>  filter(sensitivity %in% c("stats")) |>
+  select(academic_year, sub_rep, 
+         p_orig, predInt,
+         z_target_d_calc, z_log_p, 
+         z_pub_year, subfield, open_data, open_mat, stanford, change_platform, z_log_ratio_ss, is_within, single_vignette, z_log_sample, z_log_trials) 
+```
+
+
+### models
+
+
+```{r, eval=T}
+sens_tier1_subjective <- brm(sub_rep ~ z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
+                          z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
+                          (z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
+                             z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials | academic_year),
+                        family="cumulative", # runs on 1-5 data
+                        data=data_sens1,
+                        file=here(model_location, "sens_tier1_subjective"),
+                        prior=priors, 
+                        control=list(adapt_delta=.99),
+                        backend="cmdstanr"
+)
+```
+
+
+```{r, eval=T}
+sens_tier2_predint <- brm(predInt ~ z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
+                       z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
+                       (z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
+                          z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials | academic_year),
+                     family="bernoulli",
+                     data=data_sens2,
+                     file=here(model_location, "sens_tier2_predint"),
+                     prior=priors, 
+                     control=list(adapt_delta=.99),
+                     backend="cmdstanr")
+```
+
+
+```{r, eval=T}
+sens_tier2_porig <- brm(p_orig ~ z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
+                     z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
+                     (z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
+                        z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials | academic_year),
+                   data=data_sens2,
+                   file=here(model_location, "sens_tier2_porig"),
+                   prior=priors, 
+                   control=list(adapt_delta=.99),
+                   backend="cmdstanr")
+```
+
+
+```{r, eval=T}
+sens_tier3_subjective <- brm(sub_rep ~ z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
+                          z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
+                          z_target_d_calc + z_log_p+ 
+                          (z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
+                             z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
+                             z_target_d_calc + z_log_p| academic_year),
+                        family="cumulative",
+                        data=data_sens3 |> mutate(sub_rep=sub_rep*4+1),
+                        file=here(model_location, "sens_tier3_subjective"),
+                        prior=priors, 
+                        control=list(adapt_delta=.99),
+                        backend="cmdstanr")
+```
+
+
+```{r, eval=T}
+sens_tier3_predint <- brm(predInt ~ z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
+                       z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
+                       z_target_d_calc + z_log_p+ 
+                       (z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
+                          z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
+                          z_target_d_calc + z_log_p| academic_year),
+                     family="bernoulli",
+                     data=data_sens3,
+                     file=here(model_location, "sens_tier3_predint"),
+                     prior=priors, 
+                     control=list(adapt_delta=.99),
+                     backend="cmdstanr")
+```
+
+
+```{r, eval=T}
+sens_tier3_porig <- brm(p_orig ~ z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
+                     z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
+                     z_target_d_calc + z_log_p+ 
+                     (z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
+                        z_log_ratio_ss + is_within + single_vignette + z_log_sample + z_log_trials + 
+                        z_target_d_calc + z_log_p| academic_year),
+                   data=data_sens3,
+                   file=here(model_location, "sens_tier3_porig"),
+                   prior=priors, 
+                   control=list(adapt_delta=.99),
+                   backend="cmdstanr"
+)
+```
 
 # Exploratory working
 
@@ -1004,7 +1119,8 @@ ggplot(dat, aes(x=log_sample, y=p_orig, color=p_orig))+geom_point()+geom_smooth(
 ggplot(dat, aes(x=log_trials, y=p_orig, color=p_orig))+geom_point()+geom_smooth(method="lm")+scale_color_viridis()
 
 ```
-# Exploratory even randomer
+
+<!--# Exploratory even randomer
 
 ## Model exploration
 
@@ -1196,3 +1312,5 @@ blah <- predict(lasso_linear_1, fake_data)
 
 #bar <- fitted(tier1_subjective, newdata=fake_data)
 ```
+
+-->
