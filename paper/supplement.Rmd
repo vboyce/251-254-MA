@@ -1,0 +1,146 @@
+---
+title: "Supplement"
+output: pdf_document
+date: "2023-03-28"
+
+header-includes:
+ - \usepackage{tikz}
+ - \usetikzlibrary{positioning,arrows.meta, quotes, shapes}
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE) # By default, hide code; set to TRUE to see code
+#knitr::opts_chunk$set(fig.pos = 'th') # Places figures at top or here
+knitr::opts_chunk$set(out.width = '100%', dpi=300,
+                      fig.width=8, fig.width=8) # Figure resolution and size
+knitr::opts_chunk$set(fig.env="figure") # Latex figure environment
+
+options(knitr.table.format="latex") # For kable tables to work without setting format option
+
+knitr::opts_chunk$set(echo=F, warning=F, message=F)#dev = "png", dev.args = list(type = "cairo-png")
+ library("papaja")
+library("bookdown")
+library("rticles")
+ library(here)
+ library(tidyverse)
+ library(brms)
+library(tidybayes)
+library(kableExtra)
+library(viridis)
+library(cowplot)
+library(ggthemes)
+#r_refs("r-references.bib", append=F)
+theme_set(theme_bw())
+options(knitr.table.format = "pdf")
+
+model_location="code/models"
+
+```
+
+# Additional model results
+
+Per our pre-registration, we ran a set of 6 models crossing 3 outcome measures (subjective replication score, whether the replication result was within the prediction interval of the original, and p-original on the hypothesis that both came from the same distribution) with 2 sets of predictors (with or without statistical predictors). These 6 models required 3 tiers of data: the subjective replication score without statistical predictors applies to all the data; the p_original and prediction interval models apply to the subset of data with numeric outcomes that can be compared; and the statistical predictor models need the smaller subset of data with p-values and original SMD in particular. 
+
+Due to low sample sizes and large numbers of predictors, even with regularizing priors, the coefficient estimates generally have a lot of uncertainty. 
+
+## Sensitivity Analysis
+
+As a check on whether our results were sensitive to the inclusion of pairs that were marginal in some way, we repeated the 6 models including only studies that were not marginal. 
+
+```{=latex}
+\definecolor{bad}{HTML}{FFCCCB}
+		\definecolor{meh}{HTML}{efefef}
+			\definecolor{good}{HTML}{abcdff}
+	\tikzset{
+		mynode/.style={
+			draw, rectangle, align=center, text width=4.5cm, scale=1, font=\small, inner sep=.5ex},
+		arrow/.style={
+		 very thick,->,>=stealth}
+	}
+	
+\begin{figure}
+	\begin{tikzpicture}[auto,
+		node distance = 6mm and 30mm,
+		every edge quotes/.append style = {font=\footnotesize, text=black, text centered}
+		]
+		\node (n1) [mynode, fill=good] {\textbf{112} pairs with statistical predictors};
+		\node (n2) [mynode, below=of n1, fill=good]       {\textbf{24} additional pairs for p-original and prediction interval};
+		\node (n3) [mynode,below=of n2, fill=good]    {\textbf{40} additional pairs for subjective replication};
+		
+		\node (n4) [mynode, fill=meh, right=of n1] {\textbf{82} pairs with statistical predictors};
+		\node (n5) [mynode, below=of n4, fill=meh]       {\textbf{18} additional pairs for p-original and prediction interval};
+		\node (n6) [mynode,below=of n5, fill=meh]    {\textbf{67} additional pairs for subjective replication only};
+		\node (n7) [mynode,below=of n6, fill=bad]    {\textbf{9} pairs excluded};
+
+		\begin{scope}[line width=1 pt, >=Stealth]
+			\draw [->]   (n1.east) edge [pos=.8, "82"] (n4.west);
+			\draw [->]   (n1.east) edge [pos=.8,"25", sloped] (n6.west);
+			\draw [->]   (n1.east) edge [pos=.85,"5", sloped] (n7.west);
+			
+			\draw [->]   (n2.east) edge [pos=.8,"18"] (n5.west);
+			\draw [->]   (n2.east) edge [pos=.6,"4", sloped] (n6.west);
+			\draw [->]   (n2.east) edge [pos=.45,"2", sloped] (n7.west);
+			
+			\draw [->]   (n3.east) edge [pos=.2,"38"] (n6.west);
+			\draw [->]   (n3.east) edge [pos=.5,"2", sloped] (n7.west);
+			
+		\end{scope}
+	\end{tikzpicture}
+	\caption{Diagram of what studies were downgraded or excluded for the sensitivity analysis.}
+	\end{figure}
+
+```
+
+
+```{r}
+do_draws <- function(model){
+  draws <- model |> gather_draws(`b_[a-zA-Z_(): ]+`, regex=TRUE) |> 
+    mutate(Term=str_sub(.variable, 3,-1) |> str_replace("M","_"), Estimate=.value) |>  filter(Term!="Intercept") |> 
+    mutate(Term=factor(Term, levels=c("subfieldsocial", "subfieldother_psych", "subfieldnon_psych", "is_within", "single_vignette", "change_platform", "open_data", "open_mat", "stanford", "z_pub_year", "z_log_trials", "z_log_sample", "z_log_ratio_ss","z_log_p","z_target_d_calc"), labels=c("Social", "Other psych", "Non psych", "Within subjects", "Single vignette", "Switch to online", "Open data", "Open materials", "Stanford", "Publication year", "Log trials", "Log original sample size", "Log rep/orig sample", "P-value", "SMD"))) 
+}
+
+tier1_subjective <- read_rds(here(model_location, "tier1_subjective.rds")) |> do_draws() |> mutate(type="Without stats predictors") |> mutate(sens="All data")
+tier2_porig <- read_rds(here(model_location, "tier2_porig.rds"))|> do_draws() |>  mutate(type="Without stats predictors") |> mutate(sens="All data")
+tier2_predint <- read_rds(here(model_location, "tier2_predint.rds"))|> do_draws() |>  mutate(type="Without stats predictors") |> mutate(sens="All data")
+tier3_subjective <- read_rds(here(model_location, "tier3_subjective.rds"))|> do_draws() |> mutate(type="Stats predictors") |> mutate(sens="All data")
+tier3_porig <- read_rds(here(model_location, "tier3_porig.rds"))|> do_draws() |>  mutate(type="Stats predictors") |> mutate(sens="All data")
+tier3_predint <- read_rds(here(model_location, "tier3_predint.rds"))|> do_draws() |>  mutate(type="Stats predictors") |> mutate(sens="All data")
+
+sens1_subjective <- read_rds(here(model_location, "sens_tier1_subjective.rds"))|> do_draws() |> mutate(type="Without stats predictors") |> mutate(sens="Sensitivity test")
+sens2_porig <- read_rds(here(model_location, "sens_tier2_porig.rds"))|> do_draws() |> mutate(type="Without stats predictors")|> mutate(sens="Sensitivity test")
+sens2_predint <- read_rds(here(model_location, "sens_tier2_predint.rds"))|> do_draws() |> mutate(type="Without stats predictors")|> mutate(sens="Sensitivity test")
+sens3_subjective <- read_rds(here(model_location, "sens_tier3_subjective.rds"))|> do_draws()|> mutate(type="Stats predictors")|> mutate(sens="Sensitivity test")
+sens3_porig <- read_rds(here(model_location, "sens_tier3_porig.rds"))|> do_draws()|> mutate(type="Stats predictors")|> mutate(sens="Sensitivity test")
+sens3_predint <- read_rds(here(model_location, "sens_tier3_predint.rds"))|> do_draws()|> mutate(type="Stats predictors")|> mutate(sens="Sensitivity test")
+
+subjective <- tier1_subjective |> union(tier3_subjective) |> union(sens1_subjective) |> union(sens3_subjective)
+porig <- tier2_porig |> union(tier3_porig) |> union(sens2_porig) |> union(sens3_porig)
+predint <- tier2_predint |> union(tier3_predint) |> union(sens2_predint) |> union(sens3_predint)
+```
+
+```{r sub-results, out.height="75%", fig.width=8, fig.height=8, fig.pos="ht", fig.cap="Coefficient estimates and uncertainty from ordinal models predicting subjective replication scores. Solid lines correspond to models run on as much of the data as possible; dashed lines are on the subset of the data for sensitivity analysis. Red is run on all relevant data with experimental predictors only; blue is on relevant data where there are statistical predictors."}
+
+  subjective |> ggplot(aes(y = reorder(Term, Estimate, mean), x = Estimate, color=type, linetype=sens, shape=sens)) + geom_vline(xintercept=0)+
+    scale_shape_manual(values = c(19,21))+
+  scale_color_solarized()+
+  stat_pointinterval(position=position_dodge(width=.7))+labs(y="", x="Estimate, 66%, 95% CrI predicting subjective replication score", color="", linetype="", shape="")+theme(axis.text=element_text(size=11),legend.position="bottom")
+
+```
+
+```{r predint-results, out.height="75%", fig.width=8, fig.height=8, fig.pos="ht", fig.cap="Coefficient estimates and uncertainty from logistic models predicting prediction intervals. Solid lines correspond to models run on as much of the data as possible; dashed lines are on the subset of the data for sensitivity analysis. Red is run on all relevant data with experimental predictors only; blue is on relevant data where there are statistical predictors."}
+
+  predint |> ggplot(aes(y = reorder(Term, Estimate, mean), x = Estimate, color=type, linetype=sens, shape=sens)) + geom_vline(xintercept=0)+
+    scale_shape_manual(values = c(19,21))+
+  scale_color_solarized()+
+  stat_pointinterval(position=position_dodge(width=.7))+labs(y="", x="Estimate, 66%, 95% CrI predicting prediction interval", color="", linetype="", shape="")+theme(axis.text=element_text(size=11),legend.position="bottom")
+
+```
+
+```{r porig-results, out.height="75%", fig.width=8, fig.height=8, fig.pos="ht", fig.cap="Coefficient estimates and uncertainty from linear models predicting p-original values. Solid lines correspond to models run on as much of the data as possible; dashed lines are on the subset of the data for sensitivity analysis. Red is run on all relevant data with experimental predictors only; blue is on relevant data where there are statistical predictors."}
+
+  porig |> ggplot(aes(y = reorder(Term, Estimate, mean), x = Estimate, color=type, linetype=sens, shape=sens)) + geom_vline(xintercept=0)+
+    scale_shape_manual(values = c(19,21))+
+  scale_color_solarized()+
+  stat_pointinterval(position=position_dodge(width=.7))+labs(y="", x="Estimate, 66%, 95% CrI predicting p-original values", color="", linetype="", shape="")+theme(axis.text=element_text(size=11),legend.position="bottom")
+
+```
