@@ -39,7 +39,7 @@
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
 \hypersetup{
-  pdftitle={Correlates of replicability: evidence from student replication projects},
+  pdftitle={Eleven years of student replication projects provide evidence on the correlates of replicability in psychology},
   pdflang={en},
   colorlinks=true,
   linkcolor={blue},
@@ -165,7 +165,7 @@
   \usepackage{selnolig}  % disable illegal ligatures
 \fi
 
-\title{Correlates of replicability: evidence from student replication projects}
+\title{Eleven years of student replication projects provide evidence on the correlates of replicability in psychology}
 
 %%%%%%% START AUTHOR PARTIAL %%%%%%%%%%%%%%%
 
@@ -310,11 +310,7 @@ A cumulative science relies on knowing how much to trust published findings. Lar
 \begin{itemize}
 \tightlist
 \item
-  BETTER title
-\item
   BETTER abstract
-\item
-  need to do supplement with the stuff we preregistered (sensitivity analysis, all models) -- waiting on finalized stats predictors
 \item
   many citations everywhere
 \item
@@ -323,10 +319,27 @@ A cumulative science relies on knowing how much to trust published findings. Lar
   link to open stuffs
 \item
   ** verify code for ES ** with someone
+\item
+  redo intro
+\item
+  redo results
+\item
+  redo discussion
+\item
+  fill in todos
 \end{itemize}
 
-\hypertarget{citation-slush-pile}{%
-\section{Citation slush pile}\label{citation-slush-pile}}
+\hypertarget{text-slush-pile}{%
+\section{Text slush pile}\label{text-slush-pile}}
+
+{[}who knows where this paragraph should go{]} Replications are one way of approximating whether an effect in the target paper is true, and how likely results are to replicate in some sort of platonic ideal world. There is no one answer here; replication projects measure something else that could be treated as an approximation. However, what a replication is really measuring is how likely it to get that effect given some conditions. Which the right conditions are is a potential point of contention (see discussion around closeness and sample size, power etc). Here, we are explicit in what sample of replicators and replication conditions were are sampling, and thus what we can generalize to. We are estimating how likely replication is when done online by a graduate student, under constraints that are typical for graduate students (limited time, limited budget). As much of scientific process is in fact performed by graduate students, we think this in itself is an interesting question.
+
+We do not interpret our results as saying that all non-replications were false positives (presumably some are replicable under other circumstances and others are not). Some of the factors we look at are more easily interpreted as being about the original study than others. We do not assign causal explanation to the predictors because there are multiple plausible interpretations: they could be correlates of QRPs in the original, they could be correlates of harder-to-detect or more fragile effects, they could be correlates of less-close replications, they could even be correlates of another stronger predictor.
+
+{[} there is controversy here, but to even discuss it, we need empirics{]} Even those who argue that replication is not so essential still rely on data from replications to make their cases that replication rates are not as low as they seem and that these replication rates are acceptable. Lewandowsky \& Oberauer (\protect\hyperlink{ref-lewandowsky2020}{2020})
+
+circle back to the idea that student replications (either as class or before extension into their own work) would be valuable
+\# Citation slush pile
 
 predict w/ ML Altmejd et al. (\protect\hyperlink{ref-altmejd2019}{2019})
 
@@ -336,8 +349,49 @@ moving goal posts around replication / interpreting results Nosek \& Errington (
 
 some sort of modeling of replications Pawel \& Held (\protect\hyperlink{ref-pawel2020}{2020})
 
+Anderson, C., Bahnik, S., Barnett-Cowan, M., Bosco, F., Chandler, J., Chartier, C., \& otherss. (2016). Response to comment on ``estimating the reproducibility of psychological science.'' Science, 351(6277), 1037--1037.
+
+Gilbert, D. T., King, G., Pettigrew, S., \& Wilson, T. D. (2016). Comment on ``estimating the reproducibility of psychological science.'' Science, 351(6277), 1037--1037.
+
+Schmidt, S. (2009). Shall we really do it again? The powerful concept of replication is neglected in the social sciences. Review of General Psychology, 13, 90--100.
+
+Simonsohn, U. (2015). Small telescopes: Detectability and the evaluation of replication results. Psychol. Sci., 26(5), 559--569.
+
+Gelman, A. (2018). Don't characterize replications as successes or failures. Behavioral and Brain Sciences, 41.
+
+Mathur, M. B., \& VanderWeele, T. J. (2020a). New statistical metrics for multisite replication projects. J. R. Stat. Soc. Ser. A Stat. Soc., 183(3), 1145--1166.
+
+pedagogy for replication in intro: frank \& saxe, hawkins et al., quintana nature paper, scarcity PNAS pedagogy paper,
+
+Collaborative replications and education project (CREP)
+JE Grahe, MJ Brandt, H IJzerman, N Legate, J Wagge, YJ Weisberg, BJ Wiggins, Retrieved from osf. io/wfc6u, 2016 - Cited by 29
+
+\url{https://psycnet.apa.org/record/2022-15361-001}
+\url{https://journals.sagepub.com/doi/pdf/10.1177/1475725719868149}
+\url{https://content.iospress.com/articles/education-for-information/efi190308}
+
+\url{https://psycnet.apa.org/fulltext/2018-11647-005.html}
+
 \hypertarget{introduction}{%
 \section{introduction}\label{introduction}}
+
+replication is important (but not everything) - good starting place
+* prereq of theory building that the results of interest ``can be observed consistently''
+* but not everything (can still have other problems)
+
+replication rates are low in psychology (see studies)
+
+big open question: why
+
+experimental and correlational approaches to answering it
+
+experimental is hard - protzko, ML5 etc. but they are expensive and you can't do them for many research questions
+
+correlational has been pursued extensively, but is overfit to small data (prediction markets / ML models / regression of all types)
+
+our contribution: provide more data!
+using pedagogical replications, which are good because they're p(build on)
+slightly different estimand but maybe a better one?
 
 Psychology is in the middle of heated debate over its research practices and the subject of many reform efforts. Many of these issues concern how trustworth the published literature is (or isn't), how it got to be this way, and what measures can be taken to improve the quality of findings for the future. These issues center around issues of reproducibility and replicability. Concerns about replication rates have become a large point of discussion in psychology and other fields, with large scale replications spurring these discussions and providing the empirical data analyzed by all sides.
 
@@ -367,6 +421,18 @@ While many replications of individual studies are conducted, these may have been
 
 \hypertarget{current-work}{%
 \subsection{current work}\label{current-work}}
+
+one strategy for the pedagogical bit at end of intro: stress ``this is what people want to do, that is, pick up a project that they care about (not a random sample of the literature) and see if they can `get it to work'\,'' - and ``subjective replication success is our primary measure for the same reason\ldots.''
+
+can even cite the ``science is not a signal detection problem'' paper on not randomly sampling from the literature.
+
+Prior approaches to replicability have focused on a potentially problematic estimand: the probability of a finding in the literature being somehow truly replicable. Critics have pointed out that ``true'' replicability may not be possible to estimate outside of a specific sample (van bavel etc.) or even time period (ramscar).
+
+Further, the methods for estimating this quantity have been theoretically problematic. Sampling schemes for prior work typically does not reflect a random sample from the literature -- and even if they did, arguably a literature will succeed if useful discoveries come out of it, not if random findings are true (``Science is not signal detection'' ref).
+
+In contrast, we have pursued a different estimand: the probability that a researcher, on selecting a finding of interest from the literature, can successfully achieve a result satisfactorily close enough to the original that they feel that they can build on it in their own work, with all the necessary compromises to the methods and sample of the original that may be required by the constraints of the situation. SPELL OUT SAMPLING DIFFERENCE AND SUCCESS DIFFERENCE.
+
+We estimate this quantity in the context of a particular pedagogical situation: that of a graduate student entering a doctoral program in psychology\ldots{}
 
 Prior literature, such as Frank \& Saxe (\protect\hyperlink{ref-frank2012}{2012}) and Hawkins et al. (\protect\hyperlink{ref-hawkins}{n.d.}) have advocated using research methods classes to conduct replications, both for the education and scientific value.
 
@@ -399,9 +465,9 @@ Here we introduce a new dataset of 176 replications of experimental studies from
         \node[mynode, join, on chain=1, fill=good] (n5)
         {\textbf{176} pairs included};
         \node[mynode, join, on chain=1, fill=good] (n6)
-        {\textbf{131} pairs with ES};
+        {\textbf{136} pairs with ES};
         \node[mynode, join, on chain=1, fill=good] (n7)
-        {\textbf{107} pairs with SMD};
+        {\textbf{112} pairs with SMD};
         
         
         \begin{scope}[start chain=going right]
@@ -426,9 +492,11 @@ PSYCH 251 is Stanford Psychology's graduate-level experimental methods class tau
 
 The sample of replicated studies reflects the variability of the literature, including studies from different subfields, using different experimental methods and statistical outcomes. We leverage the naturally occurring variability in this sample of replications to examine how different demographic, experimental design, and statistical properties predict replication success.
 
+TODO discuss more about why this one and what other measure we don't choose are
+
 We used a subjective rating of replication success as our primary outcome measure. The instruction team had coded a holistic measure of replication success for each project when they were turned in at the end of the course. For reliability, VB independently code the replication success from the replication reports; discrepancies were resolved by discussion between MCF and VB (25.5681818 \% of cases). This measure was applicable across the range of statistical measures and reporting practices and accommodated studies where there were multiple important outcome measures.
 
-As a complement, we also used two statistical measure of replication on the subset of the data where they were computable (134 cases, see Figure \ref{fig:prisma}). We measured p-original, the p-value on the null hypothesis that the original and replication statistics are from the same distribution, as a continuous variable, and we also determined whether the replication statistic fell within the prediction interval of the original statistic (\protect\hyperlink{ref-errington2021}{Errington et al. 2021}).
+As a complement, we also used two statistical measure of replication on the subset of the data where they were computable (138 cases, see Figure \ref{fig:prisma}). We measured p-original, the p-value on the null hypothesis that the original and replication statistics are from the same distribution, as a continuous variable, and we also determined whether the replication statistic fell within the prediction interval of the original statistic (\protect\hyperlink{ref-errington2021}{Errington et al. 2021}).
 
 \begin{figure}[ht]
 \includegraphics[width=1\linewidth,height=0.25\textheight]{manuscript_files/figure-latex/smd-1} \caption{Relationship between SMD of the original study, SMD of the replication study, and subjective replication success rating, for those studies where SMD was applicable.}\label{fig:smd}
@@ -437,7 +505,7 @@ As a complement, we also used two statistical measure of replication on the subs
 \hypertarget{overall-replication-rate}{%
 \subsection{Overall replication rate}\label{overall-replication-rate}}
 
-Across the 176 studies, the overall subjective replication rate was 49\%. 46\% of the studies had replication outcomes within the prediction interval of the original outcome. The median p\_original value was 0.03. Figure \ref{fig:smd} shows the relationship between original SMD, replication SMD, and subjective replication score. Roughly speaking, there's a cluster of studies that replicate with similar effect sizes to the original and another cluster that fail to replicate with replication effect sizes near zero. On average, there is a diminution of effect sizes from original to replication.
+Across the 176 studies, the overall subjective replication rate was 49\%. 45\% (N=FOOBAR) of the studies had replication outcomes within the prediction interval of the original outcome. The median p\_original value was 0.03. Figure \ref{fig:smd} shows the relationship between original SMD, replication SMD, and subjective replication score. Roughly speaking, there's a cluster of studies that replicate with similar effect sizes to the original and another cluster that fail to replicate with replication effect sizes near zero. On average, there is a diminution of effect sizes from original to replication.
 
 \begin{table}[!h]
 
@@ -506,17 +574,27 @@ While a number of the predictors show individual correlations with the subjectiv
 Results from other models can be found in the supplement. TODO make this a true statement
 
 \hypertarget{discussion}{%
-\section{discussion}\label{discussion}}
+\section{Discussion}\label{discussion}}
 
-blah blah we did a thing and it generally aligns with prior results. Overall replication rate is consistent with prior work, and we find cog greater than soc. However, by looking at a greater range of pr
+The replication rate in psychology is to the best estimates, somewhere around 50\%, which is quite low. Many reasons for this low replication rate have been hypothesized, but studying it either experimentally or correlationally requires doing a number of replication experiments, which can be a lot of work. Here we took advantage of 11 years of graduate student replication projects to look at correlational predictors of replication in a previously-unused dataset.
 
-{[}who knows where this paragraph should go{]} Replications are one way of approximating whether an effect in the target paper is true, and how likely results are to replicate in some sort of platonic ideal world. There is no one answer here; replication projects measure something else that could be treated as an approximation. However, what a replication is really measuring is how likely it to get that effect given some conditions. Which the right conditions are is a potential point of contention (see discussion around closeness and sample size, power etc). Here, we are explicit in what sample of replicators and replication conditions were are sampling, and thus what we can generalize to. We are estimating how likely replication is when done online by a graduate student, under constraints that are typical for graduate students (limited time, limited budget). As much of scientific process is in fact performed by graduate students, we think this in itself is an interesting question. It contrasts with questions like how likely something is to replicate when performed by an expert with a large budget (perhaps this is the right framing on Camerer) or when performed with extensive feedback from the original authors, etc.
+In line with previous replications, we found a FOOBAR replication rate, with some studies showing effect sizes similar to the original and others much smaller. Some individual correlates of replicability that stood out included within-subjects designs, work in the subfield of cognitive psychology, and the original and replication both using online samples. TODO other possible things
 
-We do not interpret our results as saying that all non-replications were false positives (presumably some are replicable under other circumstances and others are not). Some of the factors we look at are more easily interpreted as being about the original study than others. We do not assign causal explanation to the predictors because there are multiple plausible interpretations: they could be correlates of QRPs in the original, they could be correlates of harder-to-detect or more fragile effects, they could be correlates of less-close replications, they could even be correlates of another stronger predictor.
+Many of these correlates interrelate with one another, and we are still limited in our sample, so models with multiple predictors have a lot of uncertainty around the effects of each predictor.
 
-{[} there is controversy here, but to even discuss it, we need empirics{]} Even those who argue that replication is not so essential still rely on data from replications to make their cases that replication rates are not as low as they seem and that these replication rates are acceptable. Lewandowsky \& Oberauer (\protect\hyperlink{ref-lewandowsky2020}{2020})
+We are explicit in our goal of estimating how likely it is that a first-year graduate student, attempting to replicate a study of interest to them, gets replication results which are consistent enough with the original results that the student could build on the study in their own work. We can't estimate some platonic probability of truth for a study and neither can any replication study. Instead, we can estimate how likely studies are to get results of different levels of closeness in different circumstances. Much of the discussion around whether things should count as replication successes, or failures, or not replications at all is really about what the right thresholds are for closeness of results, and what the right circumstances are for a replication. Rather than try to find the one right answer to whether a direct replication was done in a certain right way, we think it's useful to explicitly label what the estimand really was: how likely it is to get the same results (under whatever metric) given circumstances like those used for the replication.
 
-circle back to the idea that student replications (either as class or before extension into their own work) would be valuable
+In our case, our estimand is about how well first-year graduate students will do at the replication, which takes into account the limited time, limited budget, and limited experience. We think this is an important estimand, as much of the work of psychology is done by trainees, in circumstances like these. Thus, if some studies have delicate results that require large samples and very exact methods to achieve, they may not replicate under normal resources.
+
+Other replication projects have other estimands: Camerer et al. (\protect\hyperlink{ref-camerer2018}{2018}) seems to ask something closer to how likely studies are to replicate when preformed by an expert with a large budget, and (\protect\hyperlink{ref-ML5}{\textbf{ML5?}}) TODOCITE asks how likely certain studies are to replicate when performed with extensive feedback from the original authors.
+
+We do not interpret our results as saying that all non-replications were false positives (presumably some would be replicable under different implementations and budgets and others would not). There are many possible reasons for the non-replications in this sample. In some cases, it seemed that the problem may have been with the replication: for instance, if there were too few participants, or if there were high levels of wrong answers on attention checks, or participants speeding through without attention checks. For these cases, there was a clear next attempt that a student could make if they wanted to get the replication to work. In other cases, there might have been a priori reasons to distrust the original study results, such as exclusion criteria that seemed to be post-hoc, or a three-way interaction effect on a small sample (CITE THAT THIS IS SKETCH). In yet other cases, it's unclear why the results failed to replicate.
+
+{[}somehow transition here{]} Pedagogy is important for open science. It's one thing to require or incentivize scientists to use open science practices and conduct replicable and reproducible research, but using the right tools and workflows to do open science is something that has to be learned. Teaching it in the classroom addresses the knowing how point at the beginning and shows students how to have open science practices integrated in to their science at the beginning, before other habits can ossify. Doing replications give students the motivation to care about open science, as they see how much easier it is to implement the study with open materials versus the study where they have to make guesses about the study instructions from the methods section. In presenting work with classmates, students see that there is variation in how well studies replicate, with some replicating very cleanly and others not at all. This sort of first hand experience teaches that not everything they read in the literature may just work if done again.
+
+Our results are limited by the number and quality of the studies we included. These studies are not necessarily representative of the literature as a whole. TODO what are the limitations we want?
+
+TODO quick wrap up
 
 \hypertarget{methods}{%
 \section{Methods}\label{methods}}
