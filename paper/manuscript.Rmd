@@ -132,6 +132,7 @@ We do not interpret our results as saying that all non-replications were false p
 [ there is controversy here, but to even discuss it, we need empirics] Even those who argue that replication is not so essential still rely on data from replications to make their cases that replication rates are not as low as they seem and that these replication rates are acceptable. @lewandowsky2020
 
 circle back to the idea that student replications (either as class or before extension into their own work) would be valuable 
+
 # Citation slush pile
 
 predict w/ ML @altmejd2019
@@ -142,37 +143,39 @@ moving goal posts around replication / interpreting results @nosek2020
 
 some sort of modeling of replications @pawel2020 
 
-Anderson, C., Bahnik, S., Barnett-Cowan, M., Bosco, F., Chandler, J., Chartier, C., & otherss. (2016). Response to comment on “estimating the reproducibility of psychological science.” Science, 351(6277), 1037–1037.
+@gilbert2016 @anderson2016 people argue a lot about how to interpret RPP
 
-Gilbert, D. T., King, G., Pettigrew, S., & Wilson, T. D. (2016). Comment on “estimating the reproducibility of psychological science.” Science, 351(6277), 1037–1037.
+@schmidt2009 early theory of replication as part of advancing knowledge
 
-Schmidt, S. (2009). Shall we really do it again? The powerful concept of replication is neglected in the social sciences. Review of General Psychology, 13, 90–100.
+@simonsohn2015 small telescopes
 
-Simonsohn, U. (2015). Small telescopes: Detectability and the evaluation of replication results. Psychol. Sci., 26(5), 559–569.
+@gelman2018 Don’t characterize replications as successes or failures.
 
-Gelman, A. (2018). Don’t characterize replications as successes or failures. Behavioral and Brain Sciences, 41.
-
-Mathur, M. B., & VanderWeele, T. J. (2020a). New statistical metrics for multisite replication projects. J. R. Stat. Soc. Ser. A Stat. Soc., 183(3), 1145–1166.
+@mathur2020 other metrics of replicability 
 
 
-pedagogy for replication in intro: frank & saxe, hawkins et al., quintana nature paper, scarcity PNAS pedagogy paper,
+pedagogy for replication in intro: 
 
-Collaborative replications and education project (CREP)
-JE Grahe, MJ Brandt, H IJzerman, N Legate, J Wagge, YJ Weisberg, BJ Wiggins, Retrieved from osf. io/wfc6u, 2016 - Cited by 29
+@frank2012
+@hawkins 
 
-https://psycnet.apa.org/record/2022-15361-001
-https://journals.sagepub.com/doi/pdf/10.1177/1475725719868149
-https://content.iospress.com/articles/education-for-information/efi190308
+@odonnell2021 reps of some set of related things
 
-https://psycnet.apa.org/fulltext/2018-11647-005.html
+@wagge2019 get UGs to do replications for 
+
+@quintana2021 do reps as honors thesis
+@pownall2021 sips 2021 on teaching openness
+@jekel2020 teach open science w/ replication 
+@jern2018 in one study didn't show critical thinking benefits for students to make them do replications
 
 # introduction
+Replicability is a desirable feature for any study that we build theory or future experiments off of. It's a pre-requisite for building theories that we have phenomena for these studies to explain, but results that cannot be observed consistently aren't results to build theories around. However, to be a load-bearing empirical result, a study needs to do much more than just replicate, it also needs to be interesting, have a believable theoretical interpretation, generalize appropriately, and have reliable constructs. 
 
 replication is important (but not everything) - good starting place
  * prereq of theory building that the results of interest "can be observed consistently" 
  * but not everything (can still have other problems)
 
-
+The replication rates in psychology are low, and 
 replication rates are low in psychology (see studies)
 
 big open question: why
@@ -519,11 +522,11 @@ We ran a model predicting the subjective replication score on the basis of demog
 
 The subjective replication scores were coded on [0, .25, .5, .75, 1], and we ramapped these to 1-5 to run an ordinal regression predicting replication score. We ran logistic regressions predicting prediction interval and linear regressions predicting p_original. 
 
-All models used a horseshoe prior in brms. All models will include random slopes for predictors nested within years of the class (year) to control for variation between cohorts of students. We did not include any interaction terms in the models. All numeric predictor variables were z-scored after other transforms (e.g., logs) to ensure comparable regularization effects from the horseshoe prior. 
+All models used a horseshoe prior in brms. All models included random slopes for predictors nested within year the class occurred to control for variation between cohorts of students. We did not include any interaction terms in the models. All numeric predictor variables were z-scored after other transforms (e.g., logs) to ensure comparable regularization effects from the horseshoe prior. 
 
 As a secondary sensitivity analysis, we examined the subset of the data where the statistical tests had the same specification, the result was of primary importance in the original paper (i.e. not a manipulation check), and there were no big issues with the replication.
 
-Results of more models in supplement. TODO
+Results from these models not reported in the main paper are reported in the supplement. 
 
 # Acknowledgements {-}
 
@@ -534,14 +537,3 @@ Acknowledge people here. `{-}` useful to not number this section.
 <!-- Use this magic to place references here. -->
 <div id="refs"></div>
 
-# (APPENDIX) Appendices {-}
-
-<!-- The above header does not appear in output. Not exactly sure why. -->
-
-# Appendix A {-}
-
-Some appendix text.
-
-# Appendix B {-}
-
-More appendix text.
