@@ -207,7 +207,7 @@ pedagogy for replication in intro:
 # introduction
 When building a stone wall, it's important that the components be stones that will retain their shape and not clots of dirt and sand that might fall apart and bring the rest of the wall falling down. Building a cumulative body of scientific theories similarly requires that the empirical results, especially the more foundational empirical results, be sturdy. Results that cannot be observed consistently are like dirt clots, they don't hold their shape and thus are not a strong foundation for the theories and studies built on top of them. Replications and the theory of replicability can be thought of as a way of testing whether the empirical results are sturdy. Replicating is a necessary feature for load-bearing empirical results. We note that replicability is not the only desirable feature of a study, and that replicating does not mean that a study is valid, or generalizable, or interesting. 
 
-A major concern in psychology, as in other fields, is that the published literature may not replicate as well as had previously been assumed. This is illustrated both by a few prominent findings that turn out to not replicate at all (CITE ex ego depletion, TMT), and by large-scale replication projects such as RP:P which found a replication rate around 40% for a sample of the psychology literature [@openscienceconsortium2015]. This low replication rates seems undesirable and seems to run counter to the idea of a cumulative science. 
+A major concern in psychology, as in other fields, is that the published literature may not replicate as well as had previously been assumed. This is illustrated both by a few prominent findings that turn out to not replicate at all [ex. terror management theory; @klein2022], and by large-scale replication projects such as RP:P which found a replication rate around 40% for a sample of the psychology literature [@openscienceconsortium2015]. This low replication rates seems undesirable and seems to run counter to the idea of a cumulative science. 
 
 A big open question is why the replication rates in psychology are so low. There are theoretical approaches modelling how questionable research practices (which many psychologists admit to) and a bias towards positive results would lead to a high rate of (non-replicable) false positives in the literature (CITE). There's some disconnect between these theoretically causal factors and empirical results about what causes or correlates with replicability.  
 
@@ -221,9 +221,9 @@ The perceived need for more replications in tension with the lack of publishing 
 
 Our main contribution is a new dataset of 176 replications of experimental studies from the social sciences, primarily psychology. These replications were conducted by students in graduate-level experimental methods class between 2011 and 2022 as individual course projects. This approximately doubles the set of experiments in the large-scale replication literature. We investigate predictors of replicability in this new dataset. 
 
-Prior approaches to replicability have focused on interpreting results in terms of a potentially problematic estimand: the probability of a finding in the literature being somehow truly replicable. Critics have pointed out that "true" replicability may not be possible to estimate outside of a specific sample (CITE van bavel etc.) or even time period (CITE ramscar). 
+Prior approaches to replicability have focused on interpreting results in terms of a potentially problematic estimand: the probability of a finding in the literature being somehow truly replicable. Critics have pointed out that "true" replicability may not be possible to estimate outside of a specific sample [@vanbavel2016] or even time period [@ramscar]. 
 
-Further, the methods for estimating this quantity have been theoretically problematic. Sampling schemes for prior work typically do not reflect an entirely random sample from the literature; instead they sample from specific journals where results may be of more interest and adjust the sample for feasibility concerns. These are reasonable sampling choices, but they undermine the claim that the estimand is the level of "truth" in the literature as a whole. Sampling truely at random from the literature may not even be desirable, as  arguably a literature will succeed if useful discoveries come out of it, not if random findings are true (CITE "Science is not signal detection" ref). How much we care about whether a study is "trustworthy" is not uniformly distributed across the literature. 
+Further, the methods for estimating this quantity have been theoretically problematic. Sampling schemes for prior work typically do not reflect an entirely random sample from the literature; instead they sample from specific journals where results may be of more interest and adjust the sample for feasibility concerns. These are reasonable sampling choices, but they undermine the claim that the estimand is the level of "truth" in the literature as a whole. Sampling truely at random from the literature may not even be desirable, as  arguably a literature will succeed if useful discoveries come out of it, not if random findings are true [@wilson2020]. How much we care about whether a study is "trustworthy" is not uniformly distributed across the literature. 
 
  
 In contrast, we have explicitly pursued a different estimand: the probability that a researcher, on selecting a finding of interest from the literature, can successfully achieve a result satisfactorily close enough to the original that they can build on it in their own work, with all the necessary compromises to the methods and sample of the original that may be required by the constraints of the situation. 
@@ -357,16 +357,26 @@ knitr::kable(cors, digits = 3, align='rcc',format="latex", position="!h", captio
 
 ```
 
+```{r}
+
+
+ within <- glm(sub_rep ~ is_within, data=for_cor, family=binomial)$coefficient[2] |> exp() 
+ vignette <- glm(sub_rep ~ single_vignette, data=for_cor, family=binomial)$coefficient[2] |> exp()
+ 
+  subfield <- glm(sub_rep ~ subfield, data=for_cor |> filter(subfield %in% c("social", "cognitive")), family=binomial)$coefficient[2] |> exp()
+
+
+```
 ## Single predictors
 Properties of both the original study and the replication can influence whether or not the replication is a success. We chose a set of predictor variables from the correlational results of RP:P and our own intuitions about experimental factors that might impact replication success as well as some covariates related to how close the replication would be. A full description of these features is given in methods. 
 
-Many of these predictors individually correlate with subjective replication success (Table \ref{tab:cor}). Predictors of higher replicability included within-subjects designs, higher numbers of trials, and open data. Predictors of lower replicability included Single vignetted studies, social psychology studies, and original-replication pairs where the replication switched to online. 
+Many of these predictors individually correlate with subjective replication success (Table \ref{tab:cor}). Predictors of higher replicability included within-subjects designs, higher numbers of trials, and open data. Predictors of lower replicability included single vignetted studies, social psychology studies, and original-replication pairs where the replication switched to online. 
 
-Distributions of study outcomes across some of these properties are shown in Figure \ref{fig:predictors-graph}. Both social and cognitive psychology studies were well represented, and the cognitive psychology studies replicated at twice the rate of social psychology studies. Within and between subjects designs were both common, and within replicated four times as much. Similarly, studies with multiple vignettes replicated 1.5 times more than single vignetted studies. However, there were strong correlations among these experimental features and between these experimental features and subfield. TODO actual numbers here!
+Distributions of study outcomes across some of these properties are shown in Figure \ref{fig:predictors-graph}. Both social and cognitive psychology studies were well represented, and the cognitive psychology studies replicated at `r 1/subfield |> round(2)` times the rate of social psychology studies. Within and between subjects designs were both common, and within replicated `r within |> round(2)` times as much. Similarly, studies with multiple vignettes replicated `r 1/vignette |> round(2)` times more than single vignetted studies. However, there were strong correlations among these experimental features and between these experimental features and subfield.
 
 Studies with open data, which almost always also had open materials, tended to replicate more than studies without open data, although this may be linked to temporal trends. 
 
-Nearly all replications studies were conducted online, but original studies were split between using in-person and online recruitment. Replications that switched to online were less likely to replicate than those that had the same modality as the original (generally both online, in a few cases both in-person).  While online studies in general show comparable results to studies conducted in person TODO CITATIONS, switching the modality does decrease the closeness of the replication, and some studies done in person may not have been well adapted (ex. inductions may be weaker or attention checks inadequate to the new sample). 
+Nearly all replications studies were conducted online, but original studies were split between using in-person and online recruitment. Replications that switched to online were less likely to replicate than those that had the same modality as the original (generally both online, in a few cases both in-person).  While online studies in general show comparable results to studies conducted in person [@crump2013]TODO MORE CITATIONS, switching the modality does decrease the closeness of the replication, and some studies done in person may not have been well adapted (ex. inductions may be weaker or attention checks inadequate to the new sample). 
 
 
 ```{r predictors-graph, out.width="100%", fig.width=8, fig.height=4, fig.pos="ht", fig.cap="Distribution of subjective replication scores within categories. Bar heights are counts of studies."}
@@ -422,9 +432,14 @@ mid_row <- plot_grid(open,  modal, leg, rel_widths=c(1.2, .6, .25), nrow=1)
 plot_grid (top_row, mid_row, nrow=2)
 ```
 
+```{r}
+tier1_subjective <- read_rds(here(model_location, "tier1_subjective.rds"))
+
+summary(tier1_subjective)$fixed |> as_tibble(rownames="var") |> filter(var=="is_within")|> mutate(text=str_c(round(Est.Error,2), "[", round(`l-95% CI`,2),",", round(`u-95% CI`,2),"]")) |> pull(text) ->within_range
+```
  
 ## Regression model
-While a number of the predictors show individual correlations with the subjective replication score, many of the predictors are also correlated with one another. In order to determine which predictors were the strongest, we ran a pre-registered regularized regression model (see Methods for details). The coefficient estimates are shown in Figure \ref{fig:mod-results}. Due to a large number of predictors coupled with a small and noisy dataset, even with strong regularization, there is much uncertainty around the coefficients. The general directions of coefficients are consistent with the effects of the predictors in isolation. Within-subjects designs seem an especially strong indicator of replicability TODO include estimate and range in text!
+While a number of the predictors show individual correlations with the subjective replication score, many of the predictors are also correlated with one another. In order to determine which predictors were the strongest, we ran a pre-registered regularized regression model (see Methods for details). The coefficient estimates are shown in Figure \ref{fig:mod-results}. Due to a large number of predictors coupled with a small and noisy dataset, even with strong regularization, there is much uncertainty around the coefficients. The general directions of coefficients are consistent with the effects of the predictors in isolation. Within-subjects designs seem an especially strong indicator of replicability (`r within_range`). 
 
 ```{r mod-results, out.height="25%", fig.width=8, fig.height=3, fig.pos="ht", fig.cap="Coefficient estimates and uncertainty from a model predicting subjective replication scores from the full dataset."}
 tier1_subjective <- read_rds(here(model_location, "tier1_subjective.rds"))
@@ -447,13 +462,13 @@ We are explicit in our goal of estimating how likely it is that a first-year gra
 
 In our case, our estimand is about how well first-year graduate students will do at the replication, which takes into account the limited time, limited budget, and limited experience. We think this is an important estimand, as much of the work of psychology is done by trainees, in circumstances like these. Thus, if some studies have delicate results that require large samples and very exact methods to achieve, they may not replicate under normal resources. 
 
-Other replication projects have other estimands: @camerer2018 seems to ask something closer to how likely studies are to replicate when preformed by an expert with a large budget, and @ML5 TODOCITE asks how likely certain studies are to replicate when performed with extensive feedback from the original authors.  
+Other replication projects have other estimands: @camerer2018 seems to ask something closer to how likely studies are to replicate when preformed by an expert with a large budget, and @ebersole2020 asks how likely certain studies are to replicate when performed with extensive feedback from the original authors.  
 
 We do not interpret our results as saying that all non-replications were false positives (presumably some would be replicable under different implementations and budgets and others would not). There are many possible reasons for the non-replications in this sample. In some cases, it seemed that the problem may have been with the replication: for instance, if there were too few participants, or if there were high levels of wrong answers on attention checks, or participants speeding through without attention checks. For these cases, there was a clear next attempt that a student could make if they wanted to get the replication to work. In other cases, there might have been a priori reasons to distrust the original study results, such as exclusion criteria that seemed to be post-hoc, or a three-way interaction effect on a small sample (CITE THAT THIS IS SKETCH). In yet other cases, it's unclear why the results failed to replicate. 
 
 [somehow transition here] Pedagogy is important for open science. It's one thing to require or incentivize scientists to use open science practices and conduct replicable and reproducible research, but using the right tools and workflows to do open science is something that has to be learned. Teaching it in the classroom addresses the knowing how point at the beginning and shows students how to have open science practices integrated in to their science at the beginning, before other habits can ossify. Doing replications give students the motivation to care about open science, as they see how much easier it is to implement the study with open materials versus the study where they have to make guesses about the study instructions from the methods section. In presenting work with classmates, students see that there is variation in how well studies replicate, with some replicating very cleanly and others not at all. This sort of first hand experience teaches that not everything they read in the literature may just work if done again. 
 
-Our results are limited by the number and quality of the studies we included. These studies are not necessarily representative of the literature as a whole. TODO what are the limitations we want? 
+Our results are limited by the number and quality of the studies we included. These studies are not necessarily representative of the studies of interest to psychologists as a whole. The replication studies were not designed from the start with this analysis in mind, so analysis is limited by the choices and reporting used at the time of replications. TODO what are the limitations we want? 
 
 TODO quick wrap up
 
@@ -464,11 +479,18 @@ TODO quick wrap up
 Our pre-registration, code, and coded data are available at TODO OSF REPO. 
 
 ## Dataset
+
+```{r}
+all <- read_csv(here("data", "raw_data.csv")) |> filter(include %in% c("stats", "pred_int", "exp")) 
+
+ps <- all|> mutate(journal=str_to_lower(journal)) |>filter(journal=="psych sci")
+
+```
 The dataset of replication projects comes from class projects conducted in PSYCH 251 (earlier called PSYCH 254) a graduate-level experimental methods class taught by MCF from 2011 to 2022. This class is commonly taken by first year graduate students in psychology and related disciplines, and it has been a requirement of the Psychology PhD since around 2015. Each student chose a study to replicate, implemented the study, wrote analysis code, pre-registered their replication, ran the study, and turned in a structured final report including methods, analytic plan, changes from the original study, confirmatory and exploratory analyses, and discussion of outcomes. Students were encouraged to do experimental replications, but some students chose to replicate correlational outcomes or do computational reproducibility projects instead. We cannot include the full student reports for confidentiality reasons, but we include an example as well as the template given to students in the repo. TODO example and template
 
-Students were free to choose what study they replicated; the recommended path for students who did not have their own ideas was to pick an interesting study from a recent year of Psychological Science (this led to a high fraction of Psych Science articles in the replication sample TODO FOOBAR %). 
+Students were free to choose what study they replicated; the recommended path for students who did not have their own ideas was to pick an interesting study from a recent year of Psychological Science (this led to a high fraction of Psych Science articles in the replication sample, `r nrow(ps)`, `r nrow(ps)/nrow(all)*100 |> round()`% of studies). 
 
-We note that 4 (TODO check) of the replication projects were included in RP:P, and FOOBAR of them were previously reported in @hawkins. 
+We note that 4 (TODO check) of the replication projects were included in RP:P, and 10 of them were previously reported in @hawkins. 
 
 ## Coding procedure
 We relied primarily on student reports to code the measured variables for the replications. We supplemented this with spreadsheets of information about projects from the time of the class and the original papers.
