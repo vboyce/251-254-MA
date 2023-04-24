@@ -204,6 +204,37 @@ pedagogy for replication in intro:
 @jekel2020 teach open science w/ replication 
 @jern2018 in one study didn't show critical thinking benefits for students to make them do replications
 -->
+
+introduction outline: 
+
+Things don't replicate that well and it feels like a problem for cumulative science 
+* For a cumulative science, we want (many) of the load-bearing empirical results that form the bases of theories to hold up. 
+* People were acting as if publication of results meant they were true/reliable, trying to build on things; caused crises when some prominent results failed to replicate. Called into question reliability of literature as a whole -- lead to a few measurements. 
+* Large scale replications of chunks of the literature, but aren't many (list and explain)
+* These rates feel lower than we want
+
+Why? Many approaches, no definitive answers.
+* Why are rates what they are. Both want to know to fix but also to watch out / calibrate caution. Can be approached from theoretical, interventional, and correlational dimensions.
+* Theoretical -- we know people do bad practices and can model how this leads to lower replicability. Requires things we already have ideas about
+* Interventional -- try things they think will make it better (like not doing bad practices), see what happens. Not everything is intervention prone, need to have strong belief first. Expensive!
+* Correlational -- markets/etc say there is some predictive value to be had, but don't say if it's transparent and explainable. RP:P. 
+   - Note that it's correlational, so can't do causality, but still useful for prediction, and as fodder for theory & intervention. (Interplay between them)
+
+
+* There's been a lot of discussion aroun replicabilty and it's role and yadda yadda (much overfocused on RP:P results because that's what's available). Growing sophistication and valid points, but we think it misses the mark about what practicing scientists are concerned about. 
+* Don't want to build on something and fail a bunch trying to get your variant to work and then realize it just doesn't work. Replicability (as we mean it here) A useful framing is "ability to do cumulative science" -- close to what people mean, may disagree with many things
+* How this approach differs and what it gets us
+    * (built in feasibility under reasonable / small resource constraints)
+    * interest based sampling 
+* gives clear interpretation -- no mention of truth (may even be reliable in a different environment, but would be)
+
+
+* Previous work, especially RP:P has been overfit &
+also include somewhere:
+* pedagogy
+* overfit to small sample 
+*
+
 # introduction
 When building a stone wall, it's important that the components be stones that will retain their shape and not clots of dirt and sand that might fall apart and bring the rest of the wall falling down. Building a cumulative body of scientific theories similarly requires that the empirical results, especially the more foundational empirical results, be sturdy. Results that cannot be observed consistently are like dirt clots, they don't hold their shape and thus are not a strong foundation for the theories and studies built on top of them. Replications and the theory of replicability can be thought of as a way of testing whether the empirical results are sturdy. Replicating is a necessary feature for load-bearing empirical results. We note that replicability is not the only desirable feature of a study, and that replicating does not mean that a study is valid, or generalizable, or interesting. 
 
