@@ -89,6 +89,7 @@ library(tidybayes)
 library(kableExtra)
 library(viridis)
 library(cowplot)
+library(ggthemes)
 #r_refs("r-references.bib", append=F)
 theme_set(theme_bw())
 options(knitr.table.format = "pdf")
@@ -106,26 +107,48 @@ A cumulative science relies on knowing how much to trust published findings. Lar
 
 :::
 
-<!-- Use class keywords to format keywords section -->
-<!--::: {.keywords data-latex="" lang=en}
-One keyword; Yet another keyword
-:::-->
 
 <!------------ Main text -------------------->
 
+introduction outline: 
+
+Things don't replicate that well and it feels like a problem for cumulative science 
+* For a cumulative science, we want (many) of the load-bearing empirical results that form the bases of theories to hold up. 
+* People were acting as if publication of results meant they were true/reliable, trying to build on things; caused crises when some prominent results failed to replicate. Called into question reliability of literature as a whole -- lead to a few measurements. 
+* Large scale replications of chunks of the literature, but aren't many (list and explain)
+* These rates feel lower than we want
+
+Why? Many approaches, no definitive answers.
+* Why are rates what they are. Both want to know to fix but also to watch out / calibrate caution. Can be approached from theoretical, interventional, and correlational dimensions.
+* Theoretical -- we know people do bad practices and can model how this leads to lower replicability. Requires things we already have ideas about
+* Interventional -- try things they think will make it better (like not doing bad practices), see what happens. Not everything is intervention prone, need to have strong belief first. Expensive!
+* Correlational -- markets/etc say there is some predictive value to be had, but don't say if it's transparent and explainable. RP:P. 
+   - Note that it's correlational, so can't do causality, but still useful for prediction, and as fodder for theory & intervention. (Interplay between them)
+
+
+What's missing from the conversation and why our approach is good. 
+* There's been a lot of discussion around replicabilty and it's role and yadda yadda (much overfocused on RP:P results because that's what's available). Growing sophistication and valid points, but we think it misses the mark about what practicing scientists are concerned about. 
+* Don't want to build on something and fail a bunch trying to get your variant to work and then realize it just doesn't work. Replicability (as we mean it here) A useful framing is "ability to do cumulative science" -- close to what people mean, may disagree with many things
+* How this approach differs and what it gets us
+    * (built in feasibility under reasonable / small resource constraints)
+    * interest based sampling 
+    * functional approach sidesteps issues of "truth" (may even be reliable in a different environment, but would be)
+    
+Teaser:
+* We do x,y,z, and find that larger effect sizes and within subjects designs are the two strongest correlates of replicability in this sample. 
+
+
 <!--
-# TODO list
-- BETTER abstract
-- many citations everywhere
-- long list of things to gesture at in intro
-- link to open stuffs
-- ** verify code for ES ** with someone
-- redo intro
-- redo results
-- redo discussion
-- fill in todos
 
 # Text slush pile 
+
+The perceived need for more replications in tension with the lack of publishing incentives for doing replications led several to suggest that pedagogical replications could fill this gap. Doing replications is a way for students to learn to do experiments in a scaffolded way and leads to more useful results than what students could design from scratch on the same timescale [@quintana2021; @wagge2019;@frank2012; @hawkins]. [TODO needs transition]
+
+
+
+ * Don't want to build on something and fail a bunch trying to get your variant to work and then realize it just doesn't work. Replicability (as we mean it here) A useful framing is "ability to do cumulative science" -- close to what people mean, may disagree with many things
+We think this is a valuable estimand because it's estimating what people actually care about: is this result of interest sturdy enough to support cumulative science? 
+
 [who knows where this paragraph should go] Replications are one way of approximating whether an effect in the target paper is true, and how likely results are to replicate in some sort of platonic ideal world. There is no one answer here; replication projects measure something else that could be treated as an approximation. However, what a replication is really measuring is how likely it to get that effect given some conditions. Which the right conditions are is a potential point of contention (see discussion around closeness and sample size, power etc).  Here, we are explicit in what sample of replicators and replication conditions were are sampling, and thus what we can generalize to. We are estimating how likely replication is when done online by a graduate student, under constraints that are typical for graduate students (limited time, limited budget). As much of scientific process is in fact performed by graduate students, we think this in itself is an interesting question. 
 
 We do not interpret our results as saying that all non-replications were false positives (presumably some are replicable under other circumstances and others are not). Some of the factors we look at are more easily interpreted as being about the original study than others. We do not assign causal explanation to the predictors because there are multiple plausible interpretations: they could be correlates of QRPs in the original, they could be correlates of harder-to-detect or more fragile effects, they could be correlates of less-close replications, they could even be correlates of another stronger predictor. 
@@ -171,97 +194,79 @@ We estimate this quantity in the context of a particular pedagogical situation: 
 
 Prior literature, such as @frank2012 and @hawkins have advocated using research methods classes to conduct replications, both for the education and scientific value. 
 
+# introduction
+. Building a cumulative body of scientific theories similarly requires that the empirical results, especially the more foundational empirical results, be sturdy. Results that cannot be observed consistently are like dirt clots, they don't hold their shape and thus are not a strong foundation for the theories and studies built on top of them. Replications and the theory of replicability can be thought of as a way of testing whether the empirical results are sturdy. Replicating is a necessary feature for load-bearing empirical results. We note that replicability is not the only desirable feature of a study, and that replicating does not mean that a study is valid, or generalizable, or interesting. 
 
-# Citation slush pile
-
-predict w/ ML @altmejd2019
-
-econ also has replications and issues @camerer2016
-
-moving goal posts around replication / interpreting results @nosek2020
-
-some sort of modeling of replications @pawel2020 
+Knowing what predicts and drives non-replications would let us potentially increase the replication rate, and also calibrate our levels of caution and skepticism toward results. Theoretical, interventional and correlational approaches do not yet provide comprehensive answers. 
 
 
-@schmidt2009 early theory of replication as part of advancing knowledge
-
-@simonsohn2015 small telescopes
-
-@gelman2018 Don’t characterize replications as successes or failures.
-
-@mathur2020 other metrics of replicability 
 
 
-pedagogy for replication in intro: 
 
-@frank2012
-@hawkins 
-
-@odonnell2021 reps of some set of related things
-
-
-@pownall2021 sips 2021 on teaching openness
-@jekel2020 teach open science w/ replication 
-@jern2018 in one study didn't show critical thinking benefits for students to make them do replications
 -->
+
+Questions:
+- mention primary outcome in intro? 
+- do we want to use the term p(cumulative)?
+
+TODO fill in cites
+flesh out theoretical approaches section 
 
 introduction outline: 
 
 Things don't replicate that well and it feels like a problem for cumulative science 
-* For a cumulative science, we want (many) of the load-bearing empirical results that form the bases of theories to hold up. 
-* People were acting as if publication of results meant they were true/reliable, trying to build on things; caused crises when some prominent results failed to replicate. Called into question reliability of literature as a whole -- lead to a few measurements. 
-* Large scale replications of chunks of the literature, but aren't many (list and explain)
-* These rates feel lower than we want
+A cumulative science requires foundational empirical results that can be build upon in theories and future experiments. These load-bearing results need to be reliable; when they are not robust, attempts to build on them waste resources, trying to find explanations and effects where there may be none. 
 
-Why? Many approaches, no definitive answers.
-* Why are rates what they are. Both want to know to fix but also to watch out / calibrate caution. Can be approached from theoretical, interventional, and correlational dimensions.
+Scientists, policymakers, and the public often treat publication as a signal that a result is (likely to be) true. This trust in published findings leads scientists to attempt to build on them, but failures to build on them are explained away and rarely published, leaving the original results uncontested in the literature, while failures accumulate in private. 
+
+Publicized failures to replicate called into question the tacit assumption that most of the literature was robust and would replicate. Certain prominent findings turned out to not replicate at all [ex. terror management theory; @klein2022], and a large scale replication project pegged the replication rate for findings in top-tier psychology journals at around 40% [@openscienceconsortium2015]. 
+
+Few large scale replications have been conducted in psychology, due to the resources required to run large numbers of replication studies. We are aware of three. RP:P sampled roughly 100 studies from articles published in three top psychology journals in 2008 and found a overall replication rate of around 40% [@openscienceconsortium2015]. ManyLabs investigated heterogeneity using short target studies that compared between two conditions each, but these studies are not representative of the psychology literature as a whole. Across Many Labs 1-3, 29 of 51 target effects (57%) replicated [@klein2014; @klein2018; @ebersole2016]. @camerer2018 replicated all 21 behavioral social science studies from Nature and Science from 2010-2015 that were feasible; the replication rate was around 60%. These roughly 170 replications of psychology studies are the primary empirical results on which discussions of replication rates in psychology are based. 
+
+A replication rate around 50% runs counter to the prior assumption that most findings in the literature was robust enough to support cumulative science, and raises the question: What makes the replication rates in psychology so low? 
+
+
 * Theoretical -- we know people do bad practices and can model how this leads to lower replicability. Requires things we already have ideas about
-* Interventional -- try things they think will make it better (like not doing bad practices), see what happens. Not everything is intervention prone, need to have strong belief first. Expensive!
-* Correlational -- markets/etc say there is some predictive value to be had, but don't say if it's transparent and explainable. RP:P. 
-   - Note that it's correlational, so can't do causality, but still useful for prediction, and as fodder for theory & intervention. (Interplay between them)
+
+Theoretical approaches to understanding the replication rate have modeled how flexible research practices, selective reporting, and a bias toward positive results could lead to a high rate of (non-replicable) false positives (CITE). However, while scientists admit to engaging in these practices, we don't yet know what proportion of non-replications are driven by these factors or how to identify these studies in the literature. 
+
+Experimental approaches attempt to intervene on the low replication rate, by seeing if changing certain factors affects whether studies replicate. @protzko2020 showed, across 16 studies, that better methodological practices, such as transparency, large sample sizes, and confirmatory tests, led to replication rates that matched theoretical expectations based on the effect sizes and sample sizes, with replication effect sizes comparable with the original.  Many Labs 5 examined how adding expert advice to a replication process might intervene to improve the replicate rate, and found that it mostly didn't, at least on the 10 studies they looked at [@ebersole2020]. These types of experiments are valuable for testing potential causes of non-replication, but they don't scale well do to expense. Additionally, not all potential influences on non-replication are experimentally manipulable.
+
+Correlational approaches looking for predictors of replicability are the most popular. Prediction markets and elicitations have established that people can predict what studies will replicate above chance [@hoogeveen2019;@dreber2015; @forsell2019;@camerer2018], but have not identified many concrete predictors that differentiate replications from non-replications. Machine learning approaches CITE similarly show predictive signal, but do not provide explainable predictor variables. @opensicenceconsortium2015 looked for simple correlates of replicability in the RP:P sample and found that studies in cognitive psychology (as opposed to social psychology) and studies with larger effect sizes and smaller p-values were more likely to replicate. Correlations approaches depend on data from replications, generally drawing heavily from the same small set of data points. In particular, the RP:P dataset itself is much discussed and reanalyzed [@etz2016;@gilbert2016;@patil2016;@anderson2016] to the point that much of what we think we know about replicability may be overfit to the 100 studies included in in RP:P. 
 
 
-* There's been a lot of discussion aroun replicabilty and it's role and yadda yadda (much overfocused on RP:P results because that's what's available). Growing sophistication and valid points, but we think it misses the mark about what practicing scientists are concerned about. 
-* Don't want to build on something and fail a bunch trying to get your variant to work and then realize it just doesn't work. Replicability (as we mean it here) A useful framing is "ability to do cumulative science" -- close to what people mean, may disagree with many things
-* How this approach differs and what it gets us
-    * (built in feasibility under reasonable / small resource constraints)
-    * interest based sampling 
-* gives clear interpretation -- no mention of truth (may even be reliable in a different environment, but would be)
 
 
-* Previous work, especially RP:P has been overfit &
-also include somewhere:
-* pedagogy
-* overfit to small sample 
-*
+What's missing from the conversation and why our approach is good. 
+* There's been a lot of discussion around replicabilty and it's role and yadda yadda (much overfocused on RP:P results because that's what's available). Growing sophistication and valid points, but we think it misses the mark about what practicing scientists are concerned about. 
 
-# introduction
-When building a stone wall, it's important that the components be stones that will retain their shape and not clots of dirt and sand that might fall apart and bring the rest of the wall falling down. Building a cumulative body of scientific theories similarly requires that the empirical results, especially the more foundational empirical results, be sturdy. Results that cannot be observed consistently are like dirt clots, they don't hold their shape and thus are not a strong foundation for the theories and studies built on top of them. Replications and the theory of replicability can be thought of as a way of testing whether the empirical results are sturdy. Replicating is a necessary feature for load-bearing empirical results. We note that replicability is not the only desirable feature of a study, and that replicating does not mean that a study is valid, or generalizable, or interesting. 
 
-A major concern in psychology, as in other fields, is that the published literature may not replicate as well as had previously been assumed. This is illustrated both by a few prominent findings that turn out to not replicate at all [ex. terror management theory; @klein2022], and by large-scale replication projects such as RP:P which found a replication rate around 40% for a sample of the psychology literature [@openscienceconsortium2015]. This low replication rates seems undesirable and seems to run counter to the idea of a cumulative science. 
-
-A big open question is why the replication rates in psychology are so low. There are theoretical approaches modelling how questionable research practices (which many psychologists admit to) and a bias towards positive results would lead to a high rate of (non-replicable) false positives in the literature (CITE). There's some disconnect between these theoretically causal factors and empirical results about what causes or correlates with replicability.  
-
-A couple studies have attempted to intervene on the low replication rate, but seeing if certain factors can affect whether studies replicate. For instance, across 16 studies, @protzko2020 showed that better methodological practices, such as transparency, large sample sizes, and confirmatory tests, led to replication rates  that matched theoretical expectations based on the effect sizes and sample sizes, and replication effect sizes comparable with the original.  Many Labs 5 examined how adding expert advice to a replication process might intervene to improve the replicate rate, and found that it mostly didn't, at least on the 10 studies they looked at [@ebersole2020]. These types of experiments are valuable, but they aren't very scalable because they are expensive and some potential influences on non-replication are not experimentally manipulable.
-
-As an alternative, much of the work looking at predictors of replicability has been correlation: whether using regression models, prediction markets, or machine learning techniques to build predictions about what will replicate. However, all of these approaches depend on data from replications. While many replications have been conducted, most were not randomly sampled and are not pooled together, so these studies instead rely on the small number of data points from large-scale replication projects. The RP:P dataset itself is much discussed and reanalyzed [@etz2016;@gilbert2016;@patil2016;@anderson2016]. These correlational approaches have established that people can predict what studies will replicate above chance [@hoogeveen2019;@dreber2015; @forsell2019;@camerer2018], but have not identified that many concrete predictors that differentiate replications from non-replications. In the RP:P sample, studies in cognitive psychology (as opposed to social psychology) and studies with larger effect sizes and smaller p-values were more likely to replicate. 
-
-This reliance on the same small set of data is problematic, as much of what we think we know about replicability is overfit to this small sample. However, given the time-consuming nature of running a large number of replications, there is a limited amount of large-scale replication data to draw on. We are aware of three large-scale replication efforts replicating experimental results in the existing psychology literature. RP:P sampled roughly 100 studies from articles published in three top psychology journals in 2008 and found a overall replication rate of around 40% [@openscienceconsortium2015]. The ManyLabs series of replications investigating heterogeneity has sampled target studies that are short and compare only two conditions, which is not representative of the psychology literature as a whole. Across Many Labs 1-3, 29 of 51 target effects (57%) were found to replicate [@klein2014; @klein2018; @ebersole2016]. @camerer2018 found a roughly 60% replication rate when they replicated all 21 behaviors studies published in Nature and Science from 2010-2015 that did not require special populations or special equipment. Those are all the large-scale replication projects of experimental psychology results available at this time. These roughly 170 results are heavily represented in the work predicting what effects will replicate.
-
-The perceived need for more replications in tension with the lack of publishing incentives for doing replications led several to suggest that pedagogical replications could fill this gap. Doing replications is a way for students to learn to do experiments in a scaffolded way and leads to more useful results than what students could design from scratch on the same timescale [@quintana2021; @wagge2019;@frank2012; @hawkins]. [TODO needs transition]
-
-Our main contribution is a new dataset of 176 replications of experimental studies from the social sciences, primarily psychology. These replications were conducted by students in graduate-level experimental methods class between 2011 and 2022 as individual course projects. This approximately doubles the set of experiments in the large-scale replication literature. We investigate predictors of replicability in this new dataset. 
-
-Prior approaches to replicability have focused on interpreting results in terms of a potentially problematic estimand: the probability of a finding in the literature being somehow truly replicable. Critics have pointed out that "true" replicability may not be possible to estimate outside of a specific sample [@vanbavel2016] or even time period [@ramscar]. 
+What does replicability mean? Prior approaches to replicability have focused on interpreting results in terms of a potentially problematic estimand: the probability of a finding in the literature being somehow truly replicable. Critics have pointed out that "true" replicability may not be possible to estimate outside of a specific sample [@vanbavel2016] or even time period [@ramscar]. 
 
 Further, the methods for estimating this quantity have been theoretically problematic. Sampling schemes for prior work typically do not reflect an entirely random sample from the literature; instead they sample from specific journals where results may be of more interest and adjust the sample for feasibility concerns. These are reasonable sampling choices, but they undermine the claim that the estimand is the level of "truth" in the literature as a whole. Sampling truely at random from the literature may not even be desirable, as  arguably a literature will succeed if useful discoveries come out of it, not if random findings are true [@wilson2020]. How much we care about whether a study is "trustworthy" is not uniformly distributed across the literature. 
 
- 
+
+
+
+<!-- good below here --> 
+
 In contrast, we have explicitly pursued a different estimand: the probability that a researcher, on selecting a finding of interest from the literature, can successfully achieve a result satisfactorily close enough to the original that they can build on it in their own work, with all the necessary compromises to the methods and sample of the original that may be required by the constraints of the situation. 
 
-The sampling for our replications is based on what studies students were interested in and wanted to replicate, with some constraints of feasibility; this sampling reflects how scientists choose what studies to build on: those that are interesting and relatively doable within their ability and budgetary constraints. Our primary criteria for replication success is a subjective measure of whether the study replicated for the same reason, that we believe this is usually what researchers care about: is it close enough that you think you're getting at the same effect and could confidently build on it. The quality of the replications also reflects this: unlike some prior work like @camerer2018, which explicitly aimed for high-powered replications, the power in these studies was limited by budgetary reasons in some cases, which is reflective of the types of resources often available to trainee scientists. 
+This framing of replicability matches our methodology. 
 
-We think this is a valuable estimand because it's estimating what people actually care about: is this result of interest sturdy enough to support cumulative science? 
+Rather than sampling at random from some parts of the literature; our sample of studies is selected based on what studies students were interested in and wanting to replicate, with some filtering for feasibility; this sampling reflects how scientists choose what studies to build on: those that are interesting and relatively doable given methodological and budgetary constraints.
+
+We use a subjective replication score as our primary metric. Whether one feels confident in the results of a study given a replication is not always dependent on only one outcome measure (ex. interaction term) and particularly not dependent on only one statistical comparison between the two studies (ex. replication is p<.05 same direction as original). This avoids bright line distinctions and accomodates the range of outcome measures in our diverse set of studies.
+
+All our replications were conducted under short time scales and relatively small budgets, which mimics the constraints many scientists are under when starting new projects. From the point of view of cumulative science, researchers want to know if they can get paradigms to work under their real-world constraints. The same issue that may cause a study not to replicate under constrained circumstances (despite hypothetically replicating under more favorable circumstances such as expert administration or larger budgets) will also plague attempts to build off those studies in constrained circumstances. Thus, we believe it is relevant to estimate replicability as done by a graduate student with limited resources. 
+
+Overall, we take a functional approach to assessing replicability, by framing both our methods and interpretation around the idea of whether work can be repeated or built on by an early-career scientist. 
+
+Our contribution is a new dataset of 176 replications of experimental studies from the social sciences, primarily psychology. These replications were conducted by students in graduate-level experimental methods class between 2011 and 2022 as individual course projects. We investigated predictors of replicability in this dataset and found that within-subjects designs and studies with large standardized effect sizes were positively correlated with replication success. 
+
+
+
+
 
 
 ```{=latex}
@@ -328,7 +333,7 @@ PSYCH 251 is Stanford Psychology's graduate-level experimental methods class tau
 
 The sample of replicated studies reflects the variability of the literature, including studies from different subfields, using different experimental methods and statistical outcomes. We leverage the naturally occurring variability in this sample of replications to examine how different demographic, experimental design, and statistical properties predict replication success. 
 
-Many different measures can be used to define replication success of an individual statistical result, and there is much discussion over what each measure represents and which make sense [@simonsohn2015; @gelman2018; @mathur2020]. Because we operationalized replicability as whether a study could be built upon, we used a subjective rating of replication success as our primary outcome measure. This measure has the benefit that it was applicable across the diverse range of statistical measures and reporting practices present in the sample. It, unlike statistical measures of replication, could easily accommodate studies where there were multiple important outcome measures that together defined the pattern of interest. A holistic measure of replication success had been coded for each project when it was turned in at the end of the class. For reliability, VB independently code the replication success from the replication reports; discrepancies were resolved by discussion between MCF and VB (`r pluck(matching,2,1)/176*100 |> round()` % of cases). 
+Many different measures can be used to define replication success of an individual statistical result, and there is much discussion over what each measure represents and which make sense [@simonsohn2015; @gelman2018; @mathur2020]. Because we operationalized replicability as whether a study could be built upon, we used a subjective rating of replication success as our primary outcome measure. This measure has the benefit that it was applicable across the diverse range of statistical measures and reporting practices present in the sample. It, unlike statistical measures of replication, could easily accommodate studies where there were multiple important outcome measures that together defined the pattern of interest. A holistic measure of replication success had been coded for each project when it was turned in at the end of the class. For reliability, VB independently code the replication success from the replication reports; discrepancies were resolved by discussion between MCF and VB (`r round(pluck(matching,2,1)/176*100)`% of cases). 
 
 As a complement, we also used two statistical measure of replication on the subset of the data where they were computable (`r pluck(pred_int_avail,1)` cases, see Figure \ref{fig:prisma}). We measured p-original, the p-value on the null hypothesis that the original and replication statistics are from the same distribution, as a continuous variable, and we also determined whether the replication statistic fell within the prediction interval of the original statistic [@errington2021]. These both measure how similar the estimates from the two sets of data are. 
 
@@ -364,6 +369,7 @@ Across the 176 studies, the overall subjective replication rate was `r round(plu
 for_cor <- read_csv(here("data","for_model.csv")) |> filter(include %in% c("stats", "exp", "pred_int")) |>
   select(sub_rep, 
          pub_year, subfield, open_data, open_mat, stanford, change_platform, log_ratio_ss, is_within, single_vignette, log_sample, log_trials) |> mutate(social=ifelse(subfield=="social", 1,0),other_psych=ifelse(subfield=="other-psych",1,0), non_psych=ifelse(subfield=="non-psych", 1,0)) 
+
 sub_cor <- function(var, stat = "estimate") {
   if (stat == "estimate") {
     cor.test(for_cor$sub_rep, pull(for_cor, {{var}}))$estimate
@@ -398,12 +404,13 @@ knitr::kable(cors, digits = 3, align='rcc',format="latex", position="!h", captio
 
 
 ```
+
 ## Single predictors
 Properties of both the original study and the replication can influence whether or not the replication is a success. We chose a set of predictor variables from the correlational results of RP:P and our own intuitions about experimental factors that might impact replication success as well as some covariates related to how close the replication would be. A full description of these features is given in methods. 
 
 Many of these predictors individually correlate with subjective replication success (Table \ref{tab:cor}). Predictors of higher replicability included within-subjects designs, higher numbers of trials, and open data. Predictors of lower replicability included single vignetted studies, social psychology studies, and original-replication pairs where the replication switched to online. 
 
-Distributions of study outcomes across some of these properties are shown in Figure \ref{fig:predictors-graph}. Both social and cognitive psychology studies were well represented, and the cognitive psychology studies replicated at `r 1/subfield |> round(2)` times the rate of social psychology studies. Within and between subjects designs were both common, and within replicated `r within |> round(2)` times as much. Similarly, studies with multiple vignettes replicated `r 1/vignette |> round(2)` times more than single vignetted studies. However, there were strong correlations among these experimental features and between these experimental features and subfield.
+Distributions of study outcomes across some of these properties are shown in Figure \ref{fig:predictors-graph}. Both social and cognitive psychology studies were well represented, and the cognitive psychology studies replicated at `r round(1/subfield, 2)` times the rate of social psychology studies. Within and between subjects designs were both common, and within replicated `r within |> round(2)` times as much. Similarly, studies with multiple vignettes replicated `r round(1/vignette, 2)` times more than single vignetted studies. However, there were strong correlations among these experimental features and between these experimental features and subfield.
 
 Studies with open data, which almost always also had open materials, tended to replicate more than studies without open data, although this may be linked to temporal trends. 
 
@@ -464,24 +471,57 @@ plot_grid (top_row, mid_row, nrow=2)
 ```
 
 ```{r}
+do_estimates <- function(model, variable){
+  summary(model)$fixed |> as_tibble(rownames="var") |> filter(var==variable)|> mutate(text=str_c(round(Est.Error,2), ", CrI= [", round(`l-95% CI`,2),", ", round(`u-95% CI`,2),"]")) |> pull(text)
+}
+
 tier1_subjective <- read_rds(here(model_location, "tier1_subjective.rds"))
 
-summary(tier1_subjective)$fixed |> as_tibble(rownames="var") |> filter(var=="is_within")|> mutate(text=str_c(round(Est.Error,2), "[", round(`l-95% CI`,2),",", round(`u-95% CI`,2),"]")) |> pull(text) ->within_range
+within_1 <- do_estimates(tier1_subjective, "is_within")
+
+tier3_subjective <- read_rds(here(model_location, "tier3_subjective.rds"))
+
+within_3 <- do_estimates(tier3_subjective, "is_within")
+
+smd_3 <- do_estimates(tier3_subjective, "z_target_d_calc")
+
+sens_3 <- read_rds(here(model_location, "sens_tier3_subjective.rds"))
+
+within_sens <- do_estimates(sens_3, "is_within")
+
+smd_sens <- do_estimates(sens_3, "z_target_d_calc")
+
+pred_int <- read_rds(here(model_location, "tier3_predint.rds"))
+
+within_2 <- do_estimates(pred_int, "is_within")
+
+smd_2 <- do_estimates(pred_int, "z_target_d_calc")
 ```
  
 ## Regression model
-While a number of the predictors show individual correlations with the subjective replication score, many of the predictors are also correlated with one another. In order to determine which predictors were the strongest, we ran a pre-registered regularized regression model (see Methods for details). The coefficient estimates are shown in Figure \ref{fig:mod-results}. Due to a large number of predictors coupled with a small and noisy dataset, even with strong regularization, there is much uncertainty around the coefficients. The general directions of coefficients are consistent with the effects of the predictors in isolation. Within-subjects designs seem an especially strong indicator of replicability (`r within_range`). 
+While a number of the predictors show individual correlations with the subjective replication score, many of the predictors are also correlated with one another. In order to determine which predictors were the strongest, we ran a series of pre-registered regularized regression models (see Methods for details; see Supplement for all estimates from all models). The coefficient estimates of the primary model, predicting the subjective replication scores based on all the data, are shown in Figure \ref{fig:mod-results}. Due to a large number of predictors coupled with a small and noisy dataset, even with strong regularization, there is much uncertainty around the coefficients. The general directions of coefficients are consistent with the effects of the predictors in isolation. 
 
-```{r mod-results, out.height="25%", fig.width=8, fig.height=3, fig.pos="ht", fig.cap="Coefficient estimates and uncertainty from a model predicting subjective replication scores from the full dataset."}
-tier1_subjective <- read_rds(here(model_location, "tier1_subjective.rds"))
-tier1_subjective |> 
-gather_draws(`b_[a-zA-Z_(): ]+`, regex=TRUE) |> mutate(Term=str_sub(.variable, 3,-1) |> str_replace("M","_"), Estimate=.value) |> mutate(Term=factor(Term, levels=c("subfieldsocial", "subfieldother_psych", "subfieldnon_psych", "is_within", "single_vignette", "change_platform", "open_data", "open_mat", "stanford", "z_pub_year", "z_log_trials", "z_log_sample", "z_log_ratio_ss"), labels=c("Social", "Other psych", "Non psych", "Within subjects", "Single vignette", "Switch to online", "Open data", "Open materials", "Stanford", "Publication year", "Log trials", "Log original sample size", "Log rep/orig sample"))) |> 
-  ggplot(aes(y = reorder(Term, Estimate, mean), x = Estimate)) + geom_vline(xintercept=0)+
-  stat_pointinterval(color="#440154")+labs(y="", x="Estimate, 66%, 95% CrI predicting subjective replication score")+theme(axis.text=element_text(size=11))
+Within-subjects designs stand out as the strongest indicator of replicability in the model without statistical predictors (`r within_1`). When statistical predictors are added to the model, within-subjects designs remain predictive (`r within_3`). Standardized effect size is another strong predictor of subjective replication score (`r smd_3`). Both effects are robust to a sensitivity analysis including only studies with close replications and matching statistical tests (within-subjects `r within_sens`; effect size `r smd_sens`). 
+
+We also ran models predicting whether the replication effect was within the prediction interval as the original effect and what the p-original was between the replication and original. Both these models had even more uncertain estimates. While the credible intervals are wide, the general patterns of predictors are similar to the subjective replication models. The strongest predictors are still within-subjects designs (`r within_2`) and studies with larger effect sizes (`r smd_2`). 
+
+```{r mod-results, out.width="90%", fig.width=8, fig.height=5, fig.pos="ht", fig.cap="Coefficient estimates and uncertainty from a model predicting subjective replication scores from the full dataset."}
+
+do_draws <- function(model){
+  draws <- model |> gather_draws(`b_[a-zA-Z_(): ]+`, regex=TRUE) |> 
+    mutate(Term=str_sub(.variable, 3,-1) |> str_replace("M","_"), Estimate=.value) |>  filter(Term!="Intercept") |> 
+    mutate(Term=factor(Term, levels=c("subfieldsocial", "subfieldother_psych", "subfieldnon_psych", "is_within", "single_vignette", "change_platform", "open_data", "open_mat", "stanford", "z_pub_year", "z_log_trials", "z_log_sample", "z_log_ratio_ss","z_log_p","z_target_d_calc"), labels=c("Social", "Other psych", "Non psych", "Within subjects", "Single vignette", "Switch to online", "Open data", "Open materials", "Stanford", "Publication year", "Log trials", "Log original sample size", "Log rep/orig sample", "P-value", "Original effect size"))) 
+}
+
+tier1_subjective <- read_rds(here(model_location, "tier1_subjective.rds")) |> do_draws() |> mutate(type="Without stats predictors") |> mutate(sens="All data")
+tier3_subjective <- read_rds(here(model_location, "tier3_subjective.rds"))|> do_draws() |> mutate(type="With stats predictors") |> mutate(sens="All data")
+
+tier1_subjective |> union(tier3_subjective) |> ggplot(aes(y = reorder(Term, Estimate, mean), x = Estimate, color=type)) + geom_vline(xintercept=0)+
+  scale_color_solarized()+
+  stat_pointinterval(position=position_dodge(width=.7))+labs(y="", x="Estimate, 66%, 95% CrI predicting subjective replication score", color="", linetype="", shape="")+theme(axis.text=element_text(size=11),legend.position="bottom")
 
 ```
 
-Results from other models can be found in the supplement.
 
 # Discussion
 
