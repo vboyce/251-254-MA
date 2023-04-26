@@ -110,7 +110,7 @@ A cumulative science relies on knowing how much to trust published findings. Lar
 
 <!------------ Main text -------------------->
 
-introduction outline: 
+<!--introduction outline: 
 
 Things don't replicate that well and it feels like a problem for cumulative science 
 * For a cumulative science, we want (many) of the load-bearing empirical results that form the bases of theories to hold up. 
@@ -123,7 +123,6 @@ Why? Many approaches, no definitive answers.
 * Theoretical -- we know people do bad practices and can model how this leads to lower replicability. Requires things we already have ideas about
 * Interventional -- try things they think will make it better (like not doing bad practices), see what happens. Not everything is intervention prone, need to have strong belief first. Expensive!
 * Correlational -- markets/etc say there is some predictive value to be had, but don't say if it's transparent and explainable. RP:P. 
-   - Note that it's correlational, so can't do causality, but still useful for prediction, and as fodder for theory & intervention. (Interplay between them)
 
 
 What's missing from the conversation and why our approach is good. 
@@ -137,7 +136,7 @@ What's missing from the conversation and why our approach is good.
 Teaser:
 * We do x,y,z, and find that larger effect sizes and within subjects designs are the two strongest correlates of replicability in this sample. 
 
-
+-->
 <!--
 
 # Text slush pile 
@@ -205,16 +204,8 @@ Knowing what predicts and drives non-replications would let us potentially incre
 
 -->
 
-Questions:
-- mention primary outcome in intro? 
-- do we want to use the term p(cumulative)?
+# Introduction
 
-TODO fill in cites
-flesh out theoretical approaches section 
-
-introduction outline: 
-
-Things don't replicate that well and it feels like a problem for cumulative science 
 A cumulative science requires foundational empirical results that can be build upon in theories and future experiments. These load-bearing results need to be reliable; when they are not robust, attempts to build on them waste resources, trying to find explanations and effects where there may be none. 
 
 Scientists, policymakers, and the public often treat publication as a signal that a result is (likely to be) true. This trust in published findings leads scientists to attempt to build on them, but failures to build on them are explained away and rarely published, leaving the original results uncontested in the literature, while failures accumulate in private. 
@@ -225,30 +216,17 @@ Few large scale replications have been conducted in psychology, due to the resou
 
 A replication rate around 50% runs counter to the prior assumption that most findings in the literature was robust enough to support cumulative science, and raises the question: What makes the replication rates in psychology so low? 
 
-
-* Theoretical -- we know people do bad practices and can model how this leads to lower replicability. Requires things we already have ideas about
-
 Theoretical approaches to understanding the replication rate have modeled how flexible research practices, selective reporting, and a bias toward positive results could lead to a high rate of (non-replicable) false positives (CITE). However, while scientists admit to engaging in these practices, we don't yet know what proportion of non-replications are driven by these factors or how to identify these studies in the literature. 
 
 Experimental approaches attempt to intervene on the low replication rate, by seeing if changing certain factors affects whether studies replicate. @protzko2020 showed, across 16 studies, that better methodological practices, such as transparency, large sample sizes, and confirmatory tests, led to replication rates that matched theoretical expectations based on the effect sizes and sample sizes, with replication effect sizes comparable with the original.  Many Labs 5 examined how adding expert advice to a replication process might intervene to improve the replicate rate, and found that it mostly didn't, at least on the 10 studies they looked at [@ebersole2020]. These types of experiments are valuable for testing potential causes of non-replication, but they don't scale well do to expense. Additionally, not all potential influences on non-replication are experimentally manipulable.
 
 Correlational approaches looking for predictors of replicability are the most popular. Prediction markets and elicitations have established that people can predict what studies will replicate above chance [@hoogeveen2019;@dreber2015; @forsell2019;@camerer2018], but have not identified many concrete predictors that differentiate replications from non-replications. Machine learning approaches CITE similarly show predictive signal, but do not provide explainable predictor variables. @opensicenceconsortium2015 looked for simple correlates of replicability in the RP:P sample and found that studies in cognitive psychology (as opposed to social psychology) and studies with larger effect sizes and smaller p-values were more likely to replicate. Correlations approaches depend on data from replications, generally drawing heavily from the same small set of data points. In particular, the RP:P dataset itself is much discussed and reanalyzed [@etz2016;@gilbert2016;@patil2016;@anderson2016] to the point that much of what we think we know about replicability may be overfit to the 100 studies included in in RP:P. 
 
+Many of the discussions and reanalyses have raised questions about what the right metrics for measuring replicability are and what standards are reasonable to expect. Some of this contention is based around notions that failed replications are referenda on the truth of the original finding. 
 
-
-
-What's missing from the conversation and why our approach is good. 
-* There's been a lot of discussion around replicabilty and it's role and yadda yadda (much overfocused on RP:P results because that's what's available). Growing sophistication and valid points, but we think it misses the mark about what practicing scientists are concerned about. 
-
-
-What does replicability mean? Prior approaches to replicability have focused on interpreting results in terms of a potentially problematic estimand: the probability of a finding in the literature being somehow truly replicable. Critics have pointed out that "true" replicability may not be possible to estimate outside of a specific sample [@vanbavel2016] or even time period [@ramscar]. 
+Prior approaches to replicability have focused on interpreting results in terms of a potentially problematic estimand: the probability of a finding in the literature being somehow truly replicable. Critics have pointed out that "true" replicability may not be possible to estimate outside of a specific sample [@vanbavel2016] or even time period [@ramscar]. 
 
 Further, the methods for estimating this quantity have been theoretically problematic. Sampling schemes for prior work typically do not reflect an entirely random sample from the literature; instead they sample from specific journals where results may be of more interest and adjust the sample for feasibility concerns. These are reasonable sampling choices, but they undermine the claim that the estimand is the level of "truth" in the literature as a whole. Sampling truely at random from the literature may not even be desirable, as  arguably a literature will succeed if useful discoveries come out of it, not if random findings are true [@wilson2020]. How much we care about whether a study is "trustworthy" is not uniformly distributed across the literature. 
-
-
-
-
-<!-- good below here --> 
 
 In contrast, we have explicitly pursued a different estimand: the probability that a researcher, on selecting a finding of interest from the literature, can successfully achieve a result satisfactorily close enough to the original that they can build on it in their own work, with all the necessary compromises to the methods and sample of the original that may be required by the constraints of the situation. 
 
