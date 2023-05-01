@@ -105,13 +105,34 @@ d <- read_csv(here("data", "processed_data.csv")) |> filter(status!="unusable") 
 
 
 
-Cumulative scientific progress requires empirical results that are robust enough to support theory construction and future experimental extension. Yet in psychology, some prominent individual findings are have repeatedly failed to replicate, and large-scale investigations suggest that the overall replication rate is around half. 
-What predicts which studies will replicate? The identification of features that predict replication is limited by the common dataset of only 170 studies from large-scale investigations that are repeatedly analysed. 
-We introduce a new sample of 176 replications conducted by students as part of a graduate-level experimental methods course, and we examine how often students were able replicate their chosen studies' results closely enough that they would be ready to build on it in future work. Using this as a metric of replicability, 49% of the studies in our sample replicate, with studies with larger original effect sizes and within-participants designs being more likely to replicate. 
+Cumulative scientific progress requires empirical results that are robust enough to support theory construction and future extensions. 
+Yet in psychology, some prominent individual findings have failed to replicate, and large-scale investigations suggest *that failures to replicate are widespread.*
+What predicts which studies will replicate? 
+The identification of features that predict replication success is limited by data, however: most studies use a common dataset of only ~170 studies, *which vary in how they define replication.*
+We introduce a new dataset of 176 replications conducted by students as part of a graduate-level experimental methods course. 
+We examine how often students were able replicate their chosen studies' results closely enough that they would be ready to build on it in future work. 
+Using this as a metric of replicability, 49% of the studies in our sample replicate, with studies with larger original effect sizes and within-participants designs being more likely to replicate.
 Consistent with prior reports, our replication results indicate that the robustness of the psychology literature is low enough to limit progress by student investigators.
 :::
 
 
+Alternative intro outline:
+
+* Cumulative science needs robust empirical results. 
+
+* People had been assuming literature was robust which led to frustration and wasted resources (esp b/c pub bias, so failures hidden)
+
+* Non-replications question these assumptions
+
+* Replication is hard to define, both in terms of results and circumstances (CITE A BUNCH); previous work varied in methods, but their stated estimand was problematic.
+
+* Better to contextualize based on what circumstances & what metric means. One estimand we think is important and related to (one of the reasons) why people care is ability for normal scientist to do cumulative science under normal circumstances. 
+
+* That's what we're able to estimate here given the study we have. 
+
+??? How and where to work in the previous work, re-labelled by what they actual are estimating? 
+
+* Then talk about predictors being important? And how we don't have enough data? And that our dataset will contribute to this question??? 
 
 <!--introduction outline: 
 
