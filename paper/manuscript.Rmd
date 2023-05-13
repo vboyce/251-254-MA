@@ -249,19 +249,6 @@ d |>
 
 ```
 
-```{r forest, out.height="50%", fig.width=5, fig.height=8, fig.pos="ht", fig.cap="TRY FOREST PLOT"}
-d |> 
-  filter(target_d_calc < 5, rep_d_calc < 5) |>
-  ggplot(aes(y=reorder(target_lastauthor_year,target_d_calc, mean), color=as.factor(sub_rep)))+
-  
-  geom_point(aes(x=target_d_calc), shape=21)+
-  geom_point(aes(x=rep_d_calc), shape=19)+
-  scale_color_viridis(discrete=T, direction = 1, 
-                      name = "Subjective\nReplication\nSuccess\n")+theme_classic()+
-  labs(x="Standardized Effect Size")+
-  theme(axis.text.y=element_blank(), axis.ticks.y=element_blank(), axis.title.y=element_blank())
-
-```
 
 ## Overall replication rate 
 
@@ -336,8 +323,9 @@ dat <- read_csv(here("data","for_model.csv")) |> filter(include %in% c("stats", 
 
 sub_with_leg <- dat |> mutate(subfield=factor(subfield, levels=c("cognitive", "social", "other-psych", "non-psych"), 
                                               labels=c("Cognitive\npsychology", "Social\npsychology", "Other\npsychology", "Not\npsychology"))) |>
-  ggplot(aes(x=subfield, fill=sub_rep))+
-  geom_bar(stat="count", position="dodge")+
+  count(subfield, sub_rep, .drop=F) |> 
+  ggplot(aes(x=subfield, fill=sub_rep, y=n))+
+  geom_bar(stat="identity", position="dodge")+
   scale_fill_viridis(discrete=T)+
     coord_cartesian(ylim=c(0,55), expand=F)+
   theme(axis.title.x=element_blank(), axis.title.y=element_blank())+
@@ -351,29 +339,31 @@ open <- dat |> mutate(openness=case_when(
   open_mat==1& open_data==1 ~ "Open materials \n Open data",
   open_mat==1 ~ "Open materials \n No open data",
   open_data==1 ~ "No open materials \n Open data",
-  T ~ "No open materials \n No open data")) |> 
-  ggplot( aes(x=openness |> factor(), fill=sub_rep))+
-  geom_bar(stat="count", position="dodge")+
+  T ~ "No open materials \n No open data") |> factor()) |> 
+    count(openness, sub_rep, .drop=F) |> 
+  ggplot( aes(x=openness, y=n, fill=sub_rep))+
+  geom_bar(stat="identity", position="dodge")+
   scale_fill_viridis(discrete=T)+
     coord_cartesian(ylim=c(0,55), expand=F)+
   theme(axis.title.x=element_blank(), axis.title.y=element_blank(), legend.position="none")
 
-modal <- ggplot(dat, aes(x=ifelse(change_platform,"Switch to online\n","Same modality\n"), fill=sub_rep))+
-  geom_bar(stat="count", position="dodge")+
+modal <- dat |> mutate(platform=ifelse(change_platform,"Switch to online\n","Same modality\n")) |> count(platform, sub_rep, .drop=F) |>  ggplot(aes(x=platform, y=n, fill=sub_rep))+
+  geom_bar(stat="identity", position="dodge")+
   scale_fill_viridis(discrete=T)+
     coord_cartesian(ylim=c(0,55), expand=F)+
   theme(axis.title.y=element_blank(), axis.title.x=element_blank(), legend.position="none")
 
 
-within <- ggplot(dat, aes(x=ifelse(is_within, "Within \nsubjects", "Between\nsubjects"), fill=sub_rep))+
-  geom_bar(stat="count", position="dodge")+
+within <- dat |> mutate(is_within=ifelse(is_within, "Within \nsubjects", "Between\nsubjects")) |> 
+  count(is_within, sub_rep, .drop=F) |> ggplot(aes(x=is_within, y=n, fill=sub_rep))+
+  geom_bar(stat="identity", position="dodge")+
   scale_fill_viridis(discrete=T)+
   coord_cartesian(ylim=c(0,55), expand=F)+
   theme(axis.title.y=element_blank(), axis.title.x=element_blank(), legend.position="none")
 
 
-vignette <- ggplot(dat, aes(x=ifelse(single_vignette, "Single \nvignette", "Multiple \nvignettes"), fill=sub_rep))+
-  geom_bar(stat="count", position="dodge")+
+vignette <- dat |> mutate(single_vignette=ifelse(single_vignette, "Single \nvignette", "Multiple \nvignettes")) |> count(single_vignette, sub_rep, .drop=F) |> ggplot(aes(x=single_vignette,y=n, fill=sub_rep))+
+  geom_bar(stat="identity", position="dodge")+
   scale_fill_viridis(discrete=T)+
     coord_cartesian(ylim=c(0,55), expand=F)+
   theme(axis.title.y=element_blank(), axis.title.x=element_blank(), legend.position="none")

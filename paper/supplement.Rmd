@@ -34,7 +34,28 @@ theme_set(theme_bw())
 options(knitr.table.format = "pdf")
 
 model_location="code/models"
+d <- read_csv(here("data", "processed_data.csv")) |> filter(status!="unusable") |> filter(include!="no")
 
+```
+
+# Forest plot 
+
+```{r forest, out.height="100%", fig.width=9, fig.height=12, fig.pos="ht", fig.cap="TRY FOREST PLOT"}
+
+d |> 
+  filter(target_d_calc < 5, rep_d_calc < 5) |>
+  mutate(numpredInt=ifelse(predInt,1,0)) |> 
+  ggplot(aes(y=reorder(target_lastauthor_year,target_d_calc, mean), color=as.factor(sub_rep)))+
+    geom_vline(xintercept=0, linetype=3)+
+  geom_point(aes(x=target_d_calc, shape="original"))+
+  geom_point(aes(x=rep_d_calc, shape="replication"))+
+  scale_shape_manual(values=c("original"=21,"replication"=19), name=NULL)+
+  coord_cartesian(xlim=c(-2,4))+
+  geom_text(aes(x=-2, label=round(p_orig,3)), size=3, hjust=0, show.legend = F)+
+  scale_color_viridis(discrete=T, direction = 1, 
+                      name = "Subjective\nReplication\nSuccess\n")+theme_classic()+
+  labs(x="Standardized Effect Size")+
+  theme(axis.ticks.y=element_blank(), axis.title.y=element_blank())
 ```
 
 # Additional model results
