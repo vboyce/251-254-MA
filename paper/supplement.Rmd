@@ -38,26 +38,6 @@ d <- read_csv(here("data", "processed_data.csv")) |> filter(status!="unusable") 
 
 ```
 
-# Forest plot 
-
-```{r forest, out.height="100%", fig.width=9, fig.height=12, fig.pos="ht", fig.cap="TRY FOREST PLOT"}
-
-d |> 
-  filter(target_d_calc < 5, rep_d_calc < 5) |>
-  mutate(numpredInt=ifelse(predInt,1,0)) |> 
-  ggplot(aes(y=reorder(target_lastauthor_year,target_d_calc, mean), color=as.factor(sub_rep)))+
-    geom_vline(xintercept=0, linetype=3)+
-  geom_point(aes(x=target_d_calc, shape="original"))+
-  geom_point(aes(x=rep_d_calc, shape="replication"))+
-  scale_shape_manual(values=c("original"=21,"replication"=19), name=NULL)+
-  coord_cartesian(xlim=c(-2,4))+
-  geom_text(aes(x=-2, label=round(p_orig,3)), size=3, hjust=0, show.legend = F)+
-  scale_color_viridis(discrete=T, direction = 1, 
-                      name = "Subjective\nReplication\nSuccess\n")+theme_classic()+
-  labs(x="Standardized Effect Size")+
-  theme(axis.ticks.y=element_blank(), axis.title.y=element_blank())
-```
-
 # Additional model results
 
 Per our pre-registration, we ran a set of 6 models crossing 3 outcome measures (subjective replication score, whether the replication result was within the prediction interval of the original, and p-original on the hypothesis that both came from the same distribution) with 2 sets of predictors (with or without statistical predictors). These 6 models required 3 tiers of data: the subjective replication score without statistical predictors applies to all the data; the p_original and prediction interval models apply to the subset of data with numeric outcomes that can be compared; and the statistical predictor models need the smaller subset of data with p-values and original standardized effect size in particular. 
@@ -112,7 +92,28 @@ As a check on whether our results were sensitive to the inclusion of pairs that 
 
 ```
 
+# Forest plot 
 
+```{r forest, out.height="100%", fig.width=9, fig.height=12, fig.pos="ht", fig.cap="Forest plot of original and replication effect sizes. Original effect sizes are open dots, replication are closed dots. Coloring indicates subjective replication score, and p-original values are listed on the left side. "}
+
+d |> 
+  filter(target_d_calc < 5, rep_d_calc < 5) |>
+  mutate(numpredInt=ifelse(predInt,1,0)) |> 
+  ggplot(aes(y=reorder(target_lastauthor_year,target_d_calc, mean), color=as.factor(sub_rep)))+
+    geom_vline(xintercept=0, linetype=3)+
+  geom_point(aes(x=target_d_calc, shape="original"))+
+  geom_point(aes(x=rep_d_calc, shape="replication"))+
+  geom_segment(aes(x=target_d_calc, xend=rep_d_calc, y=target_lastauthor_year, yend=target_lastauthor_year))+
+  scale_shape_manual(values=c("original"=21,"replication"=19), name=NULL)+
+  coord_cartesian(xlim=c(-1.5,3.5))+
+  geom_text(aes(x=-1.4, label=round(p_orig,3)), color="black", size=3, hjust=0, show.legend = F)+
+  scale_color_viridis(discrete=T, direction = 1, 
+                      name = "Subjective\nReplication\nSuccess\n")+theme_classic()+
+  labs(x="Standardized Effect Size")+
+  theme(axis.ticks.y=element_blank(), axis.title.y=element_blank())
+```
+
+# Additional model results
 ```{r}
 do_draws <- function(model){
   draws <- model |> gather_draws(`b_[a-zA-Z_(): ]+`, regex=TRUE) |> 
@@ -164,4 +165,76 @@ predint <- tier2_predint |> union(tier3_predint) |> union(sens2_predint) |> unio
   scale_color_solarized()+
   stat_pointinterval(position=position_dodge(width=.7))+labs(y="", x="Estimate, 66%, 95% CrI predicting p-original values", color="", linetype="", shape="")+theme(axis.text=element_text(size=11),legend.position="bottom")
 
+```
+
+# tau**2  sensitivity analysis is a mess
+
+```{r, include=F, echo=F}
+# library(Replicate)
+# do_pred_int <- function(target_ES, target_SE, rep_ES, rep_SE){
+#   if(!is.na(target_ES)&!is.na(rep_ES)&!is.na(target_SE)&!is.na(rep_SE)){
+#     return(Replicate::pred_int(target_ES, target_SE**2, rep_ES, rep_SE**2)$rep.inside)
+#   }
+#   return(NA)
+# }
+# 
+# do_pred_int_sens <- function(target_ES, target_SE, rep_ES, rep_SE){
+#   if(!is.na(target_ES)&!is.na(rep_ES)&!is.na(target_SE)&!is.na(rep_SE)){
+#     yio=target_ES
+#     vio=target_SE**2
+#     yir=rep_ES
+#     vir=rep_SE**2
+#     t2=.21
+#     pooled.SE = sqrt(vio + vir + t2)
+#     PILo.sens = yio - qnorm(0.975) * pooled.SE
+#     PIHi.sens = yio + qnorm(0.975) * pooled.SE
+#     PIinside.sens = (yir > PILo.sens) & (yir < PIHi.sens)
+#     return(PIinside.sens)
+#   }
+#   return(NA)
+# }
+# do_p_orig <- function(target_ES, target_SE, rep_ES, rep_SE){
+#   if(!is.na(target_ES)&!is.na(rep_ES)){
+#     return(Replicate::p_orig(target_ES, target_SE**2,rep_ES, t2=0, rep_SE**2))
+#   }
+#   return(NA)
+# }
+# 
+# do_p_orig_sens <- function(target_ES, target_SE, rep_ES, rep_SE){
+#   if(!is.na(target_ES)&!is.na(rep_ES)){
+#     return(Replicate::p_orig(target_ES, target_SE**2,rep_ES, t2=0.21, rep_SE**2))
+#   }
+#   return(NA)
+# }
+# check_sens <- d |> filter(include=="stats") |> 
+#   mutate(sens_target_d=target_d_calc,
+#          sens_target_se=target_SE*target_d_calc/target_ES,
+#          sens_target_se2=4/target_N+target_d_calc**2/(2*target_N),
+#          sens_rep_d=rep_d_calc,
+#          sens_rep_se=rep_SE*rep_d_calc/rep_ES,
+#          sens_target_se2=4/replication_N+rep_d_calc**2/(2*replication_N)) |> 
+#   
+#   rowwise() |> 
+#   mutate(predInt2 = do_pred_int(sens_target_d, sens_target_se, sens_rep_d, sens_rep_se),
+#          p_orig2 = do_p_orig(sens_target_d, sens_target_se, sens_rep_d, sens_rep_se),
+#          predIntSens=do_pred_int_sens(sens_target_d, sens_target_se, sens_rep_d, sens_rep_se),
+#          p_origSens=do_p_orig_sens(sens_target_d, sens_target_se, sens_rep_d, sens_rep_se))
+# 
+# 
+# check_sens |> select(starts_with("sens"))
+# check_sens |> #select(predInt, predInt2, predIntSens, p_orig, p_orig2, p_origSens) |> 
+#   filter(signif(p_orig,2)!=signif(p_orig2,2)) |> View()
+# 
+# check_sens |> group_by(predIntSens) |> tally()
+# check_sens |> group_by(predInt2) |> tally()
+# check_sens |> group_by(predInt) |> tally()
+# 
+# check_sens |> ungroup() |> summarize(m=median(p_origSens))
+# check_sens |> ungroup() |> summarize(m=median(p_orig2))
+# check_sens |> ungroup() |> summarize(m=median(p_orig))
+# 
+# 
+# check_sens |> mutate(r1=sens_target_d/target_ES, r2=sens_target_se/target_SE, r3=sens_rep_d/rep_ES, r4=sens_rep_se/rep_SE) |> select(r1,r2,r3,r4)
+# 
+# d |> select(replication_raw_stat, target_raw_stat, include, sensitivity) |> View()
 ```
