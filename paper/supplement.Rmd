@@ -170,71 +170,71 @@ predint <- tier2_predint |> union(tier3_predint) |> union(sens2_predint) |> unio
 # tau**2  sensitivity analysis is a mess
 
 ```{r, include=F, echo=F}
-# library(Replicate)
-# do_pred_int <- function(target_ES, target_SE, rep_ES, rep_SE){
-#   if(!is.na(target_ES)&!is.na(rep_ES)&!is.na(target_SE)&!is.na(rep_SE)){
-#     return(Replicate::pred_int(target_ES, target_SE**2, rep_ES, rep_SE**2)$rep.inside)
-#   }
-#   return(NA)
-# }
-# 
-# do_pred_int_sens <- function(target_ES, target_SE, rep_ES, rep_SE){
-#   if(!is.na(target_ES)&!is.na(rep_ES)&!is.na(target_SE)&!is.na(rep_SE)){
-#     yio=target_ES
-#     vio=target_SE**2
-#     yir=rep_ES
-#     vir=rep_SE**2
-#     t2=.21
-#     pooled.SE = sqrt(vio + vir + t2)
-#     PILo.sens = yio - qnorm(0.975) * pooled.SE
-#     PIHi.sens = yio + qnorm(0.975) * pooled.SE
-#     PIinside.sens = (yir > PILo.sens) & (yir < PIHi.sens)
-#     return(PIinside.sens)
-#   }
-#   return(NA)
-# }
-# do_p_orig <- function(target_ES, target_SE, rep_ES, rep_SE){
-#   if(!is.na(target_ES)&!is.na(rep_ES)){
-#     return(Replicate::p_orig(target_ES, target_SE**2,rep_ES, t2=0, rep_SE**2))
-#   }
-#   return(NA)
-# }
-# 
-# do_p_orig_sens <- function(target_ES, target_SE, rep_ES, rep_SE){
-#   if(!is.na(target_ES)&!is.na(rep_ES)){
-#     return(Replicate::p_orig(target_ES, target_SE**2,rep_ES, t2=0.21, rep_SE**2))
-#   }
-#   return(NA)
-# }
-# check_sens <- d |> filter(include=="stats") |> 
-#   mutate(sens_target_d=target_d_calc,
-#          sens_target_se=target_SE*target_d_calc/target_ES,
-#          sens_target_se2=4/target_N+target_d_calc**2/(2*target_N),
-#          sens_rep_d=rep_d_calc,
-#          sens_rep_se=rep_SE*rep_d_calc/rep_ES,
-#          sens_target_se2=4/replication_N+rep_d_calc**2/(2*replication_N)) |> 
-#   
-#   rowwise() |> 
-#   mutate(predInt2 = do_pred_int(sens_target_d, sens_target_se, sens_rep_d, sens_rep_se),
-#          p_orig2 = do_p_orig(sens_target_d, sens_target_se, sens_rep_d, sens_rep_se),
-#          predIntSens=do_pred_int_sens(sens_target_d, sens_target_se, sens_rep_d, sens_rep_se),
-#          p_origSens=do_p_orig_sens(sens_target_d, sens_target_se, sens_rep_d, sens_rep_se))
-# 
-# 
-# check_sens |> select(starts_with("sens"))
-# check_sens |> #select(predInt, predInt2, predIntSens, p_orig, p_orig2, p_origSens) |> 
-#   filter(signif(p_orig,2)!=signif(p_orig2,2)) |> View()
-# 
-# check_sens |> group_by(predIntSens) |> tally()
-# check_sens |> group_by(predInt2) |> tally()
-# check_sens |> group_by(predInt) |> tally()
-# 
-# check_sens |> ungroup() |> summarize(m=median(p_origSens))
-# check_sens |> ungroup() |> summarize(m=median(p_orig2))
-# check_sens |> ungroup() |> summarize(m=median(p_orig))
-# 
-# 
-# check_sens |> mutate(r1=sens_target_d/target_ES, r2=sens_target_se/target_SE, r3=sens_rep_d/rep_ES, r4=sens_rep_se/rep_SE) |> select(r1,r2,r3,r4)
-# 
-# d |> select(replication_raw_stat, target_raw_stat, include, sensitivity) |> View()
+library(Replicate)
+do_pred_int <- function(target_ES, target_SE, rep_ES, rep_SE){
+  if(!is.na(target_ES)&!is.na(rep_ES)&!is.na(target_SE)&!is.na(rep_SE)){
+    return(Replicate::pred_int(target_ES, target_SE**2, rep_ES, rep_SE**2)$rep.inside)
+  }
+  return(NA)
+}
+
+do_pred_int_sens <- function(target_ES, target_SE, rep_ES, rep_SE){
+  if(!is.na(target_ES)&!is.na(rep_ES)&!is.na(target_SE)&!is.na(rep_SE)){
+    yio=target_ES
+    vio=target_SE**2
+    yir=rep_ES
+    vir=rep_SE**2
+    t2=.21**2
+    pooled.SE = sqrt(vio + vir + t2)
+    PILo.sens = yio - qnorm(0.975) * pooled.SE
+    PIHi.sens = yio + qnorm(0.975) * pooled.SE
+    PIinside.sens = (yir > PILo.sens) & (yir < PIHi.sens)
+    return(PIinside.sens)
+  }
+  return(NA)
+}
+do_p_orig <- function(target_ES, target_SE, rep_ES, rep_SE){
+  if(!is.na(target_ES)&!is.na(rep_ES)){
+    return(Replicate::p_orig(target_ES, target_SE**2,rep_ES, t2=0, rep_SE**2))
+  }
+  return(NA)
+}
+
+do_p_orig_sens <- function(target_ES, target_SE, rep_ES, rep_SE){
+  if(!is.na(target_ES)&!is.na(rep_ES)){
+    return(Replicate::p_orig(target_ES, target_SE**2,rep_ES, t2=0.21**2, rep_SE**2))
+  }
+  return(NA)
+}
+check_sens <- d |> filter(include=="stats") |>
+  mutate(sens_target_d=target_d_calc,
+         sens_target_se=target_SE*target_d_calc/target_ES,
+         sens_target_se2=4/target_N+target_d_calc**2/(2*target_N),
+         sens_rep_d=rep_d_calc,
+         sens_rep_se=rep_SE*rep_d_calc/rep_ES,
+         sens_target_se2=4/replication_N+rep_d_calc**2/(2*replication_N)) |>
+
+  rowwise() |>
+  mutate(predInt2 = do_pred_int(sens_target_d, sens_target_se, sens_rep_d, sens_rep_se),
+         p_orig2 = do_p_orig(sens_target_d, sens_target_se, sens_rep_d, sens_rep_se),
+         predIntSens=do_pred_int_sens(sens_target_d, sens_target_se, sens_rep_d, sens_rep_se),
+         p_origSens=do_p_orig_sens(sens_target_d, sens_target_se, sens_rep_d, sens_rep_se))
+
+
+check_sens |> select(starts_with("sens"))
+check_sens |> #select(predInt, predInt2, predIntSens, p_orig, p_orig2, p_origSens) |>
+  filter(signif(p_orig,2)!=signif(p_orig2,2)) |> View()
+
+check_sens |> group_by(predIntSens) |> tally()
+check_sens |> group_by(predInt2) |> tally()
+check_sens |> group_by(predInt) |> tally()
+
+check_sens |> ungroup() |> summarize(m=median(p_origSens))
+check_sens |> ungroup() |> summarize(m=median(p_orig2))
+check_sens |> ungroup() |> summarize(m=median(p_orig))
+
+
+check_sens |> mutate(r1=sens_target_d/target_ES, r2=sens_target_se/target_SE, r3=sens_rep_d/rep_ES, r4=sens_rep_se/rep_SE) |> select(r1,r2,r3,r4)
+
+d |> select(replication_raw_stat, target_raw_stat, include, sensitivity) |> View()
 ```
