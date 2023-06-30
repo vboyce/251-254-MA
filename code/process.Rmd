@@ -80,14 +80,7 @@ d |> filter(!status %in% c("missing", "non-experiment", "reproduction", "unusabl
 d |> group_by(include) |> tally()
 
 ```
-Descriptions: 
 
-- "done" -- fully coded, can be used for whatever is specified in other column 
-- "cannot tell direction" -- have stats for an effect, but can't tell which direction it is in
-- "unusable" -- got as far as I can, and it does not have complete descriptives
-- "missing" -- student didn't finish or we don't have write-up
-- "non-experiment" -- student replicated something that was not an experiment
-- "reproduction" -- student did a reproduction and not replication 
 
 ```{r}
 d_val <- d |> filter(!status %in% c("missing", "non-experiment", "reproduction", "unusable"))
@@ -118,9 +111,9 @@ Check that nothing that has a stat input and doesn't get an ES out.
 
 ```{r}
 
-test |> filter(is.na(target_ES)) |> filter(!is.na(target_raw_stat)) |> select(target_lastauthor_year, target_raw_stat)
+test |> filter(is.na(target_ES)&(is.na(target_d_calc))) |> filter(!is.na(target_raw_stat)) |> select(target_lastauthor_year, target_raw_stat)
 
-test |> filter(is.na(rep_ES)) |> filter(!is.na(replication_raw_stat)) |> select(target_lastauthor_year, replication_raw_stat)
+test |> filter(is.na(rep_ES)&(is.na(rep_d_calc))) |> filter(!is.na(replication_raw_stat)) |> select(target_lastauthor_year, replication_raw_stat)
 
 ```
 
@@ -148,16 +141,34 @@ d_es <-  test |>
            T ~ as.numeric(NA)
          ))
 
+#d_es |> filter(is.na(target_ES)!=is.na(target_SE))
+#d_es |> filter(is.na(rep_ES)!=is.na(rep_SE))
+#d_es |> filter(is.na(rep_d_calc)!=is.na(rep_d_calc_se)) #fine all of the bad ones are exp only
+#d_es |> filter(is.na(target_d_calc)!=is.na(target_d_calc_se))
+
+
+
 d_es_predInt <- d_es |> 
   rowwise() |> 
-  mutate(predInt = do_pred_int(target_ES, target_SE, rep_ES, rep_SE),
+  mutate(predInt = do_pred_int(target_ES, target_SE, rep_ES, rep_SE), # on untransformed scale
+         predInt_from_d = do_pred_int(target_d_calc, target_d_calc_se, rep_d_calc, rep_d_calc_se), #on standardized scale 
          p_orig = do_p_orig(target_ES, target_SE, rep_ES, rep_SE),
+         p_orig_from_d = do_p_orig(target_d_calc, target_d_calc_se, rep_d_calc, rep_d_calc_se),
+         predInt=ifelse(is.na(predInt), predInt_from_d, predInt), #prefer untransformed scale, but use standardized when that's the only option
+         p_orig=ifelse(is.na(p_orig), p_orig_from_d, p_orig), # prefer untrasformed when available 
+         predInt_with_tau = do_pred_int_sens(target_d_calc, target_d_calc_se, rep_d_calc, rep_d_calc_se), #on standardized scale 
+         p_orig_with_tau = do_p_orig_sens(target_d_calc, target_d_calc_se, rep_d_calc, rep_d_calc_se),
          sub_rep = do_subjective_rep(replicated_instructor_code, 
                                      replicated_report_code, 
                                      adjudicated_replication_code)) |> write_csv(here("data","processed_data.csv"))
+
+
+#d_es_predInt |> filter(include!="exp") |> filter(is.na(predInt))
+#d_es_predInt |> filter(include!="exp") |> filter(is.na(p_orig))
+
 ```
 
-# viz SMD
+<!-- # viz SMD
 
 First pass plots. 
 
@@ -298,6 +309,8 @@ d_es_predInt |> ggplot(aes(x=target_ES,
   labs(color="sub rep", x="Original ES", y="Replication ES")
 ```
 
+-->
+
 # How much missing data?
 
 Note, it may seem weird that we're missing d and SE for many more replications than we are p values. This is because we can't get d_calc if we don't have a filled in value for same direction (but we have p value and unsigned d_calc). 
@@ -351,7 +364,7 @@ message("actual")
 d_check_nas |> filter(include %in% c("stats")) |> filter(across(everything(), ~!is.na(.))) |> nrow()
 ```
 
-# how close subrep
+<!-- # how close subrep
 
 ```{r}
 
@@ -360,6 +373,7 @@ d_check_nas |> filter(include %in% c("stats")) |> filter(across(everything(), ~!
 
 
 ```
+-->
 
 # code vars for models
 
@@ -410,7 +424,7 @@ back_convert <- d_for_model |>
 
 ```{r}
 # z_data |>
-#   mutate(check_pub=pub_year - z_pub_year*back_convert$sd_pub_year+back_convert$mean_pub_year) |> 
+#   mutate(check_pub=pub_year - z_pub_year*back_convert$sd_pub_year+back_convert$mean_pub_year) |>
 #   filter(check_pub > .00001)
 ```
 
@@ -442,7 +456,6 @@ data_tier3 <- z_data |>  filter(include %in% c("stats")) |>
 
 # Pre-reg'd Models
 
-Note: tier 2 and 3 models are subject to change as a few more studies might in fact have useable stats & some of the effect size extraction might be incorrect. 
 
 ```{r}
 
@@ -783,9 +796,9 @@ ggsave(here("plots/corr_all.pdf"))
 
 
 
-
+<!-- 
 ## Frequentist Lassoes
-
+Note these have not been updated since corrections to data pipeline 
 ```{r}
 
 boring_logistic <- glm(sub_rep ~ z_pub_year + subfield + open_data +  open_mat + stanford + change_platform + 
@@ -939,6 +952,7 @@ ggplot(to_plot, aes(x=time, y=value, color=var, label=var))+geom_line()+geom_lab
 ggsave(here("plots/tier3_lasso_porig.pdf"))
 
 ```
+-->
 
 ## Correlations
 
@@ -1045,7 +1059,6 @@ ggsave(here("plots/log_trials.pdf"))
 ```
 
 ### Pred_int
-Note: predInt may not be reliably calculated in some cases. Dealing with numbers is hard! 
 
 ```{r}
 dat <- d_for_model |> filter(!is.na(predInt)) |>  mutate(predInt=predInt |> factor())
@@ -1084,7 +1097,6 @@ ggplot(dat, aes(x=log_trials, y=predInt, color=predInt))+geom_jitter()+geom_smoo
 ```
 
 ### P_orig
-Note: predInt may not be reliably calculated in some cases. Dealing with numbers is hard! 
 
 ```{r}
 dat <- d_for_model |> filter(!is.na(p_orig)) |> mutate(p_orig_bin=ifelse(p_orig>.05, ">.05", "<.05"))

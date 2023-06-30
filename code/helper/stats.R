@@ -7,19 +7,7 @@ pool_m_sd <- function(m1, sd1, n1, m2, sd2, n2){
   
 }
 
-d_es <-  test |> 
-  mutate(target_d_calc=abs(target_d_calc),
-         target_ES=abs(target_ES),
-         rep_d_calc=case_when(
-           same_dir=="yes" ~ abs(rep_d_calc),
-           same_dir=="no" ~-abs(rep_d_calc),
-           T ~ as.numeric(NA)
-         ),
-         rep_ES=case_when(
-           same_dir=="yes" ~ abs(rep_ES),
-           same_dir=="no" ~-abs(rep_ES),
-           T ~ as.numeric(NA)
-         ))
+
 
 
 do_pred_int <- function(target_ES, target_SE, rep_ES, rep_SE){
@@ -29,9 +17,34 @@ do_pred_int <- function(target_ES, target_SE, rep_ES, rep_SE){
   return(NA)
 }
 
+do_pred_int_sens <- function(target_ES, target_SE, rep_ES, rep_SE){
+  if(!is.na(target_ES)&!is.na(rep_ES)&!is.na(target_SE)&!is.na(rep_SE)){
+    yio=target_ES
+    vio=target_SE**2
+    yir=rep_ES
+    vir=rep_SE**2
+    t2=.21**2
+    pooled.SE = sqrt(vio + vir + t2)
+    PILo.sens = yio - qnorm(0.975) * pooled.SE
+    PIHi.sens = yio + qnorm(0.975) * pooled.SE
+    PIinside.sens = (yir > PILo.sens) & (yir < PIHi.sens)
+    return(PIinside.sens)
+  }
+  return(NA)
+}
+
+
+
 do_p_orig <- function(target_ES, target_SE, rep_ES, rep_SE){
-  if(!is.na(target_ES)&!is.na(rep_ES)){
+  if(!is.na(target_ES)&!is.na(rep_ES)&!is.na(target_SE)&!is.na(rep_SE)){
     return(Replicate::p_orig(target_ES, target_SE**2,rep_ES, t2=0, rep_SE**2))
+  }
+  return(NA)
+}
+
+do_p_orig_sens <- function(target_ES, target_SE, rep_ES, rep_SE){
+  if(!is.na(target_ES)&!is.na(rep_ES)&!is.na(target_SE)&!is.na(rep_SE)){
+    return(Replicate::p_orig(target_ES, target_SE**2,rep_ES, t2=0.21**2, rep_SE**2))
   }
   return(NA)
 }
