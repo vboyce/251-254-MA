@@ -169,28 +169,20 @@ predint <- tier2_predint |> union(tier3_predint) |> union(sens2_predint) |> unio
 
 # tau**2  sensitivity analysis is a mess
 
-```{r, include=F, echo=F}
-d |> select(starts_with("pred") | starts_with("p_orig"))
+```{r, echo=F}
 
-d |> filter(!is.na(predInt)) |> count(predInt)
-#using predInt as reported 62 in interval, 72 not (45% rep)
+d |> filter(include %in% c("stats", "pred_int")) |> filter(!is.na(predInt)) |> count(predInt)
 
 #of those with SMD predInts
-d |> filter(!is.na(predInt_from_d)) |> count(predInt)
-# using predInt 44 in / 70 out (38%)
-d |> filter(!is.na(predInt_from_d)) |> count(predInt_from_d)
-# 34 in /80 out (30%)
-d |> filter(!is.na(predInt_from_d)) |> count(predInt_with_tau)
-# with tau 73 in / 41 out (64%) 
+d |>filter(include=="stats") |> filter(!is.na(predInt_from_d)) |> count(predInt)
+d |> filter(include=="stats") |> filter(!is.na(predInt_from_d)) |> count(predInt_from_d)
+d |> filter(include=="stats") |> filter(!is.na(predInt_from_d)) |> count(predInt_with_tau)
 
-d |> filter(!is.na(predInt)) |> summarise(median(p_orig))
+d |> filter(include %in% c("stats", "pred_int")) |> filter(!is.na(predInt)) |> summarise(median(p_orig))
 #median .03
 
 #of those with SMD predInts
-d |> filter(!is.na(predInt_from_d)) |>summarise(median(p_orig))
-# median .01
-d |> filter(!is.na(predInt_from_d)) |> summarise(median(p_orig_from_d))
-# median .001
-d |> filter(!is.na(predInt_from_d)) |> summarise(median(p_orig_with_tau))
-# median .15
+d |> filter(include=="stats") |> filter(!is.na(predInt_from_d)) |>summarise(median(p_orig))
+d |> filter(include=="stats") |> filter(!is.na(predInt_from_d)) |> summarise(median(p_orig_from_d))
+d |> filter(include=="stats") |> filter(!is.na(predInt_from_d)) |> summarise(median(p_orig_with_tau))
 ```

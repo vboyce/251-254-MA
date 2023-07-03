@@ -256,11 +256,11 @@ Across the 176 studies, the average subjective replication score was `r round(pl
 ```{r }
 
 
-tau_predIntcount <- d |> filter(!is.na(predInt_from_d)) |> filter(predInt_with_tau) |> nrow()
-tau_predInttotal <- d |> filter(!is.na(predInt_from_d))  |> nrow()
+tau_predIntcount <- d |> filter(include %in% c("stats")) |> filter(!is.na(predInt_from_d)) |> filter(predInt_with_tau) |> nrow()
+tau_predInttotal <- d |> filter(include %in% c("stats")) |> filter(!is.na(predInt_from_d))  |> nrow()
 
 tau_pct <- tau_predIntcount/tau_predInttotal*100
-# with tau 73 in / 41 out (64%) 
+
 
 ```
 
