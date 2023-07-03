@@ -105,27 +105,10 @@ d <- read_csv(here("data", "processed_data.csv")) |> filter(status!="unusable") 
 
 
 
-Cumulative scientific progress requires empirical results that are robust enough to support theory construction and future extensions. 
-Yet in psychology, some prominent individual findings have failed to replicate, and large-scale investigations suggest that failures to replicate are widespread.
+Cumulative scientific progress requires empirical results that are robust enough to support theory construction and future extensions. Yet in psychology, some prominent findings have failed to replicate, and large-scale investigations suggest that failures to replicate are widespread. The identification of features that predict replication success is limited by data, and most analyses re-analyse the same set of ~170 replications. We introduce a new dataset of 176 replications from students in a graduate-level methods course. Replication results were close enough to original results to support student extensions in 49% of replications. 45% of replications with suitable numerical outcomes (N=136) had point estimates within the prediction interval of the original outcome. Larger original effect sizes and within-participants designs were predictive of replication. Consistent with prior reports, our results indicate that the robustness of the psychology literature is low enough to limit progress by student investigators.
 
-
-What predicts which studies will replicate? 
-The identification of features that predict replication success is limited by data, however: most analyses draw on the same set of ~170 replications from a few replication projects that have been extensively re-analysed. 
-
-We introduce a new dataset of 176 replications where we examine how often students in a graduate-level methods course were able replicate their chosen studies' results closely enough to be ready to build on it in future work. The replication rate under this metric was 49%, and 45% of replications with suitable numerical outcomes (N=136) were within the prediction interval of the original outcome. Larger original effect sizes and within-participants designs were predictive of replication. 
-Consistent with prior reports, our results indicate that the robustness of the psychology literature is low enough to limit progress by student investigators.
-
-[Still needs work -- also needs shortening -- this is 180, NHB says max 150]
+[148 words / NHB max 150] 
 :::
-
-
-
-TODO figure out how to fix the fact that some of the p-orig and predInt had things on different scales b/c I screwed up ! Whether to switch all the SMD or only the ones we can't get on original!!!
-
-ALSO figure out how to talk about tau**2 and do that
-
-TODO propogate naming schemes to supplement wrt models
-
 
 # Introduction
 
@@ -268,7 +251,22 @@ d |> filter(include %in% c("stats", "pred_int"))|> nrow() -> predInttotal
 
 ```
 
-Across the 176 studies, the average subjective replication score was `r round(pluck(sub_rep_rate,1))`%, which we can interpret as an overall subjective replication rate. `r round(pluck(pred_int_rate,1))`% (`r predIntcount`/`r predInttotal`) of the studies had replication outcomes within the prediction interval of the original outcome. The median p_original value was `r round(pluck(porig_rate, 1),2)` representing the median probability that a replication study's estimate would be at least as extreme as was actually observed, if in fact the replication and original were statistically consistent. Figure \ref{fig:smd} shows the relationship between original standardized effect size, replication effect size, and subjective replication score. Some studies replicated withed similar size effects to the original, and others failed to replicate, with replication effect sizes near zero. On average, there was a diminution of effect sizes from original to replication. This pattern of results is consistent with the pattern of results found in RP:P [@openscienceconsortium2015]. 
+Across the 176 studies, the average subjective replication score was `r round(pluck(sub_rep_rate,1))`%, which we can interpret as an overall subjective replication rate. `r round(pluck(pred_int_rate,1))`% (`r predIntcount`/`r predInttotal`) of replications has outcomes with point-estimates within the prediction interval of the original outcome. The median p_original value on the original and replication point-estimates coming from the same distribution was `r round(pluck(porig_rate, 1),2)`, representing the median probability that a replication study's estimate would be at least as extreme as was actually observed, if in fact the replication and original were statistically consistent. Figure \ref{fig:smd} shows the relationship between original standardized effect size, replication effect size, and subjective replication score. Some studies replicated withed similar size effects to the original, and others failed to replicate, with replication effect sizes near zero. On average, there was a diminution of effect sizes from original to replication. This pattern of results is consistent with the pattern of results found in RP:P [@openscienceconsortium2015]. 
+
+```{r }
+
+
+tau_predIntcount <- d |> filter(!is.na(predInt_from_d)) |> filter(predInt_with_tau) |> nrow()
+tau_predInttotal <- d |> filter(!is.na(predInt_from_d))  |> nrow()
+
+tau_pct <- tau_predIntcount/tau_predInttotal*100
+# with tau 73 in / 41 out (64%) 
+
+```
+
+Some multi-site replication projects have found heterogeneity in effect sizes across replication sites [@ebersole2020; @klein2018; @olsson2020]. We calculated how often the original and replication results were distributionally consistent. If we assume that the level of heterogeneity in hypothetical multi-site replications of these effects would be the same as the average level heterogeneity found in @olsson2020 (tau=.21 in SMD units), then `r round(tau_pct,1)`% (`r tau_predIntcount`/`r tau_predInttotal`) of replications are distributionally consistent with the original. More work on understanding heterogeneity is needed to understand what levels of heterogeneity to expect across different implementations of the same experiment, and how considerations of heterogeneity should impact interpretations of both novel results and replications. 
+
+[what was I supposed to say about heterogeneity, and is this the right place for it?]
 
 ```{r cor}
 
