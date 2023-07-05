@@ -92,6 +92,8 @@ As a check on whether our results were sensitive to the inclusion of pairs that 
 
 ```
 
+\pagebreak
+
 # Forest plot 
 
 ```{r forest, out.height="100%", fig.width=9, fig.height=12, fig.pos="ht", fig.cap="Forest plot of original and replication effect sizes. Original effect sizes are open dots, replication are closed dots. Coloring indicates subjective replication score, and p-original values are listed on the left side. "}
@@ -113,6 +115,8 @@ d |>
   theme(axis.ticks.y=element_blank(), axis.title.y=element_blank())
 ```
 
+\pagebreak
+
 # Additional model results
 ```{r}
 do_draws <- function(model){
@@ -121,19 +125,19 @@ do_draws <- function(model){
     mutate(Term=factor(Term, levels=c("subfieldsocial", "subfieldother_psych", "subfieldnon_psych", "is_within", "single_vignette", "change_platform", "open_data", "open_mat", "stanford", "z_pub_year", "z_log_trials", "z_log_sample", "z_log_ratio_ss","z_log_p","z_target_d_calc"), labels=c("Social", "Other psych", "Non psych", "Within subjects", "Single vignette", "Switch to online", "Open data", "Open materials", "Stanford", "Publication year", "Log trials", "Log original sample size", "Log rep/orig sample", "P-value", "Original effect size"))) 
 }
 
-tier1_subjective <- read_rds(here(model_location, "tier1_subjective.rds")) |> do_draws() |> mutate(type="Without stats predictors") |> mutate(sens="All data")
-tier2_porig <- read_rds(here(model_location, "tier2_porig.rds"))|> do_draws() |>  mutate(type="Without stats predictors") |> mutate(sens="All data")
-tier2_predint <- read_rds(here(model_location, "tier2_predint.rds"))|> do_draws() |>  mutate(type="Without stats predictors") |> mutate(sens="All data")
-tier3_subjective <- read_rds(here(model_location, "tier3_subjective.rds"))|> do_draws() |> mutate(type="Stats predictors") |> mutate(sens="All data")
-tier3_porig <- read_rds(here(model_location, "tier3_porig.rds"))|> do_draws() |>  mutate(type="Stats predictors") |> mutate(sens="All data")
-tier3_predint <- read_rds(here(model_location, "tier3_predint.rds"))|> do_draws() |>  mutate(type="Stats predictors") |> mutate(sens="All data")
+tier1_subjective <- read_rds(here(model_location, "tier1_subjective.rds")) |> do_draws() |> mutate(type="All original-replication pairs") |> mutate(sens="All data")
+tier2_porig <- read_rds(here(model_location, "tier2_porig.rds"))|> do_draws() |>  mutate(type="All original-replication pairs") |> mutate(sens="All data")
+tier2_predint <- read_rds(here(model_location, "tier2_predint.rds"))|> do_draws() |>  mutate(type="All original-replication pairs") |> mutate(sens="All data")
+tier3_subjective <- read_rds(here(model_location, "tier3_subjective.rds"))|> do_draws() |> mutate(type="Only pairs with full statistical info") |> mutate(sens="All data")
+tier3_porig <- read_rds(here(model_location, "tier3_porig.rds"))|> do_draws() |>  mutate(type="Only pairs with full statistical info") |> mutate(sens="All data")
+tier3_predint <- read_rds(here(model_location, "tier3_predint.rds"))|> do_draws() |>  mutate(type="Only pairs with full statistical info") |> mutate(sens="All data")
 
-sens1_subjective <- read_rds(here(model_location, "sens_tier1_subjective.rds"))|> do_draws() |> mutate(type="Without stats predictors") |> mutate(sens="Sensitivity test")
-sens2_porig <- read_rds(here(model_location, "sens_tier2_porig.rds"))|> do_draws() |> mutate(type="Without stats predictors")|> mutate(sens="Sensitivity test")
-sens2_predint <- read_rds(here(model_location, "sens_tier2_predint.rds"))|> do_draws() |> mutate(type="Without stats predictors")|> mutate(sens="Sensitivity test")
-sens3_subjective <- read_rds(here(model_location, "sens_tier3_subjective.rds"))|> do_draws()|> mutate(type="Stats predictors")|> mutate(sens="Sensitivity test")
-sens3_porig <- read_rds(here(model_location, "sens_tier3_porig.rds"))|> do_draws()|> mutate(type="Stats predictors")|> mutate(sens="Sensitivity test")
-sens3_predint <- read_rds(here(model_location, "sens_tier3_predint.rds"))|> do_draws()|> mutate(type="Stats predictors")|> mutate(sens="Sensitivity test")
+sens1_subjective <- read_rds(here(model_location, "sens_tier1_subjective.rds"))|> do_draws() |> mutate(type="All original-replication pairs") |> mutate(sens="Sensitivity test")
+sens2_porig <- read_rds(here(model_location, "sens_tier2_porig.rds"))|> do_draws() |> mutate(type="All original-replication pairs")|> mutate(sens="Sensitivity test")
+sens2_predint <- read_rds(here(model_location, "sens_tier2_predint.rds"))|> do_draws() |> mutate(type="All original-replication pairs")|> mutate(sens="Sensitivity test")
+sens3_subjective <- read_rds(here(model_location, "sens_tier3_subjective.rds"))|> do_draws()|> mutate(type="Only pairs with full statistical info")|> mutate(sens="Sensitivity test")
+sens3_porig <- read_rds(here(model_location, "sens_tier3_porig.rds"))|> do_draws()|> mutate(type="Only pairs with full statistical info")|> mutate(sens="Sensitivity test")
+sens3_predint <- read_rds(here(model_location, "sens_tier3_predint.rds"))|> do_draws()|> mutate(type="Only pairs with full statistical info")|> mutate(sens="Sensitivity test")
 
 subjective <- tier1_subjective |> union(tier3_subjective) |> union(sens1_subjective) |> union(sens3_subjective)
 porig <- tier2_porig |> union(tier3_porig) |> union(sens2_porig) |> union(sens3_porig)
@@ -167,22 +171,26 @@ predint <- tier2_predint |> union(tier3_predint) |> union(sens2_predint) |> unio
 
 ```
 
-# tau**2  sensitivity analysis is a mess
+\pagebreak
+
+# Heterogeneity analysis
+
 
 ```{r, echo=F}
 
-d |> filter(include %in% c("stats", "pred_int")) |> filter(!is.na(predInt)) |> count(predInt)
+all_true <- d |> filter(include %in% c("stats", "pred_int")) |> filter(!is.na(predInt)) |> filter(predInt) |> nrow()
+
+all <- d |> filter(include %in% c("stats", "pred_int")) |> filter(!is.na(predInt)) |> nrow()
 
 #of those with SMD predInts
-d |>filter(include=="stats") |> filter(!is.na(predInt_from_d)) |> count(predInt)
-d |> filter(include=="stats") |> filter(!is.na(predInt_from_d)) |> count(predInt_from_d)
-d |> filter(include=="stats") |> filter(!is.na(predInt_from_d)) |> count(predInt_with_tau)
+all_orig  <- d |>filter(include=="stats") |> filter(!is.na(predInt_from_d)) |> nrow()
+all_orig_true <- d |>filter(include=="stats") |> filter(!is.na(predInt_from_d)) |> filter(predInt) |> nrow()
+all_d_true <- d |> filter(include=="stats") |> filter(!is.na(predInt_from_d)) |> filter(predInt_from_d) |> nrow()
+all_tau <- d |> filter(include=="stats") |> filter(!is.na(predInt_from_d)) |> filter(predInt_with_tau) |> nrow()
 
-d |> filter(include %in% c("stats", "pred_int")) |> filter(!is.na(predInt)) |> summarise(median(p_orig))
-#median .03
-
-#of those with SMD predInts
-d |> filter(include=="stats") |> filter(!is.na(predInt_from_d)) |>summarise(median(p_orig))
-d |> filter(include=="stats") |> filter(!is.na(predInt_from_d)) |> summarise(median(p_orig_from_d))
-d |> filter(include=="stats") |> filter(!is.na(predInt_from_d)) |> summarise(median(p_orig_with_tau))
 ```
+
+The prediction interval and p-original values used for models and point estimates were done on the original scale where possible. However, to do heterogeneity analysis, our imputed value for tau is in SMD units, so we have to use SMD units for the original and replication values. This limits the number of applicable original-replication pairs. Prediction intervals are sensitive to whether only studies with SMD are included (different studies report differently and also vary in how close replications were) and whether the scale used was original or SMD (if the variances differed between original and replication). 
+
+Of all studies where prediction intervals can be calculated, `r all_true`/`r all` (`r round(all_true/all*100)`%) of the original estimates had prediction intervals that included the replication effect size. For those where we have SMD, `r all_orig_true`/`r all_orig` (`r round(all_orig_true/all_orig*100)`%) of the original estimates had prediction intervals that included the replication effect size, when we use original units where possible.  Using SMD units, `r all_d_true`/`r all_orig` (`r round(all_d_true/all_orig*100)`%) of the original estimates had prediction intervals that included the replication effect size. Allowing for heterogeneity, with tau=.21, `r all_tau`/`r all_orig` (`r round(all_tau/all_orig*100)`%) of the original estimates are distributionally consistent. 
+
