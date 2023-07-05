@@ -92,9 +92,7 @@ As a check on whether our results were sensitive to the inclusion of pairs that 
 
 ```
 
-\pagebreak
 
-# Forest plot 
 
 ```{r forest, out.height="100%", fig.width=9, fig.height=12, fig.pos="ht", fig.cap="Forest plot of original and replication effect sizes. Original effect sizes are open dots, replication are closed dots. Coloring indicates subjective replication score, and p-original values are listed on the left side. "}
 
@@ -117,7 +115,6 @@ d |>
 
 \pagebreak
 
-# Additional model results
 ```{r}
 do_draws <- function(model){
   draws <- model |> gather_draws(`b_[a-zA-Z_(): ]+`, regex=TRUE) |> 
