@@ -114,9 +114,9 @@ Cumulative scientific progress requires empirical results that are robust enough
 
 <!-- et interpreting the results of replication studies is difficult:  As each failed extension does not directly contradict the original result, many scientists may waste considerable time and resources pursuing results where there may be none.  -->
  
-Addressing this issue requires a better understanding of the scope of the problem as well as the methodological and structural issues that might lead to replication failure [@smaldino2016;@simmons20211]. Estimating replicability in the literature is a key starting point, but, as we review below, there is limited consensus on what quantity exactly should be estimated.
+Addressing this issue requires a better understanding of the scope of the problem as well as the methodological and structural issues that might lead to replication failure [e.g., @smaldino2016;@simmons2011]. Estimating replicability in the literature is a key starting point, but, as we review below, there is limited consensus on what quantity exactly should be estimated.
 
-Our viewpoint here is that one important estimand is the probability that a graduate student can identify a finding in the literature and replicate it successfully enough that they can build on that finding in subsequent work. Taking this perspective, our contribution is a new dataset of 176 replications of experimental studies from the social sciences, primarily psychology. These replications were conducted as individual course projects by students in a graduate-level experimental methods class between 2011 and 2022. We then use this dataset to investigate statistical and experimental design predictors of replicability. 
+Our viewpoint here is that one important estimand is the probability that a graduate student can identify a finding in the literature and replicate it successfully enough that they can build on that finding in subsequent work. Taking this perspective, our contribution is a new dataset of 176 replications of experimental studies from the social sciences, primarily psychology. These replications were conducted as individual course projects by students in a graduate-level experimental methods class between 2011 and 2022. We use this dataset to investigate the rate of replicability for such projects as well as the correlates of replication success. 
  
 ## What are we estimating when we measure replicability?
 
@@ -306,7 +306,7 @@ cors <- tibble(preds = preds) |>
   mutate(Predictors=factor(preds, levels=c("social", "other_psych", "non_psych", "is_within", "single_vignette", "change_platform", "open_data", "open_mat", "stanford", "pub_year", "log_trials", "log_sample", "log_ratio_ss"), labels=c("Social", "Other psych", "Non psych", "Within subjects", "Single vignette", "Switch to online", "Open data", "Open materials", "Stanford", "Publication year", "Log n trials", "Log original sample size", "Log rep/orig sample"))) |> arrange(desc(r)) |> select(Predictors, r, p)
 
 library(kableExtra)
-knitr::kable(cors, digits = 3, align='rcc',format="latex", position="!h", caption="The correlation between each individual predictor and the subjective replication score. For subfield, cognitive psychology is treated as the baseline condition. See Methods for how these variables were coded.") |> kable_styling(full_width=F, font_size=10) 
+knitr::kable(cors, digits = 3, align='rcc',format="latex", position="!h", caption="The correlation between each individual predictor and the subjective replication score. For subfield, cognitive psychology is treated as the baseline condition. See Methods for how these variables were coded.", booktabs=TRUE) |> kable_styling(full_width=F, font_size=10) 
 
 ```
 
@@ -474,9 +474,10 @@ The dataset of replication projects comes from class projects conducted in PSYCH
 
 Students were free to choose what study to replicate; the recommended path for students who did not have their own ideas was to pick an interesting study from a recent year of Psychological Science (this led to a high fraction of Psych Science articles in the replication sample, `r nrow(ps)`, `r round( nrow(ps)/nrow(all)*100)`% of studies). 
 
-We note that 4 (TODO check) of the replication projects were included in RP:P, and 10 of them were previously reported in @hawkins. 
+Four of these replication projects were included in RP:P, and 10 of them were previously reported in @hawkins2018. 
 
 ## Coding procedure
+
 We relied primarily on student reports to code the measured variables for the replications. We supplemented this with spreadsheets of information about projects from the time of the class and the original papers.
 
 ### Measures of replication success
