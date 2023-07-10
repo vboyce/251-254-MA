@@ -119,7 +119,7 @@ d |>
 do_draws <- function(model){
   draws <- model |> gather_draws(`b_[a-zA-Z_(): ]+`, regex=TRUE) |> 
     mutate(Term=str_sub(.variable, 3,-1) |> str_replace("M","_"), Estimate=.value) |>  filter(Term!="Intercept") |> 
-    mutate(Term=factor(Term, levels=c("subfieldsocial", "subfieldother_psych", "subfieldnon_psych", "is_within", "single_vignette", "change_platform", "open_data", "open_mat", "stanford", "z_pub_year", "z_log_trials", "z_log_sample", "z_log_ratio_ss","z_log_p","z_target_d_calc"), labels=c("Social", "Other psych", "Non psych", "Within subjects", "Single vignette", "Switch to online", "Open data", "Open materials", "Stanford", "Publication year", "Log trials", "Log original sample size", "Log rep/orig sample", "P-value", "Original effect size"))) 
+    mutate(Term=factor(Term, levels=c("subfieldsocial", "subfieldother_psych", "subfieldnon_psych", "is_within", "single_vignette", "change_platform", "open_data", "open_mat", "stanford", "z_pub_year", "z_log_trials", "z_log_sample", "z_log_ratio_ss","z_log_p","z_target_d_calc"), labels=c("Social", "Other psych", "Non psych", "Within participants", "Single vignette", "Switch to online", "Open data", "Open materials", "Stanford", "Publication year", "Log trials", "Log original sample size", "Log rep/orig sample", "P-value", "Original effect size"))) 
 }
 
 tier1_subjective <- read_rds(here(model_location, "tier1_subjective.rds")) |> do_draws() |> mutate(type="All original-replication pairs") |> mutate(sens="All data")
