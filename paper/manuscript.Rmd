@@ -105,7 +105,7 @@ d <- read_csv(here("data", "processed_data.csv")) |> filter(status!="unusable") 
 
 
 
-Cumulative scientific progress requires empirical results that are robust enough to support theory construction and extension. Yet in psychology, some prominent findings have failed to replicate, and large-scale studies suggest replicability issues are widespread. The identification of predictors of replication success is limited by the difficulty of conducting large samples of independent replication experiments, however: most investigations re-analyse the same set of ~170 replications. We introduce a new dataset of 176 replications from students in a graduate-level methods course. Replication results were judged to be successful in 49% of replications; of the 136 where comparable effect sizes could be computed, 46% had point estimates within the prediction interval of the original outcome. Larger original effect sizes and within-participants designs were especially related to replication success. Our results indicate that, consistent with prior reports, the robustness of the psychology literature is low enough to limit cumulative progress by student investigators.
+Cumulative scientific progress requires empirical results that are robust enough to support theory construction and extension. Yet in psychology, some prominent findings have failed to replicate, and large-scale studies suggest replicability issues are widespread. The identification of predictors of replication success is limited by the difficulty of conducting large samples of independent replication experiments, however: most investigations re-analyse the same set of ~170 replications. We introduce a new dataset of 176 replications from students in a graduate-level methods course. Replication results were judged to be successful in 49% of replications; of the 136 where effect sizes could be numerically compared, 46% had point estimates within the prediction interval of the original outcome (versus the expected 95%). Larger original effect sizes and within-participants designs were especially related to replication success. Our results indicate that, consistent with prior reports, the robustness of the psychology literature is low enough to limit cumulative progress by student investigators.
 :::
 
 # Introduction
@@ -139,7 +139,7 @@ In the current study, we estimate the probability of successful replication in t
 
 ## When do replications succeed? 
 
-Despite variation in the methods and outcomes used by large-scale replication studies, they are often aggregated together in analyses looking at the predictability of replication success. Prediction markets and elicitations have established that people can predict what studies will replicate above chance [@hoogeveen2019;@dreber2015; @forsell2019;@camerer2018], but have not identified concrete predictors that differentiate replications from non-replications. Machine learning approaches trained on the available replications are also above chance at predicting replication success [@yang2020; @youyou2023], though again the precise features relating to success are unclear. 
+Despite variation in the methods and outcomes used by large-scale replication studies, they are often aggregated together in analyses looking at the predictability of replication success. Prediction markets and elicitations have established that people can predict above chance what studies will replicate [@hoogeveen2019;@dreber2015; @forsell2019;@camerer2018], but have not identified concrete predictors that differentiate replications from non-replications. Machine learning approaches trained on the available replications are also above chance at predicting replication success [@yang2020; @youyou2023], though again the precise features relating to success are unclear. 
 
 In search of such features, RP:P examined correlates of replicability in the RP:P sample and found that studies in cognitive psychology (as opposed to social psychology) and studies with larger effect sizes and smaller $p$ values were more likely to replicate. Using these same data combined with a few other smaller samples, @altmejd2019 examined statistical and demographic features of replication studies and identified larger sample sizes, larger effect sizes, and simple effects (as opposed to interaction terms) as predictive of replication.^[While most approaches to correlates of replicability have been correlational, experimental approaches can be used to test potential interventions [@protzko2020;@ebersole2020]. Experiments can be very valuable as tests of specific causes of non-replication, but they are expensive and time-consuming to conduct, and not all factors affecting replication success can be manipulated experimentally.]
 <!-- showed, across 16 studies, that better methodological practices led to replication rates that matched theoretical expectations based on sampling error, with replication effect sizes comparable with the original. Many Labs 5 added expert (original author) advice to a replication process, and found that it did not substantially increase the replication rate for the 10 studies -->
@@ -294,7 +294,7 @@ tau_pct <- tau_predIntcount/tau_predInttotal*100
 
 ```
 
-Some multi-site replication projects have found heterogeneity in effect sizes across replication sites [@ebersole2020; @klein2018; @olsson2020]. As a test of sensitivity to heterogeneity, we assumed that the level of heterogeneity in hypothetical multi-site replications of our sampled articles was the same as the average level heterogeneity found by @olssen2020 in prior multi-site replications in psychology ($\tau=.21$ in units of standardized mean difference). Under this assumption, `r round(tau_pct)`% (`r tau_predIntcount`/`r tau_predInttotal`) of replication effect sizes are distributionally consistent with the original effect size. However, more work on understanding heterogeneity is needed to understand what levels of heterogeneity to expect across different implementations of the same experiment, and how considerations of heterogeneity should impact interpretations of both novel results and replication results. 
+Some multi-site replication projects have found heterogeneity in effect sizes across replication sites [@ebersole2020; @klein2018; @olsson2020]. As a test of sensitivity to heterogeneity, we assumed that the level of heterogeneity in hypothetical multi-site replications of our sampled articles was the same as the average level heterogeneity found by @olsson2020 in prior multi-site replications in psychology ($\tau=.21$ in units of standardized mean difference). Under this assumption, `r round(tau_pct)`% (`r tau_predIntcount`/`r tau_predInttotal`) of replication effect sizes are distributionally consistent with the original effect size. However, more work on understanding heterogeneity is needed to understand what levels of heterogeneity to expect across different implementations of the same experiment, and how considerations of heterogeneity should impact interpretations of both novel results and replication results. 
 
 <!-- [Is this the right place to talk about heterogeneity / what did we want to say?]  -->
 
@@ -321,14 +321,14 @@ preds <- c("pub_year", "open_data",  "open_mat", "stanford", "change_platform",
 cors <- tibble(preds = preds) |>
   mutate(r = sapply(preds, function(x) sub_cor(x, stat = "estimate")),
          p = sapply(preds, function(x) sub_cor(x, stat = "p"))) |> 
-  mutate(Predictors=factor(preds, levels=c("social", "other_psych", "non_psych", "is_within", "single_vignette", "change_platform", "open_data", "open_mat", "stanford", "pub_year", "log_trials", "log_sample", "log_ratio_ss"), labels=c("Social", "Other psych", "Non psych", "Within participants", "Single vignette", "Switch to online", "Open data", "Open materials", "Stanford", "Publication year", "Log n trials", "Log original sample size", "Log rep/orig sample"))) |> arrange(desc(r)) |> select(Predictors, r, p)
+  mutate(Predictors=factor(preds, levels=c("social", "other_psych", "non_psych", "is_within", "single_vignette", "change_platform", "open_data", "open_mat", "stanford", "pub_year", "log_trials", "log_sample", "log_ratio_ss"), labels=c("Social psychology (versus cognitive psych)", "Other psychology (versus cognitive psych)", "Non psychology (versus cogntive psych)", "Within participants design (versus between participants)", "Single vignette (versus multiple items/inductions per condition)", "Switch to online for replication (versus same modality for original and replication)", "Open data", "Open materials", "Stanford affiliation of original authors at time of replication", "Publication year", "Log number of  trials", "Log original sample size", "Log ratio between replication and original sample sizes"))) |> arrange(desc(r)) |> select(r, p, Predictors)
 
 library(kableExtra)
-knitr::kable(cors, digits = 3, align='rcc',format="latex", position="!h", caption="The correlation between each individual predictor and the subjective replication score. For subfield, cognitive psychology is treated as the baseline condition. See Methods for how these variables were coded.", booktabs=TRUE) |> kable_styling(full_width=F, font_size=10) 
+knitr::kable(cors, digits = 3, align='ccl',format="latex", position="!h", caption="The correlation between each individual predictor and the subjective replication score. For subfield, cognitive psychology is treated as the baseline condition. See Methods for how these variables were coded.", booktabs=TRUE, linesep="") |> kable_styling(full_width=F, font_size=10) 
 
 ```
 
-```{r}
+```{r, include=F}
 
 
  within <- glm(sub_rep ~ is_within, data=for_cor, family=binomial)$coefficient[2] |> exp() 
@@ -339,13 +339,22 @@ knitr::kable(cors, digits = 3, align='rcc',format="latex", position="!h", captio
 
 ```
 
+```{r}
+
+within <- for_cor |> group_by(is_within) |> summarize(avg=mean(sub_rep)*100)
+
+cog <- for_cor |> group_by(subfield) |> summarize(avg=mean(sub_rep)*100)
+vignette <- for_cor |> group_by(single_vignette) |> summarize(avg=mean(sub_rep)*100)
+
+```
+
 ## Independent correlates of replication success
 
 We investigated what features of the original study and replication were correlated with replication success, with the goal of being able to identify potential markers of replicability. We chose a set of predictor variables based on the correlational results of RP:P [@openscienceconsortium2015], our own intuitions of experimental design factors that might impact replication success, and some covariates related to how close the replication was; a full description of these features is given in the Methods. 
 
 Many predictors individually correlated with subjective replication success (Table \ref{tab:cor}). Predictors of higher replicability included within-participants designs, larger numbers of trials per participant, and the original study having openly accessible data. Predictors of lower replicability included single-vignette studies (those with only one experimental stimulus per condition), classification as social psychology, and study pairs where the original study was in-person and the replication switched to online. 
 
-Distributions of study outcomes across some of these properties are shown in Figure \ref{fig:predictors-graph}. To quantify the effects of these single predictors, we ran logistic models predicting the subjective replication score (on a 0--1 scale) as a function of the single predictor, and exponentiated the coefficient to obtain an odds ratio. Both social and cognitive psychology studies were well represented in the replication sample, and the cognitive psychology studies replicated `r round(1/subfield, 2)` times as often as social psychology studies. Within and between participants designs were both common, and within-participants designs replicated `r within |> round(2)` times as much as between-participants designs. Studies with multiple vignettes replicated `r round(1/vignette, 2)` times as often as single vignetted studies. However, there were strong correlations among these experimental features as well as between these experimental features and specific subfields. 
+Distributions of study outcomes across some of these properties are shown in Figure \ref{fig:predictors-graph}. Both social and cognitive psychology studies were well represented in the replication sample, and the cognitive psychology studies replicated more often than social psychology studies (`r pluck(cog,2,1) |> round()`% versus `r pluck(cog,2,4) |> round()`%). Within and between participants designs were both common, and within-participants designs replicated more often than between-participants designs (`r pluck(within,2,2) |> round()`% versus `r pluck(within,2,1) |> round()`%). Studies with multiple vignettes replicated more often than single vignetted studies (`r pluck(vignette,2,1) |> round()`% versus `r pluck(vignette,2,2) |> round()`%). However, there were strong correlations among these experimental features as well as between these experimental features and specific subfields. 
 
 Studies with open data, which almost always also had open materials as well, tended to replicate more than studies without open data. Nearly all replication studies were conducted online, but original studies were split between using in-person and online recruitment. Replications that switched to online were less likely to replicate than those that had the same modality as the original (generally both online, in a few cases both in-person).  While online studies in general show comparable results to studies conducted in person [@crump2013], switching the modality does decrease the closeness of the replication, and some studies done in person may not have been well-adapted (e.g., inductions might have been weaker or instructions might have been insufficient). These factors -- open materials, open data, and online samples -- are more common in more recent studies, and so these effects may partially reflect temporal trends. 
 
@@ -408,7 +417,7 @@ plot_grid (top_row, mid_row, nrow=2)
 
 ```{r}
 do_estimates <- function(model, variable){
-  summary(model)$fixed |> as_tibble(rownames="var") |> filter(var==variable)|> mutate(text=str_c(round(Est.Error,2), ", CrI= [", round(`l-95% CI`,2),", ", round(`u-95% CI`,2),"]")) |> pull(text)
+  summary(model)$fixed |> as_tibble(rownames="var") |> filter(var==variable)|> mutate(text=str_c("$\\beta = ", round(Est.Error,2), ",  95\\% \\mathrm{CrI} = [", round(`l-95% CI`,2),", ", round(`u-95% CI`,2),"]$")) |> pull(text)
 }
 
 tier1_subjective <- read_rds(here(model_location, "tier1_subjective.rds"))
@@ -437,13 +446,13 @@ smd_2 <- do_estimates(pred_int, "z_target_d_calc")
  
 ## Joint evaluation of the predictors of replicability
 
-While a number of features show individual correlations with the subjective replication score, many correlate with one another. To determine which predictors were the strongest, we ran a series of pre-registered Bayesian regression models regularized using a horseshoe shrinkage prior [@carvalho09]. We first ran models using all of the original-replication pairs (N=176), but without original effect size and original $p$ value as predictors, as they were uncodable for some pairs. We next ran models including all predictors, but on only the subset of data where all predictors were available (N=112). 
+While a number of features show individual correlations with the subjective replication score, many correlate with one another. To determine which predictors were the strongest, we ran a series of pre-registered Bayesian regression models using an ordinal link function and  regularized using a horseshoe shrinkage prior [@carvalho09]. We first ran models using all of the original-replication pairs (N=176), but without original effect size and original $p$ value as predictors, as they were uncodable for some pairs. We next ran models including all predictors, but on only the subset of data where all predictors were available (N=112). 
 
-Coefficient estimates from the two models predicting the subjective replication scores are shown in Figure \ref{fig:mod-results}. Due to a large number of predictors coupled with a small and noisy dataset, there is much uncertainty around the coefficients even with strong regularization. The general directions of coefficients are consistent with the effects of the predictors in isolation. 
+Coefficient estimates from the two ordinal models predicting the subjective replication scores are shown in Figure \ref{fig:mod-results}. Due to a large number of predictors coupled with a small and noisy dataset, there is much uncertainty around the coefficients even with strong regularization. The general directions of coefficients are consistent with the effects of the predictors in isolation. 
 
 Within-participants designs stand out as the strongest correlate of replicability in the model with all the data (`r within_1`). In the model with all predictors, but less data, within-participants designs remain strong (`r within_3`), and standardized effect size is also substantially related to subjective replication score (`r smd_3`). Both effects are robust to a sensitivity analysis including only studies with close replications and matching statistical tests (within-participants `r within_sens`; effect size `r smd_sens`). 
 
-We also ran models predicting our secondary outcome measures: whether the replication effect was within the prediction interval of the original effect and what the $p$-original was between the replication and original. Both these models had more uncertain estimates. While the credible intervals were wide, the general patterns of predictor direction and relative strength were similar to the subjective replication models (see Supplement for coefficients from all models). The strongest predictors for prediction interval were still within-participants designs (`r within_2`) and studies with larger effect sizes (`r smd_2`). 
+We also ran models predicting our secondary outcome measures: a logistic model predicting whether the replication effect was within the prediction interval of the original effect, and a linear model predicting what the $p$-original was between the replication and original. Both these models had more uncertain estimates. While the credible intervals were wide, the general patterns of predictor direction and relative strength were similar to the subjective replication models (see Supplement for coefficients from all models). The strongest predictors for prediction interval were still within-participants designs (`r within_2`) and studies with larger effect sizes (`r smd_2`). 
 
 ```{r mod-results, out.width="90%", fig.width=8, fig.height=5, fig.pos="ht", fig.cap="Coefficients and uncertaintly estimates from a model of all original-replication pairs (N=176, shown in blue) and a model of all pairs with full statistical information (N=112, shown in red) and predicting subjective replication scores as the dependent variable. "}
 
@@ -537,9 +546,9 @@ In regression analyses, we used standardized mean difference and log $p$ value a
 
 ## Modelling 
 
-Due to the monotonic missingness of the data, we had more predictor variables and outcome variables for some original-replication pairs than for others. To take full advantage of the data, we ran a series of models, with some models having fewer predictors, but more data, and others having more predictors, but less data. 
+All original-replication pairs (except for one) had codable demographic and experimental features, while fewer pairs had codable effect sizes on some consistent scale, and fewer still had codable p-values and SMD effect sizes. Thus, we had more predictor variables and outcome variables for some original-replication pairs than for others, but which variables were codable was monotonic. To take full advantage of the data, we ran a series of models, with some models having fewer predictors, but more data, and others having more predictors, but less data. 
 
-We ran a model predicting the subjective replication score on the basis of demographic and experimental predictors on the entire dataset. We ran two models predicting $p$-original and prediction interval from demographic and experimental predictors on the subset of data where we had $p$-original and prediction intervals. Then, on the smaller subset of the data where we had effect sizes and $p$ values, we re-ran these three models with those as additional predictor variables. 
+We ran a model predicting the subjective replication score on the basis of demographic and experimental predictors on the entire dataset. We ran two models predicting $p$-original and predicting whether the replication was in the prediction interval from demographic and experimental predictors on the subset of data where we had $p$-original and prediction intervals. Then, on the smaller subset of the data where we had effect sizes and $p$ values, we re-ran these three models with those as additional predictor variables. 
 
 The subjective replication scores were coded on [0, .25, .5, .75, 1], and we ramapped these to 1-5 to run an ordinal regression predicting replication score. We ran logistic regressions predicting prediction interval and linear regressions predicting $p$-original. 
 
