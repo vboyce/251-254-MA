@@ -1,22 +1,16 @@
 ---
 title: "Supplement"
-output: pdf_document
-date: "2023-03-28"
+output:
+  bookdown::pdf_document2:
+    toc: FALSE
+    keep_tex: TRUE
 
 header-includes:
  - \usepackage{tikz}
  - \usetikzlibrary{positioning,arrows.meta, quotes, shapes}
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE) # By default, hide code; set to TRUE to see code
-#knitr::opts_chunk$set(fig.pos = 'th') # Places figures at top or here
-knitr::opts_chunk$set(out.width = '100%', dpi=300,
-                      fig.width=8, fig.width=8) # Figure resolution and size
-knitr::opts_chunk$set(fig.env="figure") # Latex figure environment
-
-options(knitr.table.format="latex") # For kable tables to work without setting format option
-
+```{r setup, include=F}
 knitr::opts_chunk$set(echo=F, warning=F, message=F)#dev = "png", dev.args = list(type = "cairo-png")
  library("papaja")
 library("bookdown")
@@ -31,12 +25,32 @@ library(cowplot)
 library(ggthemes)
 #r_refs("r-references.bib", append=F)
 theme_set(theme_bw())
-options(knitr.table.format = "pdf")
 
 model_location="code/models"
 d <- read_csv(here("data", "processed_data.csv")) |> filter(status!="unusable") |> filter(include!="no")
 
 ```
+# Heterogeneity analysis
+
+
+```{r, echo=F}
+
+all_true <- d |> filter(include %in% c("stats", "pred_int")) |> filter(!is.na(predInt)) |> filter(predInt) |> nrow()
+
+all <- d |> filter(include %in% c("stats", "pred_int")) |> filter(!is.na(predInt)) |> nrow()
+
+#of those with SMD predInts
+all_orig  <- d |>filter(include=="stats") |> filter(!is.na(predInt_from_d)) |> nrow()
+all_orig_true <- d |>filter(include=="stats") |> filter(!is.na(predInt_from_d)) |> filter(predInt) |> nrow()
+all_d_true <- d |> filter(include=="stats") |> filter(!is.na(predInt_from_d)) |> filter(predInt_from_d) |> nrow()
+all_tau <- d |> filter(include=="stats") |> filter(!is.na(predInt_from_d)) |> filter(predInt_with_tau) |> nrow()
+
+```
+
+The prediction interval and p-original values used for models and point estimates were done on the original scale where possible. However, to do heterogeneity analysis, our imputed value for tau is in SMD units, so we have to use SMD units for the original and replication values. This limits the number of applicable original-replication pairs. Prediction intervals are sensitive to whether only studies with SMD are included (different studies report differently and also vary in how close replications were) and whether the scale used was original or SMD (if the variances differed between original and replication). 
+
+Of all studies where prediction intervals can be calculated, `r all_true`/`r all` (`r round(all_true/all*100)`%) of the original estimates had prediction intervals that included the replication effect size. For those where we have SMD, `r all_orig_true`/`r all_orig` (`r round(all_orig_true/all_orig*100)`%) of the original estimates had prediction intervals that included the replication effect size, when we use original units where possible.  Using SMD units, `r all_d_true`/`r all_orig` (`r round(all_d_true/all_orig*100)`%) of the original estimates had prediction intervals that included the replication effect size. Allowing for heterogeneity, with tau=.21, `r all_tau`/`r all_orig` (`r round(all_tau/all_orig*100)`%) of the original estimates are distributionally consistent. 
+
 
 # Additional model results
 
@@ -113,9 +127,8 @@ d |>
   theme(axis.ticks.y=element_blank(), axis.title.y=element_blank())
 ```
 
-\pagebreak
 
-```{r}
+```{r, eval=F}
 do_draws <- function(model){
   draws <- model |> gather_draws(`b_[a-zA-Z_(): ]+`, regex=TRUE) |> 
     mutate(Term=str_sub(.variable, 3,-1) |> str_replace("M","_"), Estimate=.value) |>  filter(Term!="Intercept") |> 
@@ -136,58 +149,93 @@ sens3_subjective <- read_rds(here(model_location, "sens_tier3_subjective.rds"))|
 sens3_porig <- read_rds(here(model_location, "sens_tier3_porig.rds"))|> do_draws()|> mutate(type="Only pairs with full statistical info")|> mutate(sens="Sensitivity test")
 sens3_predint <- read_rds(here(model_location, "sens_tier3_predint.rds"))|> do_draws()|> mutate(type="Only pairs with full statistical info")|> mutate(sens="Sensitivity test")
 
-subjective <- tier1_subjective |> union(tier3_subjective) |> union(sens1_subjective) |> union(sens3_subjective)
+subjective <- tier1_subjective |> union(tier3_subjective) |> union(sens1_subjective) |> union(sens3_subjective) |> mutate(OR=exp(Estimate))
 porig <- tier2_porig |> union(tier3_porig) |> union(sens2_porig) |> union(sens3_porig)
-predint <- tier2_predint |> union(tier3_predint) |> union(sens2_predint) |> union(sens3_predint)
+predint <- tier2_predint |> union(tier3_predint) |> union(sens2_predint) |> union(sens3_predint) |> mutate(OR=exp(Estimate))
 ```
 
-```{r sub-results, out.height="75%", fig.width=8, fig.height=8, fig.pos="ht", fig.cap="Coefficient estimates and uncertainty from ordinal models predicting subjective replication scores. Solid lines correspond to models run on as much of the data as possible; dashed lines are on the subset of the data for sensitivity analysis. Red is run on all relevant data with experimental predictors only; blue is on relevant data where there are statistical predictors."}
 
-  subjective |> ggplot(aes(y = reorder(Term, Estimate, mean), x = Estimate, color=type, linetype=sens, shape=sens)) + geom_vline(xintercept=0)+
-    scale_shape_manual(values = c(19,21))+
-  scale_color_solarized()+
-  stat_pointinterval(position=position_dodge(width=.7))+labs(y="", x="Estimate, 66%, 95% CrI predicting subjective replication score", color="", linetype="", shape="")+theme(axis.text=element_text(size=11),legend.position="bottom")
+```{r}
+do_estimates <- function(model){
+  summary(model)$fixed |> as_tibble(rownames="var") |> select(var, Estimate, lower=`l-95% CI`, upper=`u-95% CI`) |> filter(!str_detect(var, "Intercept")) |> 
+    mutate(var=str_replace(var, "M","_"),
+           Term=factor(var, levels=c("subfieldsocial", "subfieldother_psych", "subfieldnon_psych", "is_within", "single_vignette", "change_platform", "open_data", "open_mat", "stanford", "z_pub_year", "z_log_trials", "z_log_sample", "z_log_ratio_ss","z_log_p","z_target_d_calc"), labels=c("Social psych", "Other psych", "Non psych", "Within participants", "Single vignette", "Switch to online", "Open data", "Open materials", "Stanford", "Publication year", "Log trials", "Log original sample size", "Log rep/orig sample", "P-value", "Original effect size"))) |> 
+        mutate(est=str_c(round(Estimate,2)), 
+               range=str_c("[", round(lower,2),", ", round(upper,2),"]")) |> 
+    select(Term, est, range)
+  
+}
+do_estimates_OR <- function(model){
+  summary(model)$fixed |> as_tibble(rownames="var") |> select(var, Estimate, lower=`l-95% CI`, upper=`u-95% CI`) |> filter(!str_detect(var, "Intercept")) |> 
+    mutate(var=str_replace(var, "M","_"),
+           Term=factor(var, levels=c("subfieldsocial", "subfieldother_psych", "subfieldnon_psych", "is_within", "single_vignette", "change_platform", "open_data", "open_mat", "stanford", "z_pub_year", "z_log_trials", "z_log_sample", "z_log_ratio_ss","z_log_p","z_target_d_calc"), labels=c("Social psych", "Other psych", "Non psych", "Within participants", "Single vignette", "Switch to online", "Open data", "Open materials", "Stanford", "Publication year", "Log trials", "Log original sample size", "Log rep/orig sample", "P-value", "Original effect size"))) |> 
+        mutate(OR=exp(Estimate),
+               lower=exp(lower),
+               upper=exp(upper),
+               est=str_c(round(OR,2)), 
+               range=str_c("[", round(lower,2),", ", round(upper,2),"]")) |> 
+    select(Term, est, range)
+  
+}
+```
+
+```{r}
+
+tier1_subjective <- read_rds(here(model_location, "tier1_subjective.rds")) |> do_estimates_OR() |> mutate(type="All pairs") 
+tier3_subjective <- read_rds(here(model_location, "tier3_subjective.rds"))|> do_estimates_OR() |> mutate(type="Full stats")
+
+
+sens1_subjective <- read_rds(here(model_location, "sens_tier1_subjective.rds"))|> do_estimates_OR() |> mutate(type="All pairs: Sensitivity")
+sens3_subjective <- read_rds(here(model_location, "sens_tier3_subjective.rds"))|> do_estimates_OR()|> mutate(type="Full stats: Sensitivity")
+
+subjective <- tier1_subjective |> union(tier3_subjective) |> union(sens1_subjective) |> union(sens3_subjective) |> pivot_wider(id_cols=Term, names_from=type, values_from=c(est, range), values_fill="--") |> select(Term, "est_All pairs","range_All pairs", "est_Full stats", "range_Full stats",  "est_All pairs: Sensitivity" , "range_All pairs: Sensitivity", "est_Full stats: Sensitivity", "range_Full stats: Sensitivity") |> arrange(desc(`est_Full stats`))
+```
+
+```{r}
+
+tier2_predint <- read_rds(here(model_location, "tier2_predint.rds")) |> do_estimates_OR() |> mutate(type="All pairs") 
+tier3_predint <- read_rds(here(model_location, "tier3_predint.rds"))|> do_estimates_OR() |> mutate(type="Full stats")
+
+
+sens2_predint <- read_rds(here(model_location, "sens_tier2_predint.rds"))|> do_estimates_OR() |> mutate(type="All pairs: Sensitivity")
+sens3_predint <- read_rds(here(model_location, "sens_tier3_predint.rds"))|> do_estimates_OR()|> mutate(type="Full stats: Sensitivity")
+
+predint <- tier2_predint |> union(tier3_predint) |> union(sens2_predint) |> union(sens3_predint) |> pivot_wider(id_cols=Term, names_from=type, values_from=c(est, range), values_fill="--") |> select(Term, "est_All pairs","range_All pairs", "est_Full stats", "range_Full stats",  "est_All pairs: Sensitivity" , "range_All pairs: Sensitivity", "est_Full stats: Sensitivity", "range_Full stats: Sensitivity") |> arrange(desc(`est_Full stats`))
+```
+
+```{r}
+
+tier2_porig <- read_rds(here(model_location, "tier2_porig.rds")) |> do_estimates() |> mutate(type="All pairs") 
+tier3_porig <- read_rds(here(model_location, "tier3_porig.rds"))|> do_estimates() |> mutate(type="Full stats")
+
+
+sens2_porig <- read_rds(here(model_location, "sens_tier2_porig.rds"))|> do_estimates() |> mutate(type="All pairs: Sensitivity")
+sens3_porig <- read_rds(here(model_location, "sens_tier3_porig.rds"))|> do_estimates()|> mutate(type="Full stats: Sensitivity")
+
+porig<- tier2_porig |> union(tier3_porig) |> union(sens2_porig) |> union(sens3_porig) |> pivot_wider(id_cols=Term, names_from=type, values_from=c(est, range), values_fill="--") |> select(Term, "est_All pairs","range_All pairs", "est_Full stats", "range_Full stats",  "est_All pairs: Sensitivity" , "range_All pairs: Sensitivity", "est_Full stats: Sensitivity", "range_Full stats: Sensitivity") |> arrange(desc(`est_Full stats`))
+```
+
+```{r}
+knitr::kable(subjective, col.names=NULL, align='rrlrlrlrl',position="!h", caption="Odds ratios and 95\\% CrI from ordinal models predicting subjective replication scores. All pairs indicates that all pairs used, regardless of whether they had full statistical information; Full stats indicates that only pairs with full statistical information was used. Sensitivity indicates that it was a sensitivity test.", booktabs=T, linesep="") |> kable_styling() |>  
+  add_header_above(c(" " = 1, "N=176" = 2, "N=112" = 2, "N=167" = 2, "N=82"=2)) |> 
+ add_header_above(c(" " = 1, " " = 2, " " = 2, "Sensitivity" = 2, "Sensitivity"=2)) |> add_header_above(c(" " = 1, "All pairs" = 2, "Full stats" = 2, "All pairs" = 2, "Full stats"=2))
+  
 
 ```
 
-```{r predint-results, out.height="75%", fig.width=8, fig.height=8, fig.pos="ht", fig.cap="Coefficient estimates and uncertainty from logistic models predicting prediction intervals. Solid lines correspond to models run on as much of the data as possible; dashed lines are on the subset of the data for sensitivity analysis. Red is run on all relevant data with experimental predictors only; blue is on relevant data where there are statistical predictors."}
-
-  predint |> ggplot(aes(y = reorder(Term, Estimate, mean), x = Estimate, color=type, linetype=sens, shape=sens)) + geom_vline(xintercept=0)+
-    scale_shape_manual(values = c(19,21))+
-  scale_color_solarized()+
-  stat_pointinterval(position=position_dodge(width=.7))+labs(y="", x="Estimate, 66%, 95% CrI predicting prediction interval", color="", linetype="", shape="")+theme(axis.text=element_text(size=11),legend.position="bottom")
-
-```
-
-```{r porig-results, out.height="75%", fig.width=8, fig.height=8, fig.pos="ht", fig.cap="Coefficient estimates and uncertainty from linear models predicting p-original values. Solid lines correspond to models run on as much of the data as possible; dashed lines are on the subset of the data for sensitivity analysis. Red is run on all relevant data with experimental predictors only; blue is on relevant data where there are statistical predictors."}
-
-  porig |> ggplot(aes(y = reorder(Term, Estimate, mean), x = Estimate, color=type, linetype=sens, shape=sens)) + geom_vline(xintercept=0)+
-    scale_shape_manual(values = c(19,21))+
-  scale_color_solarized()+
-  stat_pointinterval(position=position_dodge(width=.7))+labs(y="", x="Estimate, 66%, 95% CrI predicting p-original values", color="", linetype="", shape="")+theme(axis.text=element_text(size=11),legend.position="bottom")
+```{r}
+knitr::kable(predint, col.names=NULL, align='rrlrlrlrl',position="!h", caption="Odds ratios and 95\\% CrI from logistic models predicting whether the prediction interval of the original effect contained the replication effect. All pairs indicates that all pairs with calculable prediction intervals were used, regardless of whether they had full statistical information; Full stats indicates that only data with full statistical information was used. Sensitivity indicates that it was a sensitivity test.", booktabs=T, linesep="") |> kable_styling() |>  
+  add_header_above(c(" " = 1, "N=136" = 2, "N=112" = 2, "N=100" = 2, "N=82"=2)) |> 
+ add_header_above(c(" " = 1, " " = 2, " " = 2, "Sensitivity" = 2, "Sensitivity"=2)) |> add_header_above(c(" " = 1, "All pairs" = 2, "Full stats" = 2, "All pairs" = 2, "Full stats"=2))
+  
 
 ```
 
-\pagebreak
-
-# Heterogeneity analysis
-
-
-```{r, echo=F}
-
-all_true <- d |> filter(include %in% c("stats", "pred_int")) |> filter(!is.na(predInt)) |> filter(predInt) |> nrow()
-
-all <- d |> filter(include %in% c("stats", "pred_int")) |> filter(!is.na(predInt)) |> nrow()
-
-#of those with SMD predInts
-all_orig  <- d |>filter(include=="stats") |> filter(!is.na(predInt_from_d)) |> nrow()
-all_orig_true <- d |>filter(include=="stats") |> filter(!is.na(predInt_from_d)) |> filter(predInt) |> nrow()
-all_d_true <- d |> filter(include=="stats") |> filter(!is.na(predInt_from_d)) |> filter(predInt_from_d) |> nrow()
-all_tau <- d |> filter(include=="stats") |> filter(!is.na(predInt_from_d)) |> filter(predInt_with_tau) |> nrow()
+```{r}
+knitr::kable(predint, col.names=NULL, align='rrlrlrlrl',position="!h", caption="Coefficients and 95\\% CrI from linear models predictiong the p-original value between the original and replicaiton effects. All pairs indicates that all pairs with calculable prediction intervals were used, regardless of whether they had full statistical information; Full stats indicates that only data with full statistical information was used. Sensitivity indicates that it was a sensitivity test.", booktabs=T, linesep="") |> kable_styling() |>  
+  add_header_above(c(" " = 1, "N=136" = 2, "N=112" = 2, "N=100" = 2, "N=82"=2)) |> 
+ add_header_above(c(" " = 1, " " = 2, " " = 2, "Sensitivity" = 2, "Sensitivity"=2)) |> add_header_above(c(" " = 1, "All pairs" = 2, "Full stats" = 2, "All pairs" = 2, "Full stats"=2))
+  
 
 ```
-
-The prediction interval and p-original values used for models and point estimates were done on the original scale where possible. However, to do heterogeneity analysis, our imputed value for tau is in SMD units, so we have to use SMD units for the original and replication values. This limits the number of applicable original-replication pairs. Prediction intervals are sensitive to whether only studies with SMD are included (different studies report differently and also vary in how close replications were) and whether the scale used was original or SMD (if the variances differed between original and replication). 
-
-Of all studies where prediction intervals can be calculated, `r all_true`/`r all` (`r round(all_true/all*100)`%) of the original estimates had prediction intervals that included the replication effect size. For those where we have SMD, `r all_orig_true`/`r all_orig` (`r round(all_orig_true/all_orig*100)`%) of the original estimates had prediction intervals that included the replication effect size, when we use original units where possible.  Using SMD units, `r all_d_true`/`r all_orig` (`r round(all_d_true/all_orig*100)`%) of the original estimates had prediction intervals that included the replication effect size. Allowing for heterogeneity, with tau=.21, `r all_tau`/`r all_orig` (`r round(all_tau/all_orig*100)`%) of the original estimates are distributionally consistent. 
 

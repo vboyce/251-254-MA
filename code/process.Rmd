@@ -44,8 +44,10 @@ Download
 f <- googledrive::as_dribble("https://docs.google.com/spreadsheets/d/1UT6KLRujn6iEQ_s01_4yNfFYqc7hAWTpB-t9mdDp0O8/edit#gid=0")
 googledrive::drive_download(f, path=here("data","raw_data.xlsx"), overwrite=T)
 
-raw <- readxl::read_xlsx(here("data","raw_data.xlsx"), 
-                       sheet="aligned data", skip=1) |> select(target_lastauthor_year, sensitivity, include,
+raw <- readxl::read_xlsx(here("data","raw_data.xlsx"), sheet="aligned data", skip=1) |> 
+  mutate(student_name_shared=ifelse(is.na(student_name_shared), "N/A", student_name_shared),
+         replication_report_included=ifelse(is.na(replication_report_included), "no", replication_report_included)) |> 
+  select(target_lastauthor_year, student_name_shared, replication_report_included, sensitivity, include,
          status, status_explanation,  academic_year, journal, target_cite, article_link, study_number,  subfield, target_year, stanford_internal, 
          open_data, open_materials, target_on_turk, replication_on_turk, 
          within_between, single_vignette, repeated_measure,
