@@ -449,7 +449,7 @@ r & p & Predictors\\
 
 We investigated what features of the original study and replication were correlated with replication success, with the goal of being able to identify potential markers of replicability. We chose a set of predictor variables based on the correlational results of RP:P (\protect\hyperlink{ref-openscienceconsortium2015}{Open Science Consortium 2015}), our own intuitions of experimental design factors that might impact replication success, and some covariates related to how close the replication was; a full description of these features is given in the Methods.
 
-Many predictors correlated with subjective replication success using unadjusted Pearson correlations(Table \ref{tab:cor}). Predictors of higher replicability included within-participants designs, larger numbers of trials per participant, and the original study having openly accessible data. Predictors of lower replicability included single-vignette studies (those with only one experimental stimulus per condition), classification as social psychology, and study pairs where the original study was in-person and the replication switched to online.
+Many predictors correlated with subjective replication success using unadjusted Pearson correlations (Table \ref{tab:cor}). Predictors of higher replicability included within-participants designs, larger numbers of trials per participant, and the original study having openly accessible data. Predictors of lower replicability included single-vignette studies (those with only one experimental stimulus per condition), classification as social psychology, and study pairs where the original study was in-person and the replication switched to online.
 
 Distributions of study outcomes across some of these properties are shown in Figure \ref{fig:predictors-graph}. Both social and cognitive psychology studies were well represented in the replication sample, and the cognitive psychology studies replicated more often than social psychology studies (mean subjective replication scores: 0.58 versus 0.36). Within and between participants designs were both common, and within-participants designs replicated more often than between-participants designs (mean scores: 0.65 versus 0.36). Studies with multiple vignettes replicated more often than single vignetted studies (mean scores: 0.59 versus 0.36). However, there were strong correlations among these experimental features as well as between these experimental features and specific subfields.
 
@@ -462,7 +462,7 @@ Studies with open data, which almost always also had open materials as well, ten
 \hypertarget{joint-evaluation-of-the-predictors-of-replicability}{%
 \subsection{Joint evaluation of the predictors of replicability}\label{joint-evaluation-of-the-predictors-of-replicability}}
 
-While a number of features show individual correlations with the subjective replication score, many correlate with one another. To determine which predictors were the strongest, we ran a series of pre-registered Bayesian regression models using an ordinal link function and regularized using a horseshoe shrinkage prior (\protect\hyperlink{ref-carvalho09}{Carvalho et al. 2009}). We first ran models using all of the original-replication pairs (N=176), but without original effect size and original \(p\) value as predictors, as they were uncodable for some pairs. We next ran models including all predictors, but on only the subset of data where all predictors were available (N=112).
+While a number of features show individual correlations with the subjective replication score, many correlate with one another. To determine which predictors were the strongest, we modeled subjective replication score as an ordinal outcome using ordinal Bayesian regression models with a logit link function, regularized using a horseshoe shrinkage prior (\protect\hyperlink{ref-carvalho09}{Carvalho et al. 2009}). This model estimates odds ratios representing the association of the predictor with having a higher versus lower subjective replication score. We first ran models using all of the original-replication pairs (N=176), but without original effect size and original \(p\) value as predictors, as they were uncodable for some pairs. We next ran models including all predictors, but on only the subset of data where all predictors were available (N=112).
 
 Coefficient estimates from the two ordinal models predicting the subjective replication scores are shown in Figure \ref{fig:mod-results}. Due to a large number of predictors coupled with a small and noisy dataset, there is much uncertainty around the coefficients even with strong regularization. The general directions of coefficients are consistent with the effects of the predictors in isolation.
 
@@ -471,7 +471,7 @@ Within-participants designs stand out as the strongest correlate of replicabilit
 We also ran models predicting our secondary outcome measures: a logistic model predicting whether the replication effect was within the prediction interval of the original effect, and a linear model predicting what the \(p\)-original was between the replication and original. Both these models had more uncertain estimates. While the credible intervals were wide, the general patterns of predictor direction and relative strength were similar to the subjective replication models (see Supplement for results from all models). The strongest predictors for prediction interval were still within-participants designs (OR = 1.79, 95\% CrI = {[}0.83, 7.44{]}) and studies with larger effect sizes (OR = 1.17, 95\% CrI = {[}0.75, 2.57{]}).
 
 \begin{figure}[ht]
-\includegraphics[width=0.9\linewidth]{manuscript_files/figure-latex/mod-results-1} \caption{Odds ratios and corresponding uncertaintly estimates on the likelihood of having a higher subjective replication score as a function of the dependent variable. Estimates from a model of all original-replication pairs (N=176) are shown in blue, and from a model of all pairs with full statistical information (N=112) are shown in red. A value of 1 indicates no effect, greater than one indicates an association with higher replication scores and less than 1 an association with lower replication scores.}\label{fig:mod-results}
+\includegraphics[width=0.9\linewidth]{manuscript_files/figure-latex/mod-results-1} \caption{Odds ratios and corresponding 95\% CrI on the likelihood of having a higher subjective replication score as a function of the independent variable. Estimates from a model of all original-replication pairs (N=176) are shown in blue, and from a model of all pairs with full statistical information (N=112) are shown in red. A value of 1 indicates no association, greater than one indicates an association with higher replication scores and less than 1 an association with lower replication scores.}\label{fig:mod-results}
 \end{figure}
 
 \hypertarget{discussion}{%
@@ -572,13 +572,17 @@ Results from these models not reported in the main paper are reported in the Sup
 \section*{Acknowledgements}\label{acknowledgements}}
 \addcontentsline{toc}{section}{Acknowledgements}
 
-We are grateful to the students in PSYCH 254 and PSYCH 251 for conducting the replication projects included here. We thank Ben Prystawski and the FriSem audience for feedback on earlier versions of this work. TODO GRANTS??
+We are grateful to the students in PSYCH 254 and PSYCH 251 for conducting the replication projects included here. We thank Ben Prystawski and the FriSem audience for feedback on earlier versions of this work. MM was supported by R01LM013866.
 
 \hypertarget{author-contributions}{%
 \section*{Author Contributions}\label{author-contributions}}
 \addcontentsline{toc}{section}{Author Contributions}
 
-The authors have no conflicts of interest to declare. TODO contributor statement!
+VB and MCF report no conflicts of interest. MM is the Associate Director of the Stanford Center for Open and Reproducible Science.
+
+The authors made the following contributions: VB: Methodology, Data Curation, Formal Analysis, Writing - original draft;
+MM: Methodology, Writing - review \& editing;
+MCF: Conceptualization, Methodology, Writing - review \& editing.
 
 \hypertarget{references}{%
 \section*{References}\label{references}}

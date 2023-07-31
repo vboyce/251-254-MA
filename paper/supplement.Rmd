@@ -60,7 +60,9 @@ Due to low sample sizes and large numbers of predictors, even with regularizing 
 
 ## Sensitivity Analysis
 
-As a check on whether our results were sensitive to the inclusion of pairs that were marginal in some way, we repeated the 6 models including only studies that were not marginal. 
+As a check on whether our results were sensitive to the inclusion of pairs that were marginal in some way, we repeated the 6 models including only studies that were not marginal. For sensitivity analyses, we completely excluded some studies where the replication analysis was not the focal analysis of the original (ex. student chose a manipulation check as their primary analysis). We also excluded studies with extremely small or lop-sided sample sizes. 
+
+For some studies that were included with some statistical outcomes in the main results, we downgraded them to experimental features only for sensitivity. Here, we felt the replication itself didn't have major problems and we felt confident in the subjective replication score reflecting holistically on the replication. However, there were some mismatches in the statistical reporting that meant we were not confident enough if your numeric calculations for the paper. Common mismatches were  where one reported a t-test and the other reported mean and SDs, and when degrees of freedom seemed inconsistent across replication and original (suggesting different groupings or levels of analysis). 
 
 ```{=latex}
 \definecolor{bad}{HTML}{FFCCCB}
