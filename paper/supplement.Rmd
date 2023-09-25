@@ -108,9 +108,15 @@ For some studies that were included with some statistical outcomes in the main r
 
 ```
 
+```{r}
+# relative effect size
+
+medians <- d %>% filter(include =="stats") %>% summarize(orig=quantile(target_d_calc), rep=quantile(rep_d_calc))
+
+```
 
 
-```{r forest, out.height="100%", fig.width=9, fig.height=12, fig.pos="ht", fig.cap="Forest plot of original and replication effect sizes. Original effect sizes are open dots, replication are closed dots. Coloring indicates subjective replication score, and p-original values are listed on the left side. "}
+```{r forest, out.height="100%", fig.width=9, fig.height=12, fig.pos="ht", fig.cap="Forest plot of original and replication effect sizes (N=112). Original effect sizes are open dots, replication are closed dots. Coloring indicates subjective replication score, and p-original values are listed on the left side. The median original effect size was .61 and the median replication effect size was .28. "}
 
 d |> 
   filter(target_d_calc < 5, rep_d_calc < 5) |>
