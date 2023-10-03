@@ -107,6 +107,14 @@ test <- d_val |>
   rowwise()
 ```
 
+
+```{r}
+#found error in pval calculation related to sign flips
+
+test %>% ungroup() %>% summarize(target=quantile(target_p_calc, na.rm=T), rep=quantile(rep_p_calc, na.rm=T))
+```
+
+
 ## what didn't parse
 
 Check that nothing that has a stat input and doesn't get an ES out. 

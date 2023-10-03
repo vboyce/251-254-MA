@@ -4,7 +4,7 @@
 parse_t <- function(tval, within_between) {
   df=str_extract(tval, "\\(.*\\)") |> str_sub(2,-2) |> as.numeric()
   val=str_extract(tval, "=.*") |> str_sub(2,-1) |> as.numeric() |> abs()
-  pval=pt(q=val, df=df, lower.tail=FALSE)*2
+  pval=pt(q=abs(val), df=df, lower.tail=FALSE)*2
   d_calc=NA
   N_from_df=NA
   if(within_between=="between"){
@@ -88,7 +88,7 @@ parse_mean_sd1 <- function(msd,within_between,n){
   d_calc=abs(m1-comp)/sd1 # note we force all positive and then fix later 
   tval=(m1-comp)/se |> abs()
   df=n-1
-  pval=pt(q=tval, df=df, lower.tail=FALSE)*2
+  pval=pt(q=abs(tval), df=df, lower.tail=FALSE)*2
   d_se=4/n+d_calc**2/(2*n)
   
   return(data.frame("df_1"=df,"df_2"=NA,"tstat"=tval, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "d_calc_se"=d_se,"N_calc"=NA, "ES"=m1-comp, "SE"=se))
@@ -107,7 +107,7 @@ parse_mean_se1 <- function(mse,within_between,n){
   d_calc=abs(m1-comp)/sd1 # note we force all positive and then fix later 
   tval=(m1-comp)/se1 |> abs()
   df=n-1
-  pval=pt(q=tval, df=df, lower.tail=FALSE)*2
+  pval=pt(q=abs(tval), df=df, lower.tail=FALSE)*2
   d_se=4/n+d_calc**2/(2*n)
   
   return(data.frame("df_1"=df,"df_2"=NA,"tstat"=tval, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "d_calc_se"=d_se, "N_calc"=NA, "ES"=m1-comp, "SE"=se1))
@@ -136,7 +136,7 @@ parse_mean_ci2 <- function(mci,within_between,n){
   d_calc=abs(m1-m2)/sd_pool # note we force all positive and then fix later 
   tval=(m1-m2)/se_pool |> abs()
   df=ifelse(within_between=="within", n-1, n-2)
-  pval=pt(q=tval, df=df, lower.tail=FALSE)*2
+  pval=pt(q=abs(tval), df=df, lower.tail=FALSE)*2
   d_se=4/n+d_calc**2/(2*n)
   
   return(data.frame("df_1"=df,"df_2"=NA,"tstat"=tval, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "d_calc_se"=d_se, "N_calc"=NA, "ES"=m1-m2, "SE"=se_pool))
@@ -158,7 +158,7 @@ parse_mean_se2 <- function(mse,within_between,n){
   d_calc=abs(m1-m2)/sd_pool # note we force all positive and then fix later 
   tval=(m1-m2)/se_pool |> abs()
   df=ifelse(within_between=="within", n-1, n-2)
-  pval=pt(q=tval, df=df, lower.tail=FALSE)*2
+  pval=pt(q=abs(tval), df=df, lower.tail=FALSE)*2
   d_se=4/n+d_calc**2/(2*n)
   
   return(data.frame("df_1"=df,"df_2"=NA,"tstat"=tval, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "d_calc_se"=d_se, "N_calc"=NA, "ES"=m1-m2, "SE"=se_pool))
@@ -177,7 +177,7 @@ parse_mean_sd2 <- function(msd,within_between,n){
   d_calc=abs(m1-m2)/sd_pool # note we force all positive and then fix later 
   tval=(m1-m2)/se_pool |> abs()
   df=ifelse(within_between=="within", n-1, n-2)
-  pval=pt(q=tval, df=df, lower.tail=FALSE)*2
+  pval=pt(q=abs(tval), df=df, lower.tail=FALSE)*2
   d_se=4/n+d_calc**2/(2*n)
   
   return(data.frame("df_1"=df,"df_2"=NA,"tstat"=tval, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "d_calc_se"=d_se, "N_calc"=NA, "ES"=m1-m2, "SE"=se_pool))
@@ -207,7 +207,7 @@ parse_mean_sd4 <- function(msd,within_between,n){
   d_calc=abs(m_diff/sd_pool) # note we force all positive and then fix later 
   tval=(m_diff)/se_pool |> abs()
   df=ifelse(within_between=="within", n-1, n-2)
-  pval=pt(q=tval, df=df, lower.tail=FALSE)*2
+  pval=pt(q=abs(tval), df=df, lower.tail=FALSE)*2
   d_se=4/n+d_calc**2/(2*n)
   
   return(data.frame("df_1"=df,"df_2"=NA,"tstat"=tval, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "d_calc_se"=d_se, "N_calc"=NA, "ES"=m_diff, "SE"=se_pool))
@@ -244,7 +244,7 @@ parse_mean_se4 <- function(msd,within_between,n){
   d_calc=abs(m_diff/sd_pool) # note we force all positive and then fix later 
   tval=(m_diff)/se_pool |> abs()
   df=ifelse(within_between=="within", n-1, n-2)
-  pval=pt(q=tval, df=df, lower.tail=FALSE)*2
+  pval=pt(q=abs(tval), df=df, lower.tail=FALSE)*2
   d_se=4/n+d_calc**2/(2*n)
   
   return(data.frame("df_1"=df,"df_2"=NA,"tstat"=tval, "fstat"=NA, "p_calc"=pval, "d_calc"=d_calc, "d_calc_se"=d_se, "N_calc"=NA, "ES"=m_diff, "SE"=se_pool))
@@ -284,7 +284,7 @@ parse_dbci <- function(raw_stat,n){
   se=(high-low)/(2*1.96)
   t=beta/se
   df=n-1
-  pval=pt(q=t, df=df, lower.tail=FALSE)*2
+  pval=pt(q=abs(t), df=df, lower.tail=FALSE)*2
   dval = str_extract(raw_stat, ".*;") |> str_sub(3,-2) |> as.numeric()
   d_se=4/n+dval**2/(2*n)
   
@@ -292,14 +292,15 @@ parse_dbci <- function(raw_stat,n){
 }
 #parse_dbci(ex)
 
-foo <- "pear: r=.75, n=45"
+foo <- "pear: r=-.75, n=505"
 parse_pearson <- function(raw_stat){
   r=str_extract(raw_stat, "r=.*,") |> str_sub(3,-2) |> as.numeric()
   n=str_extract(raw_stat, "n=.*") |> str_sub(3,-1) |> as.numeric()
   d=2*r/sqrt(1-r**2) # using an approximation
+  print(d)
   se=4/n+d**2/(2*n)
   t=d*sqrt(n)/2
-  pval=pt(q=t, df=n-2, lower.tail=FALSE)*2
+  pval=pt(q=abs(t), df=n-2, lower.tail=FALSE)*2
   d_se=4/n+d**2/(2*n)
   
 return(data.frame("df_1"=NA,"df_2"=NA,"tstat"=NA, "fstat"=NA, "p_calc"=pval, "d_calc"=d, "d_calc_se"=d_se, "N_calc"=NA, "ES"=d, "SE"=se))
