@@ -247,3 +247,99 @@ knitr::kable(predint, col.names=NULL, align='rrlrlrlrl',position="!h", caption="
 
 ```
 
+# Sub sample of Psych Science papers
+
+
+
+```{r}
+all <- read_csv(here("data", "raw_data.csv")) |> filter(include %in% c("stats", "pred_int", "exp")) 
+
+ps <- all|> mutate(journal=str_to_lower(journal)) |>filter(journal=="psych sci")
+
+```
+
+We were unable to use journal as a predictor in the models because of very uneven representation across journals. By far the most represented journal was Psychological Science, with `r nrow(ps)` original papers. Other journals had at most a few papers in the sample. 
+
+Here we present bivariate analyses on the subset of the data coming from Psych Science. This is a post-hoc split of the data. 
+
+Overall, this split looks similar to the overall sample. Of note, publication year is correlated with replication success in this sample, but is not substantially correlated overall. 
+
+```{r}
+library(gtsummary)
+theme_gtsummary_language("en", big.mark = "")
+library(kableExtra)
+
+all_label <- all %>% select(target_lastauthor_year,journal)
+
+desc <- d %>% left_join(all_label) %>% 
+  mutate(journal=str_to_lower(journal)) |>
+  filter(journal=="psych sci") %>% 
+  mutate(target_d_calc=ifelse(include=="stats", target_d_calc, NA),
+             target_p_calc=ifelse(include=="stats",target_p_calc, NA),
+      switch_modality=ifelse(target_on_turk!=replication_on_turk,1,0),
+         ss_ratio=replication_N/target_N)%>% 
+  select("subfield","open_data", "open_materials","switch_modality",  "stanford_internal","within_between","single_vignette","repeated_measure","target_year","target_N","replication_N", "ss_ratio", "target_d_calc", "target_p_calc") %>% 
+  mutate(subfield=factor(subfield, levels=c("cognitive", "social", "other-psych", "non-psych"), labels=c("Cognitive", "Social", "Other psych", "Non-psych")),
+         within_between=ifelse(within_between=="between", 0, 1)) %>% 
+             tbl_summary(
+               label=list(
+                 subfield ~ "Subfield",
+                 stanford_internal ~ "Original authors at Stanford",
+                 target_year~ "Publication Year",
+                 single_vignette ~ "Single vignette",
+                 open_data ~ "Open data",
+                 open_materials ~ "Open materials",
+                 within_between ~ "Within subjects design",
+                 repeated_measure ~ "Number of trials",
+                 target_N ~ "Original sample size",
+                 replication_N ~ "Replication sample size",
+                 ss_ratio ~ "Ratio of replication/original sample sizes",
+                 target_d_calc ~"Original effect size (SMD)",
+                 target_p_calc ~ "Original p-value",
+                 switch_modality ~ "Switch from in-person to online"
+               ),
+               statistic = list(all_continuous() ~ "{mean} ({sd})", all_continuous() ~ "{median} ({p25}, {p75})"),
+               digits=list(target_year ~ 0, target_p_calc ~4),
+    missing="no",
+             ) %>% 
+modify_header(label="Feature", stat_0="Summary") %>% 
+    modify_footnote(update = everything() ~ NA)
+
+as_kable_extra(desc,format="latex", position="!h", caption="Descriptive properties of the Psych Science portion of the replication dataset. For categorical features, counts and percentages are given. For continuous features, the median value and interquartile range are given. ", booktabs=TRUE, linesep="") |> kable_styling(full_width=F, font_size=10)
+
+```
+
+```{r cor}
+
+for_cor <- read_csv(here("data","for_model.csv")) |> filter(include %in% c("stats", "exp", "pred_int")) |>
+  left_join(all_label) %>% 
+  mutate(journal=str_to_lower(journal)) |>
+  filter(journal=="psych sci") %>% 
+  select(sub_rep, 
+         pub_year, subfield, open_data, open_mat, stanford, change_platform, log_ratio_ss, is_within, single_vignette, log_sample, log_trials) |> mutate(social=ifelse(subfield=="social", 1,0),other_psych=ifelse(subfield=="other-psych",1,0), non_psych=ifelse(subfield=="non-psych", 1,0)) 
+
+sub_cor <- function(var, stat = "estimate") {
+  if (stat == "estimate") {
+    cor.test(for_cor$sub_rep, pull(for_cor, {{var}}))$estimate
+  } else {
+    cor.test(for_cor$sub_rep, pull(for_cor, {{var}}))$p.value
+  }
+}
+
+
+
+preds <- c("pub_year", "open_data",  "open_mat", "stanford", "change_platform", 
+           "log_ratio_ss", "is_within", "single_vignette", "log_sample", 
+           "log_trials", "social", "other_psych", "non_psych")
+
+cors <- tibble(preds = preds) |>
+  mutate(r = sapply(preds, function(x) sub_cor(x, stat = "estimate")),
+         p = sapply(preds, function(x) sub_cor(x, stat = "p"))) |> 
+  mutate(Predictors=factor(preds, levels=c("social", "other_psych", "non_psych", "is_within", "single_vignette", "change_platform", "open_data", "open_mat", "stanford", "pub_year", "log_trials", "log_sample", "log_ratio_ss"), labels=c("Social psychology (versus cognitive psych)", "Other psychology (versus cognitive psych)", "Non psychology (versus cognitive psych)", "Within participants design (versus between participants)", "Single vignette (versus multiple items/inductions per condition)", "Switch to online for replication (versus same modality for original and replication)", "Open data", "Open materials", "Stanford affiliation of original authors at time of replication", "Publication year", "Log number of  trials", "Log original sample size", "Log ratio between replication and original sample sizes"))) |> arrange(desc(r)) |> select(r, p, Predictors)
+
+library(kableExtra)
+knitr::kable(cors, digits = 3, align='ccl',format="latex", position="!h", caption="The unadjusted Pearson correlations between each individual predictor and the subjective replication score for the Psych Science subsample.", booktabs=TRUE, linesep="") |> kable_styling(full_width=F, font_size=10) 
+
+```
+
+

@@ -397,7 +397,7 @@ PSYCH 251 is a graduate-level experimental methods class in experimental psychol
 
 The sample of replicated studies reflects the variability of the literature, including studies from different subfields (and occasionally fields outside of psychology), with different experimental methods and statistical outcomes. We leveraged naturally occurring variability in this sample of replications to examine how different demographic, experimental design, and statistical properties predict replication success.
 
-These replications were all conducted on short time scales, within a constrained class budget. In some cases the budget limited the number of participants who could be recruited, occasionally below what the original study included or what power analyses suggested. The replications had a median post-exclusion sample size that was 86\% of the original sample size (interquartile range 41\%-105\%)\footnote{Replications had a median of 59 participants (interquartile range: 31 - 124), while original studies had a median of 101 participants (interquartile range: 40 - 180).}. In nearly all cases, replications were conducted online, with recruitment from Amazon Mechanical Turk (the default from 2011 to 2020) or Prolific (the default from 2021 -- 2022).
+These replications were all conducted on short time scales, within a constrained class budget. In some cases the budget limited the number of participants who could be recruited, occasionally below what the original study included or what power analyses suggested. The replications had a median post-exclusion sample size that was 86\% of the original sample size. In nearly all cases, replications were conducted online, with recruitment from Amazon Mechanical Turk (the default from 2011 to 2020) or Prolific (the default from 2021 -- 2022).
 
 Many different measures can be used to define replication success of an individual statistical result (\protect\hyperlink{ref-simonsohn2015}{27}--\protect\hyperlink{ref-mathur2020}{29}). However, whether a replication should be considered successful is not always dependent on only one statistical comparison between the two studies. Often in original papers, multiple statistical tests are cited in support of the claim that a pattern of results matches a particular theoretical expectation.
 
@@ -417,6 +417,37 @@ Across the 176 studies, the average subjective replication score was 49\%, which
 Figure \ref{fig:smd} shows the relationship between original standardized effect size, replication effect size, and subjective replication score. Some studies replicated with similar size effects to the original, and others failed to replicate, with replication effect sizes near zero.
 
 On average, there was a diminution of effect sizes from original to replication. This pattern of results is consistent with the results of RP:P (\protect\hyperlink{ref-openscienceconsortium2015}{3}). Specifically, the median original effect size (in SMD units) was 0.61 (interquartile range: 0.46 - 0.98), and the median replication effect size was 0.28 (0.09 - 0.76), for a median difference of 0.3 (0.03 - 0.64). Among the pairs with a subjective replication score of 1 (N=38 with standardized effect sizes), the median original effect size was 0.92 (interquartile range: 0.52 - 1.4), and the median replication effect size was 0.89 (0.57 - 1.24), for a median difference of 0.02 (-0.16 - 0.3). Thus, for the highest subjectively-rated replications, effect sizes for original and replication were similar in magnitude on average, with some replications having larger effects than their originals.
+
+\begin{table}[!h]
+
+\caption{\label{tab:unnamed-chunk-4}Descriptive properties of the replication dataset. For categorical features, counts and percentages are given. For continuous features, the median value and interquartile range are given. N=176 except for original effect size and p-value where N=112. }
+\centering
+\fontsize{10}{12}\selectfont
+\begin{tabular}[t]{lc}
+\toprule
+Feature & Summary\\
+\midrule
+Subfield & \\
+\hspace{1em}Cognitive & 62 (35\%)\\
+\hspace{1em}Social & 70 (40\%)\\
+\hspace{1em}Other psych & 24 (14\%)\\
+\hspace{1em}Non-psych & 20 (11\%)\\
+Open data & 52 (30\%)\\
+Open materials & 83 (47\%)\\
+Switch from in-person to online & 94 (53\%)\\
+Original authors at Stanford & 16 (9.1\%)\\
+Within subjects design & 80 (45\%)\\
+Single vignette & 78 (44\%)\\
+Number of trials & 6 (1, 60)\\
+Publication Year & 2015 (2011, 2017)\\
+Original sample size & 101 (40, 181)\\
+Replication sample size & 59 (31, 125)\\
+Ratio of replication/original sample sizes & 0.86 (0.41, 1.05)\\
+Original effect size (SMD) & 0.61 (0.46, 0.98)\\
+Original p-value & 0.0001 (0.0000, 0.0069)\\
+\bottomrule
+\end{tabular}
+\end{table}
 
 Some multi-site replication projects have found heterogeneity in effect sizes across replication sites (\protect\hyperlink{ref-klein2018}{7},\protect\hyperlink{ref-ebersole2020}{19},\protect\hyperlink{ref-olsson2020}{30}). As a test of sensitivity to heterogeneity, we assumed that the level of heterogeneity in hypothetical multi-site replications of our sampled articles was the same as the average level heterogeneity found by (\protect\hyperlink{ref-olsson2020}{30}) in prior multi-site replications in psychology (\(\tau=.21\) in units of standardized mean difference). Under this assumption, 64\% (72/112) of replication effect sizes are distributionally consistent with the original effect size. However, more work on understanding heterogeneity is needed to understand what levels of heterogeneity to expect across different implementations of the same experiment, and how considerations of heterogeneity should impact interpretations of both novel results and replication results.
 
@@ -446,37 +477,6 @@ r & p & Predictors\\
 \end{tabular}
 \end{table}
 
-\begin{table}[!h]
-
-\caption{\label{tab:unnamed-chunk-6}Descriptive properties of the replication dataset. For categorical features, counts and percentages are given. For continuous features, the median value and interquartile range are given. N=176 except for original effect size and p-value where N=112. }
-\centering
-\fontsize{10}{12}\selectfont
-\begin{tabular}[t]{lc}
-\toprule
-Feature & Summary\\
-\midrule
-Subfield & \\
-\hspace{1em}Cognitive & 62 (35\%)\\
-\hspace{1em}Social & 70 (40\%)\\
-\hspace{1em}Other psych & 24 (14\%)\\
-\hspace{1em}Non-psych & 20 (11\%)\\
-Open data & 52 (30\%)\\
-Open materials & 83 (47\%)\\
-Switch from in-person to online & 94 (53\%)\\
-Original authors at Stanford & 16 (9.1\%)\\
-Within subjects design & 80 (45\%)\\
-Single vignette & 78 (44\%)\\
-Number of trials & 6 (1, 60)\\
-Publication Year & 2015 (2011, 2017)\\
-Original sample size & 101 (40, 181)\\
-Replication sample size & 59 (31, 125)\\
-Ratio of replication/original sample sizes & 0.86 (0.41, 1.05)\\
-Original effect size (SMD) & 0.61 (0.46, 0.98)\\
-Original p-value & 0.0001 (0.0000, 0.0069)\\
-\bottomrule
-\end{tabular}
-\end{table}
-
 \hypertarget{bivariate-correlates-of-replication-success}{%
 \subsection{Bivariate correlates of replication success}\label{bivariate-correlates-of-replication-success}}
 
@@ -490,7 +490,7 @@ Many predictors correlated with subjective replication success using unadjusted 
 
 Distributions of study outcomes across some of these properties are shown in Figure \ref{fig:predictors-graph}. Both social and cognitive psychology studies were well represented in the replication sample, and the cognitive psychology studies replicated more often than social psychology studies (mean subjective replication scores: 0.58 versus 0.36). Within and between participants designs were both common, and within-participants designs replicated more often than between-participants designs (mean scores: 0.65 versus 0.36). Studies with multiple vignettes replicated more often than single vignetted studies (mean scores: 0.59 versus 0.36). However, there were strong correlations among these experimental features as well as between these experimental features and specific subfields (Figure \ref{fig:corr-plot}).
 
-Studies with open data, which almost always also had open materials as well, tended to replicate more than studies without open data. Nearly all replication studies were conducted online, but original studies were split between using in-person and online recruitment. Replications that switched to online were less likely to replicate than those that had the same modality as the original (generally both online, in a few cases both in-person). While online studies in general show comparable results to studies conducted in person (\protect\hyperlink{ref-crump2013}{31}), switching the modality does decrease the closeness of the replication, and some studies done in person may not have been well-adapted (e.g., inductions might have been weaker or instructions might have been insufficient). These factors -- open materials, open data, and online samples -- are more common in more recent studies, and so these effects may partially reflect temporal trends (see Figure \ref{fig:corr-plot} for the correlations between these factors and publication year).
+Studies with open data, which almost always also had open materials as well, tended to replicate more than studies without open data. Nearly all replication studies were conducted online, but original studies were split between using in-person and online recruitment. Replications that switched to online were less likely to replicate than those that had the same modality as the original (generally both online, in a few cases both in-person). While online studies in general show comparable results to studies conducted in person (\protect\hyperlink{ref-crump2013}{31}), switching the modality does decrease the closeness of the replication, and some studies done in person may not have been well-adapted (e.g., inductions might have been weaker or instructions might have been insufficient). These factors -- open materials, open data, and online samples -- may have all contributed to the closeness of the replications. However, they are also practices that have increased over time, and so these effects may partially reflect temporal trends. Nonetheless, publication year only very weakly correlated with replicability, but does correlate strongly with online samples and openness (Figure \ref{fig:corr-plot}).
 
 \begin{figure}[ht]
 \includegraphics[width=1\linewidth]{manuscript_files/figure-latex/predictors-graph-1} \caption{Distribution of subjective replication scores within categories. Bar heights are counts of studies.}\label{fig:predictors-graph}
@@ -534,7 +534,7 @@ Our pre-registration, code, and coded data are available at \url{https://osf.io/
 
 The dataset of replication projects comes from class projects conducted in PSYCH 251 (earlier called PSYCH 254) a graduate-level experimental methods class taught at Stanford by MCF from 2011 to 2022. This class is commonly taken by first year graduate students in psychology and related disciplines, and it has been a requirement of the Psychology PhD since around 2015. Each student chose a study to replicate, implemented the study, wrote analysis code, pre-registered their replication, ran the study, and turned in a structured final report including methods, analytic plan, changes from the original study, confirmatory and exploratory analyses, and discussion of outcomes. Students were encouraged to do experimental replications, but some students chose to replicate correlational outcomes or do computational reproducibility projects instead. We cannot include the full student reports for confidentiality reasons, but we include over 50 reports that we received permission to share and the template given to students at \url{https://osf.io/xwn9m/} (\protect\hyperlink{ref-osfdata}{37}).
 
-Students were free to choose what study to replicate; the recommended path for students who did not have their own ideas was to pick an interesting study from a recent year of Psychological Science (this led to a high fraction of Psych Science articles in the replication sample, 80, 45\% of studies).
+Students were free to choose what study to replicate; the recommended path for students who did not have their own ideas was to pick an interesting study from a recent year of Psychological Science (this led to 80 Psych Science articles in the replication sample, 45\% of all studies).
 
 Four of the replication projects were included in RP:P, and 10 were previously reported in (\protect\hyperlink{ref-hawkins2018}{36}) (which reported 11 student replications from the 2015-2016 class; one of those was excluded from the current sample for being non-experimental).
 

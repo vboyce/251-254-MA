@@ -226,7 +226,7 @@ PSYCH 251 is a graduate-level experimental methods class in experimental psychol
 
 The sample of replicated studies reflects the variability of the literature, including studies from different subfields (and occasionally fields outside of psychology), with different experimental methods and statistical outcomes. We leveraged naturally occurring variability in this sample of replications to examine how different demographic, experimental design, and statistical properties predict replication success. 
 
-These replications were all conducted on short time scales, within a constrained class budget. In some cases the budget limited the number of participants who could be recruited, occasionally below what the original study included or what power analyses suggested. The replications had a median post-exclusion sample size that was `r round(ratio_dist[3]*100)`% of the original sample size (interquartile range `r round(ratio_dist[2]*100)`%-`r round(ratio_dist[4]*100)`%)^[Replications had a median of `r round(rep_dist[3])` participants (interquartile range: `r round(rep_dist[2])` - `r round(rep_dist[4])`), while original studies had a median of `r round(target_dist[3])` participants (interquartile range: `r round(target_dist[2])` - `r round(target_dist[4])`).].  In nearly all cases, replications were conducted online, with recruitment from Amazon Mechanical Turk (the default from 2011 to 2020) or Prolific (the default from 2021 -- 2022). 
+These replications were all conducted on short time scales, within a constrained class budget. In some cases the budget limited the number of participants who could be recruited, occasionally below what the original study included or what power analyses suggested. The replications had a median post-exclusion sample size that was `r round(ratio_dist[3]*100)`% of the original sample size.  In nearly all cases, replications were conducted online, with recruitment from Amazon Mechanical Turk (the default from 2011 to 2020) or Prolific (the default from 2021 -- 2022). 
 
 Many different measures can be used to define replication success of an individual statistical result [@simonsohn2015; @gelman2018; @mathur2020].  However, whether a replication should be considered successful is not always dependent on only one statistical comparison between the two studies. Often in original papers, multiple statistical tests are cited in support of the claim that a pattern of results matches a particular theoretical expectation. 
 
@@ -315,6 +315,45 @@ On average, there was a diminution of effect sizes from original to replication.
 
 
 
+```{r}
+library(gtsummary)
+theme_gtsummary_language("en", big.mark = "")
+library(kableExtra)
+ 
+
+desc <- d %>% mutate(target_d_calc=ifelse(include=="stats", target_d_calc, NA),
+             target_p_calc=ifelse(include=="stats",target_p_calc, NA),
+      switch_modality=ifelse(target_on_turk!=replication_on_turk,1,0),
+         ss_ratio=replication_N/target_N)%>% 
+  select("subfield","open_data", "open_materials","switch_modality",  "stanford_internal","within_between","single_vignette","repeated_measure","target_year","target_N","replication_N", "ss_ratio", "target_d_calc", "target_p_calc") %>% 
+  mutate(subfield=factor(subfield, levels=c("cognitive", "social", "other-psych", "non-psych"), labels=c("Cognitive", "Social", "Other psych", "Non-psych")),
+         within_between=ifelse(within_between=="between", 0, 1)) %>% 
+             tbl_summary(
+               label=list(
+                 subfield ~ "Subfield",
+                 stanford_internal ~ "Original authors at Stanford",
+                 target_year~ "Publication Year",
+                 single_vignette ~ "Single vignette",
+                 open_data ~ "Open data",
+                 open_materials ~ "Open materials",
+                 within_between ~ "Within subjects design",
+                 repeated_measure ~ "Number of trials",
+                 target_N ~ "Original sample size",
+                 replication_N ~ "Replication sample size",
+                 ss_ratio ~ "Ratio of replication/original sample sizes",
+                 target_d_calc ~"Original effect size (SMD)",
+                 target_p_calc ~ "Original p-value",
+                 switch_modality ~ "Switch from in-person to online"
+               ),
+               statistic = list(all_continuous() ~ "{mean} ({sd})", all_continuous() ~ "{median} ({p25}, {p75})"),
+               digits=list(target_year ~ 0, target_p_calc ~4),
+    missing="no",
+             ) %>% modify_header(label="Feature", stat_0="Summary") %>% 
+    modify_footnote(update = everything() ~ NA)
+
+as_kable_extra(desc,format="latex", position="!h", caption="Descriptive properties of the replication dataset. For categorical features, counts and percentages are given. For continuous features, the median value and interquartile range are given. N=176 except for original effect size and p-value where N=112. ", booktabs=TRUE, linesep="") |> kable_styling(full_width=F, font_size=10)
+
+```
 
 
 ```{r }
@@ -372,45 +411,6 @@ vignette <- for_cor |> group_by(single_vignette) |> summarize(avg=mean(sub_rep))
 ```
 
 
-```{r}
-library(gtsummary)
-theme_gtsummary_language("en", big.mark = "")
-library(kableExtra)
- 
-
-desc <- d %>% mutate(target_d_calc=ifelse(include=="stats", target_d_calc, NA),
-             target_p_calc=ifelse(include=="stats",target_p_calc, NA),
-      switch_modality=ifelse(target_on_turk!=replication_on_turk,1,0),
-         ss_ratio=replication_N/target_N)%>% 
-  select("subfield","open_data", "open_materials","switch_modality",  "stanford_internal","within_between","single_vignette","repeated_measure","target_year","target_N","replication_N", "ss_ratio", "target_d_calc", "target_p_calc") %>% 
-  mutate(subfield=factor(subfield, levels=c("cognitive", "social", "other-psych", "non-psych"), labels=c("Cognitive", "Social", "Other psych", "Non-psych")),
-         within_between=ifelse(within_between=="between", 0, 1)) %>% 
-             tbl_summary(
-               label=list(
-                 subfield ~ "Subfield",
-                 stanford_internal ~ "Original authors at Stanford",
-                 target_year~ "Publication Year",
-                 single_vignette ~ "Single vignette",
-                 open_data ~ "Open data",
-                 open_materials ~ "Open materials",
-                 within_between ~ "Within subjects design",
-                 repeated_measure ~ "Number of trials",
-                 target_N ~ "Original sample size",
-                 replication_N ~ "Replication sample size",
-                 ss_ratio ~ "Ratio of replication/original sample sizes",
-                 target_d_calc ~"Original effect size (SMD)",
-                 target_p_calc ~ "Original p-value",
-                 switch_modality ~ "Switch from in-person to online"
-               ),
-               statistic = list(all_continuous() ~ "{mean} ({sd})", all_continuous() ~ "{median} ({p25}, {p75})"),
-               digits=list(target_year ~ 0, target_p_calc ~4),
-    missing="no",
-             ) %>% modify_header(label="Feature", stat_0="Summary") %>% 
-    modify_footnote(update = everything() ~ NA)
-
-as_kable_extra(desc,format="latex", position="!h", caption="Descriptive properties of the replication dataset. For categorical features, counts and percentages are given. For continuous features, the median value and interquartile range are given. N=176 except for original effect size and p-value where N=112. ", booktabs=TRUE, linesep="") |> kable_styling(full_width=F, font_size=10)
-
-```
 ## Bivariate correlates of replication success
 
 We investigated what features of the original study and replication were correlated with replication success, with the goal of being able to identify potential markers of replicability. We chose a set of predictor variables based on the correlational results of RP:P [@openscienceconsortium2015], our own intuitions of experimental design factors that might impact replication success, and some covariates related to how close the replication was; a full description of these features is given in the Methods. 
@@ -449,7 +449,7 @@ ggplot(data = melted_corr_mat, aes(x=Var1, y=Var2,
 ```
 Distributions of study outcomes across some of these properties are shown in Figure \ref{fig:predictors-graph}. Both social and cognitive psychology studies were well represented in the replication sample, and the cognitive psychology studies replicated more often than social psychology studies (mean subjective replication scores: `r pluck(cog,2,1) |> round(2)` versus `r pluck(cog,2,4) |> round(2)`). Within and between participants designs were both common, and within-participants designs replicated more often than between-participants designs (mean scores: `r pluck(within,2,2) |> round(2)` versus `r pluck(within,2,1) |> round(2)`). Studies with multiple vignettes replicated more often than single vignetted studies (mean scores: `r pluck(vignette,2,1) |> round(2)` versus `r pluck(vignette,2,2) |> round(2)`). However, there were strong correlations among these experimental features as well as between these experimental features and specific subfields (Figure \ref{fig:corr-plot}). 
 
-Studies with open data, which almost always also had open materials as well, tended to replicate more than studies without open data. Nearly all replication studies were conducted online, but original studies were split between using in-person and online recruitment. Replications that switched to online were less likely to replicate than those that had the same modality as the original (generally both online, in a few cases both in-person).  While online studies in general show comparable results to studies conducted in person [@crump2013], switching the modality does decrease the closeness of the replication, and some studies done in person may not have been well-adapted (e.g., inductions might have been weaker or instructions might have been insufficient). These factors -- open materials, open data, and online samples -- are more common in more recent studies, and so these effects may partially reflect temporal trends (see Figure \ref{fig:corr-plot} for the correlations between these factors and publication year). 
+Studies with open data, which almost always also had open materials as well, tended to replicate more than studies without open data. Nearly all replication studies were conducted online, but original studies were split between using in-person and online recruitment. Replications that switched to online were less likely to replicate than those that had the same modality as the original (generally both online, in a few cases both in-person).  While online studies in general show comparable results to studies conducted in person [@crump2013], switching the modality does decrease the closeness of the replication, and some studies done in person may not have been well-adapted (e.g., inductions might have been weaker or instructions might have been insufficient). These factors -- open materials, open data, and online samples -- may have all contributed to the closeness of the replications. However, they are also practices that have increased over time, and so these effects may partially reflect temporal trends. Nonetheless, publication year only very weakly correlated with replicability, but does correlate strongly with online samples and openness (Figure \ref{fig:corr-plot}). 
 
 
 ```{r predictors-graph, out.width="100%", fig.width=8, fig.height=4, fig.pos="ht", fig.cap="Distribution of subjective replication scores within categories. Bar heights are counts of studies."}
@@ -594,7 +594,7 @@ ps <- all|> mutate(journal=str_to_lower(journal)) |>filter(journal=="psych sci")
 
 The dataset of replication projects comes from class projects conducted in PSYCH 251 (earlier called PSYCH 254) a graduate-level experimental methods class taught at Stanford by MCF from 2011 to 2022. This class is commonly taken by first year graduate students in psychology and related disciplines, and it has been a requirement of the Psychology PhD since around 2015. Each student chose a study to replicate, implemented the study, wrote analysis code, pre-registered their replication, ran the study, and turned in a structured final report including methods, analytic plan, changes from the original study, confirmatory and exploratory analyses, and discussion of outcomes. Students were encouraged to do experimental replications, but some students chose to replicate correlational outcomes or do computational reproducibility projects instead.  We cannot include the full student reports for confidentiality reasons, but we include over 50 reports that we received permission to share and the template given to students at https://osf.io/xwn9m/ [@osfdata]. <!-- TODO VIEW ONLY-->
 
-Students were free to choose what study to replicate; the recommended path for students who did not have their own ideas was to pick an interesting study from a recent year of Psychological Science (this led to a high fraction of Psych Science articles in the replication sample, `r nrow(ps)`, `r round( nrow(ps)/nrow(all)*100)`% of studies). 
+Students were free to choose what study to replicate; the recommended path for students who did not have their own ideas was to pick an interesting study from a recent year of Psychological Science (this led to `r nrow(ps)` Psych Science articles in the replication sample, `r round( nrow(ps)/nrow(all)*100)`% of all studies). 
 
 Four of the replication projects were included in RP:P, and 10 were previously reported in @hawkins2018 (which reported 11 student replications from the 2015-2016 class; one of those was excluded from the current sample for being non-experimental).  
 
