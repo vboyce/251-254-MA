@@ -16,7 +16,7 @@ footnote:
   - code: corresp
     text: "Corresponding author. Email: vboyce@stanford.edu"
 bibliography: ["251MA.bib"] # Replace with one or more of your own bibtex files. Better BibTeX for Zotero is your friend
-csl: dmk-format.csl # Use any CSL style. See https://www.zotero.org/styles for a good list. Ignored if citation_package: natbib
+csl: vancouver.csl # Use any CSL style. See https://www.zotero.org/styles for a good list. Ignored if citation_package: natbib
 link-citations: TRUE
 output:
   bookdown::pdf_document2:
@@ -34,7 +34,7 @@ endfloat: FALSE # Set to TRUE to turn on latex endfloat package to place figures
 # endfloatoption: # See endfloat documentation for more possibilities
 #   - tablesfirst # Default
 #   - nomarkers # Default
-numberlines: TRUE
+numberlines: FALSE
 authblk: TRUE # FALSE = author affiliations in footnotes; TRUE = author affiliations in a block below author names
 footnotehyper: FALSE # TRUE will give you enhanced table footnote capabilities. Set to FALSE to be able to use French blocks. Needed due to what appears to be a latex bug.
 urlcolor: blue
@@ -90,6 +90,7 @@ library(kableExtra)
 library(viridis)
 library(cowplot)
 library(ggthemes)
+library(reshape2)
 #r_refs("r-references.bib", append=F)
 theme_set(theme_bw())
 options(knitr.table.format = "pdf")
@@ -262,24 +263,57 @@ porig_rate <- d |>filter(include %in% c("stats", "pred_int"))|> summarize(m=medi
 d |> filter(include %in% c("stats", "pred_int"))|> filter(predInt) |> nrow() -> predIntcount
 d |> filter(include %in% c("stats", "pred_int"))|> nrow() -> predInttotal
 
+# correlations between outcome measures
 
-# sample size considerations
+for_cor <- d %>% filter(include %in% c("stats", "pred_int")) %>% 
+  mutate(predInt=as.numeric(predInt))
+sub_pred <- cor.test(for_cor$sub_rep, for_cor$predInt)$estimate
+sub_p <- cor.test(for_cor$sub_rep, for_cor$p_orig)$estimate
+pred_p <- cor.test(for_cor$predInt, for_cor$p_orig)$estimate
 
-
-
-# ggplot(d, aes(x=target_N, y=replication_N, color=as.factor(sub_rep)))+geom_point()+coord_trans(x="log", y="log")+geom_abline(slope=1)+ scale_color_viridis(discrete=T, direction = 1, 
-#                       name = "Subjective\nReplication\nSuccess\n")
-# d |> mutate(bigger_orig=replication_N<.9*target_N,
-#             bigger_rep=replication_N>1.1*target_N,
-#             similar=!bigger_orig & !bigger_rep) |> 
-#   group_by(bigger_orig, bigger_rep, similar) |> tally()
 
 
 ```
 
-Across the 176 studies, the average subjective replication score was `r round(pluck(sub_rep_rate,1))`%, which we can interpret as an overall subjective replication rate. `r round(pluck(pred_int_rate,1))`% (`r predIntcount`/`r predInttotal`) of replications has outcomes with point-estimates within the prediction interval of the original outcome. The median *p*-original value on the original and replication point-estimates coming from the same distribution was `r round(pluck(porig_rate, 1),2)`, representing the median probability that a replication study's estimate would be at least as extreme as was actually observed, if in fact the replication and original were statistically consistent. 
+Across the 176 studies, the average subjective replication score was `r round(pluck(sub_rep_rate,1))`%, which we can interpret as an overall subjective replication rate. `r round(pluck(pred_int_rate,1))`% (`r predIntcount`/`r predInttotal`) of replications had outcomes with point-estimates within the prediction interval of the original outcome. The median *p*-original value on the original and replication point-estimates coming from the same distribution was `r round(pluck(porig_rate, 1),2)`, representing the median probability that a replication study's estimate would be at least as extreme as was actually observed, if in fact the replication and original were statistically consistent. The subjective replication scores were moderately correlated with both prediction interval (r=`r round(sub_pred,2)`) and *p*-original (r=`r round(sub_p, 2)`) values; prediction interval and *p*-original were highly correlated with each other (r=`r round(pred_p,2)`).
 
-Figure \ref{fig:smd} shows the relationship between original standardized effect size, replication effect size, and subjective replication score. Some studies replicated with similar size effects to the original, and others failed to replicate, with replication effect sizes near zero. On average, there was a diminution of effect sizes from original to replication. This pattern of results is consistent with the results of RP:P [@openscienceconsortium2015]. 
+```{r}
+medians <- d %>% filter(include =="stats") %>%
+  mutate(difference=target_d_calc-rep_d_calc) %>% summarize(orig=quantile(target_d_calc), rep=quantile(rep_d_calc), diff=quantile(difference))
+
+original_50  <- pluck(medians, 1,3) %>% round(2)
+original_25 <- str_c(pluck(medians, 1,2) %>% round(2)," - ",pluck(medians, 1,4) %>% round(2))
+
+rep_50  <- pluck(medians, 2,3) %>% round(2)
+rep_25 <- str_c(pluck(medians, 2,2) %>% round(2)," - ",pluck(medians, 2,4) %>% round(2))
+
+diff_50 <- pluck(medians, 3,3) %>% round(2)
+diff_25 <- str_c(pluck(medians, 3,2) %>% round(2)," - ",pluck(medians, 3,4) %>% round(2))
+
+medians_successful <- d %>% filter(include =="stats") %>%
+  filter(sub_rep %in% c(1)) %>% 
+    mutate(diff=target_d_calc-rep_d_calc) %>%
+  summarize(orig=quantile(target_d_calc), rep=quantile(rep_d_calc),
+            diff=quantile(diff))
+
+original_50_succ  <- pluck(medians_successful, 1,3) %>% round(2)
+original_25_succ <- str_c(pluck(medians_successful, 1,2) %>% round(2)," - ",pluck(medians_successful, 1,4) %>% round(2))
+
+rep_50_succ <- pluck(medians_successful, 2,3) %>% round(2)
+rep_25_succ <- str_c(pluck(medians_successful, 2,2) %>% round(2)," - ", pluck(medians_successful, 2,4) %>% round(2))
+
+diff_50_succ <- pluck(medians_successful, 3,3) %>% round(2)
+diff_25_succ <- str_c(pluck(medians_successful, 3,2) %>% round(2)," - ",pluck(medians_successful, 3,4) %>% round(2))
+
+n_successful <- d %>% filter(include =="stats") %>%
+  filter(sub_rep %in% c(1)) %>% nrow()
+```
+
+Figure \ref{fig:smd} shows the relationship between original standardized effect size, replication effect size, and subjective replication score. Some studies replicated with similar size effects to the original, and others failed to replicate, with replication effect sizes near zero. 
+
+On average, there was a diminution of effect sizes from original to replication. This pattern of results is consistent with the results of RP:P [@openscienceconsortium2015]. Specifically, the median original effect size (in SMD units) was `r original_50` (interquartile range: `r original_25`), and the median replication effect size was `r rep_50` (`r rep_25`), for a median difference of `r diff_50` (`r diff_25`). Among the pairs with a subjective replication score of 1 (N=`r n_successful` with standardized effect sizes), the median original effect size was `r original_50_succ` (interquartile range: `r original_25_succ`), and the median replication effect size was `r rep_50_succ` (`r rep_25_succ`), for a median difference of `r diff_50_succ` (`r diff_25_succ`). Thus, for the highest subjectively-rated replications, effect sizes for original and replication were similar in magnitude on average, with some replications having larger effects than their originals. 
+
+
 
 
 
@@ -337,15 +371,85 @@ vignette <- for_cor |> group_by(single_vignette) |> summarize(avg=mean(sub_rep))
 
 ```
 
+
+```{r}
+library(gtsummary)
+theme_gtsummary_language("en", big.mark = "")
+library(kableExtra)
+ 
+
+desc <- d %>% mutate(target_d_calc=ifelse(include=="stats", target_d_calc, NA),
+             target_p_calc=ifelse(include=="stats",target_p_calc, NA),
+      switch_modality=ifelse(target_on_turk!=replication_on_turk,1,0),
+         ss_ratio=replication_N/target_N)%>% 
+  select("subfield","open_data", "open_materials","switch_modality",  "stanford_internal","within_between","single_vignette","repeated_measure","target_year","target_N","replication_N", "ss_ratio", "target_d_calc", "target_p_calc") %>% 
+  mutate(subfield=factor(subfield, levels=c("cognitive", "social", "other-psych", "non-psych"), labels=c("Cognitive", "Social", "Other psych", "Non-psych")),
+         within_between=ifelse(within_between=="between", 0, 1)) %>% 
+             tbl_summary(
+               label=list(
+                 subfield ~ "Subfield",
+                 stanford_internal ~ "Original authors at Stanford",
+                 target_year~ "Publication Year",
+                 single_vignette ~ "Single vignette",
+                 open_data ~ "Open data",
+                 open_materials ~ "Open materials",
+                 within_between ~ "Within subjects design",
+                 repeated_measure ~ "Number of trials",
+                 target_N ~ "Original sample size",
+                 replication_N ~ "Replication sample size",
+                 ss_ratio ~ "Ratio of replication/original sample sizes",
+                 target_d_calc ~"Original effect size (SMD)",
+                 target_p_calc ~ "Original p-value",
+                 switch_modality ~ "Switch from in-person to online"
+               ),
+               statistic = list(all_continuous() ~ "{mean} ({sd})", all_continuous() ~ "{median} ({p25}, {p75})"),
+               digits=list(target_year ~ 0, target_p_calc ~4),
+    missing="no",
+             ) %>% modify_header(label="Feature", stat_0="Summary") %>% 
+    modify_footnote(update = everything() ~ NA)
+
+as_kable_extra(desc,format="latex", position="!h", caption="Descriptive properties of the replication dataset. For categorical features, counts and percentages are given. For continuous features, the median value and interquartile range are given. N=176 except for original effect size and p-value where N=112. ", booktabs=TRUE, linesep="") |> kable_styling(full_width=F, font_size=10)
+
+```
 ## Bivariate correlates of replication success
 
 We investigated what features of the original study and replication were correlated with replication success, with the goal of being able to identify potential markers of replicability. We chose a set of predictor variables based on the correlational results of RP:P [@openscienceconsortium2015], our own intuitions of experimental design factors that might impact replication success, and some covariates related to how close the replication was; a full description of these features is given in the Methods. 
 
 Many predictors correlated with subjective replication success using unadjusted Pearson correlations (Table \ref{tab:cor}). Predictors of higher replicability included within-participants designs, larger numbers of trials per participant, and the original study having openly accessible data. Predictors of lower replicability included single-vignette studies (those with only one experimental stimulus per condition), classification as social psychology, and study pairs where the original study was in-person and the replication switched to online. 
 
-Distributions of study outcomes across some of these properties are shown in Figure \ref{fig:predictors-graph}. Both social and cognitive psychology studies were well represented in the replication sample, and the cognitive psychology studies replicated more often than social psychology studies (mean subjective replication scores: `r pluck(cog,2,1) |> round(2)` versus `r pluck(cog,2,4) |> round(2)`). Within and between participants designs were both common, and within-participants designs replicated more often than between-participants designs (mean scores: `r pluck(within,2,2) |> round(2)` versus `r pluck(within,2,1) |> round(2)`). Studies with multiple vignettes replicated more often than single vignetted studies (mean scores: `r pluck(vignette,2,1) |> round(2)` versus `r pluck(vignette,2,2) |> round(2)`). However, there were strong correlations among these experimental features as well as between these experimental features and specific subfields. 
+```{r corr-plot, out.height="40%", fig.width=8, fig.height=4.5, fig.pos="ht", fig.cap="Correlations between predictors. See TODO Table 1 or Methods for descriptions. "}
+dat <-  for_cor %>% mutate(cognitive=ifelse(subfield=="cognitive",1,0)) %>% select(-sub_rep, -subfield) 
 
-Studies with open data, which almost always also had open materials as well, tended to replicate more than studies without open data. Nearly all replication studies were conducted online, but original studies were split between using in-person and online recruitment. Replications that switched to online were less likely to replicate than those that had the same modality as the original (generally both online, in a few cases both in-person).  While online studies in general show comparable results to studies conducted in person [@crump2013], switching the modality does decrease the closeness of the replication, and some studies done in person may not have been well-adapted (e.g., inductions might have been weaker or instructions might have been insufficient). These factors -- open materials, open data, and online samples -- are more common in more recent studies, and so these effects may partially reflect temporal trends. 
+corr_mat <- round(cor(dat),2) 
+
+# Install and load reshape2 package
+
+
+# reduce the size of correlation matrix
+melted_corr_mat <-melt(corr_mat) %>% 
+  mutate(value=ifelse(Var1==Var2, NA, value),
+         value=ifelse(Var1 %in% c("cognitive", "non_psych", "other_psych", "social") &
+                        Var2 %in% c("cognitive", "non_psych", "other_psych", "social"),
+                      NA, value)) %>% 
+  mutate(Var1=factor(Var1, levels=c("social", "cognitive", "other_psych", "non_psych", "is_within", "single_vignette", "stanford", "change_platform", "open_data", "open_mat", "pub_year", "log_trials", "log_sample", "log_ratio_ss"), labels=c("Social psych", "Cognitive psych", "Other psych", "Non-psych", "Within participants design", "Single vignette ","Stanford affiliated", "Switch to online", "Open data", "Open materials", "Publication year", "Log # of trials", "Log original sample size", "Log ratio rep/original sample sizes")),
+         Var2=factor(Var2, levels=c("social", "cognitive", "other_psych", "non_psych", "is_within", "single_vignette", "stanford", "change_platform", "open_data", "open_mat", "pub_year", "log_trials", "log_sample", "log_ratio_ss"), labels=c("Social psych", "Cognitive psych", "Other psych", "Non-psych", "Within participants design", "Single vignette ","Stanford affiliated", "Switch to online", "Open data", "Open materials", "Publication year", "Log # of trials", "Log original sample size", "Log ratio rep/original sample sizes")))
+
+# plotting the correlation heatmap
+ggplot(data = melted_corr_mat, aes(x=Var1, y=Var2,
+                                   fill=value)) + #scale_fill_viridis()+
+  theme_classic()+
+  scale_fill_gradient2(low="#763386",high="#FDE725FF", na.value="grey")+
+  labs(x="", y="")+
+  geom_tile(alpha=.7)+
+  theme(axis.text.x = element_text(angle = 40, vjust = 1, hjust=1), legend.position="none")+
+  geom_text(aes(label=value), size=3)
+  
+
+
+```
+Distributions of study outcomes across some of these properties are shown in Figure \ref{fig:predictors-graph}. Both social and cognitive psychology studies were well represented in the replication sample, and the cognitive psychology studies replicated more often than social psychology studies (mean subjective replication scores: `r pluck(cog,2,1) |> round(2)` versus `r pluck(cog,2,4) |> round(2)`). Within and between participants designs were both common, and within-participants designs replicated more often than between-participants designs (mean scores: `r pluck(within,2,2) |> round(2)` versus `r pluck(within,2,1) |> round(2)`). Studies with multiple vignettes replicated more often than single vignetted studies (mean scores: `r pluck(vignette,2,1) |> round(2)` versus `r pluck(vignette,2,2) |> round(2)`). However, there were strong correlations among these experimental features as well as between these experimental features and specific subfields (Figure \ref{fig:corr-plot}). 
+
+Studies with open data, which almost always also had open materials as well, tended to replicate more than studies without open data. Nearly all replication studies were conducted online, but original studies were split between using in-person and online recruitment. Replications that switched to online were less likely to replicate than those that had the same modality as the original (generally both online, in a few cases both in-person).  While online studies in general show comparable results to studies conducted in person [@crump2013], switching the modality does decrease the closeness of the replication, and some studies done in person may not have been well-adapted (e.g., inductions might have been weaker or instructions might have been insufficient). These factors -- open materials, open data, and online samples -- are more common in more recent studies, and so these effects may partially reflect temporal trends (see Figure \ref{fig:corr-plot} for the correlations between these factors and publication year). 
 
 
 ```{r predictors-graph, out.width="100%", fig.width=8, fig.height=4, fig.pos="ht", fig.cap="Distribution of subjective replication scores within categories. Bar heights are counts of studies."}
@@ -477,7 +581,7 @@ Our results are limited by the sample of studies we included, which are limited 
 Large scale replication studies are costly and arduous. The batch of replications presented here were pedagogical replications, done as part of a class. Trainees must learn experimental methods, and conducting replications as part of methods classes serves several purposes: it enables students to learn to do experiments in a supportive context, it often leads to more useful results than if students designed their own experiments from scratch, and it creates a resource for studying the literature [@quintana2021; @wagge2019;@frank2012; @hawkins2018]. We believe that this kind of pedagogy has an important role to play in improving methodological practices in psychology more broadly. The tools and workflows of rigorous, replicable science cannot simply be mandated: they have to be learned.
 
 # Methods
-Our pre-registration, code, and coded data are available at https://osf.io/xwn9m/. <!--TODO VIEW ONLY https://osf.io/xwn9m/?view_only=ebb6df1ae97045cfa5154d6119ec20b1-->
+Our pre-registration, code, and coded data are available at https://osf.io/xwn9m/ [@osfdata]. <!--TODO VIEW ONLY https://osf.io/xwn9m/?view_only=ebb6df1ae97045cfa5154d6119ec20b1-->
 
 ## Dataset
 
@@ -488,11 +592,11 @@ ps <- all|> mutate(journal=str_to_lower(journal)) |>filter(journal=="psych sci")
 
 ```
 
-The dataset of replication projects comes from class projects conducted in PSYCH 251 (earlier called PSYCH 254) a graduate-level experimental methods class taught at Stanford by MCF from 2011 to 2022. This class is commonly taken by first year graduate students in psychology and related disciplines, and it has been a requirement of the Psychology PhD since around 2015. Each student chose a study to replicate, implemented the study, wrote analysis code, pre-registered their replication, ran the study, and turned in a structured final report including methods, analytic plan, changes from the original study, confirmatory and exploratory analyses, and discussion of outcomes. Students were encouraged to do experimental replications, but some students chose to replicate correlational outcomes or do computational reproducibility projects instead.  We cannot include the full student reports for confidentiality reasons, but we include over 50 reports that we received permission to share and the template given to students at https://osf.io/xwn9m/. <!-- TODO VIEW ONLY-->
+The dataset of replication projects comes from class projects conducted in PSYCH 251 (earlier called PSYCH 254) a graduate-level experimental methods class taught at Stanford by MCF from 2011 to 2022. This class is commonly taken by first year graduate students in psychology and related disciplines, and it has been a requirement of the Psychology PhD since around 2015. Each student chose a study to replicate, implemented the study, wrote analysis code, pre-registered their replication, ran the study, and turned in a structured final report including methods, analytic plan, changes from the original study, confirmatory and exploratory analyses, and discussion of outcomes. Students were encouraged to do experimental replications, but some students chose to replicate correlational outcomes or do computational reproducibility projects instead.  We cannot include the full student reports for confidentiality reasons, but we include over 50 reports that we received permission to share and the template given to students at https://osf.io/xwn9m/ [@osfdata]. <!-- TODO VIEW ONLY-->
 
 Students were free to choose what study to replicate; the recommended path for students who did not have their own ideas was to pick an interesting study from a recent year of Psychological Science (this led to a high fraction of Psych Science articles in the replication sample, `r nrow(ps)`, `r round( nrow(ps)/nrow(all)*100)`% of studies). 
 
-Four of the replication projects were included in RP:P, and 10 were previously reported in @hawkins2018 (which reported 11 student replications from the 2015-2016 class, one of those was excluded from the current sample for being non-experimental).  
+Four of the replication projects were included in RP:P, and 10 were previously reported in @hawkins2018 (which reported 11 student replications from the 2015-2016 class; one of those was excluded from the current sample for being non-experimental).  
 
 ## Coding procedure
 
@@ -541,7 +645,7 @@ All original-replication pairs (except for one) had codable demographic and expe
 
 We ran a model predicting the subjective replication score on the basis of demographic and experimental predictors on the entire dataset. We ran two models predicting $p$-original and predicting whether the replication was in the prediction interval from demographic and experimental predictors on the subset of data where we had $p$-original and prediction intervals. Then, on the smaller subset of the data where we had effect sizes and $p$ values, we re-ran these three models with those as additional predictor variables. 
 
-The subjective replication scores were coded on [0, .25, .5, .75, 1], and we ramapped these to 1-5 to run an ordinal regression predicting replication score. We ran logistic regressions predicting prediction interval and linear regressions predicting $p$-original. 
+The subjective replication scores were coded on [0, .25, .5, .75, 1], and we remapped these to 1-5 to run an ordinal regression predicting replication score. We ran logistic regressions predicting prediction interval and linear regressions predicting $p$-original. 
 
 We used a horseshoe shrinkage prior on the fixed effect coefficients because we had a lot of predictors compared to the amount of data [@carvalho09]. All models included random slopes for predictors nested within year the class occurred to control for variation between cohorts of students. We did not include any interaction terms in the models. All numeric predictor variables were z-scored after other transforms (e.g., logs) to ensure comparable regularization effects from the horseshoe prior. The priors we used were horseshoe(3) for betas, normal(0,.5) for standard deviation of random slopes, and lkj(1) for correlations between random slopes. Models were run in BRMS [@brms].
 

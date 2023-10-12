@@ -110,8 +110,6 @@
 \usepackage{threeparttable}
 
 % Line numbering
-\usepackage{lineno}
-\linenumbers
 
 % endfloat stuff
 
@@ -309,22 +307,22 @@ Cumulative scientific progress requires empirical results that are robust enough
 \hypertarget{introduction}{%
 \section{Introduction}\label{introduction}}
 
-Cumulative scientific progress requires empirical results that are robust enough to support both future empirical extensions and the construction of synthetic theories. Yet in psychology, some prominent individual findings have failed to replicate in multi-site replication attempts (ex. terror management theory, \protect\hyperlink{ref-klein2022}{Klein et al. 2022}, ego-depletion, \protect\hyperlink{ref-hagger2016}{Hagger et al. 2016}). One early large-scale replication project pegged the replication rate for findings in top-tier psychology journals at around 40\% {[}RP:P; Open Science Consortium (\protect\hyperlink{ref-openscienceconsortium2015}{2015}){]}. Low replicability has negative consequences for the field as a whole: when scientists attempt to build on published results, they stand a good chance of meeting with failure.
+Cumulative scientific progress requires empirical results that are robust enough to support both future empirical extensions and the construction of synthetic theories. Yet in psychology, some prominent individual findings have failed to replicate in multi-site replication attempts (ex. terror management theory, \protect\hyperlink{ref-klein2022}{1},ego-depletion, \protect\hyperlink{ref-hagger2016}{2}). One early large-scale replication project pegged the replication rate for findings in top-tier psychology journals at around 40\% {[}RP:P; (\protect\hyperlink{ref-openscienceconsortium2015}{3}){]}. Low replicability has negative consequences for the field as a whole: when scientists attempt to build on published results, they stand a good chance of meeting with failure.
 
-Addressing this issue requires a better understanding of the scope of the problem as well as the methodological and structural issues that might lead to replication failure (\protect\hyperlink{ref-simmons2011}{Simmons et al. 2011}, e.g., \protect\hyperlink{ref-smaldino2016}{Smaldino \& McElreath 2016}). Estimating replicability in the literature is a key starting point, but, as we review below, there is limited consensus on what quantity exactly should be estimated.
+Addressing this issue requires a better understanding of the scope of the problem as well as the methodological and structural issues that might lead to replication failure (e.g., \protect\hyperlink{ref-smaldino2016}{4},\protect\hyperlink{ref-simmons2011}{5}). Estimating replicability in the literature is a key starting point, but, as we review below, there is limited consensus on what quantity exactly should be estimated.
 
 Our viewpoint here is that one important estimand is the probability that a graduate student can identify a finding in the literature and replicate it successfully enough that they can build on that finding in subsequent work. Taking this perspective, our contribution is a new dataset of 176 replications of experimental studies from the social sciences, primarily psychology. These replications were conducted as individual course projects by students in a graduate-level experimental methods class between 2011 and 2022. We use this dataset to investigate the rate of replicability for such projects as well as the correlates of replication success.
 
 \hypertarget{what-are-we-estimating-when-we-measure-replicability}{%
 \subsection{What are we estimating when we measure replicability?}\label{what-are-we-estimating-when-we-measure-replicability}}
 
-A few large-scale investigations have measured replication rates in samples of psychology studies. The first of these, RP:P, sampled roughly 100 studies from articles published in three top psychology journals in 2008 and distributed the studies across participating labs, finding an overall replication rate of around 40\% (\protect\hyperlink{ref-openscienceconsortium2015}{Open Science Consortium 2015}). The followup Many Labs studies investigated heterogeneity using short target studies that each compared two conditions. These study designs were not representative of the psychology literature as a whole, and due to the goal of measuring heterogeneity, they had large overall samples across multiple sites. Across Many Labs 1--3, only 29 of 51 target effects (57\%) replicated (\protect\hyperlink{ref-klein2014}{Klein et al. 2014}, \protect\hyperlink{ref-ebersole2016}{Ebersole et al. 2016}, \protect\hyperlink{ref-klein2018}{Klein et al. 2018}). Camerer et al. (\protect\hyperlink{ref-camerer2018}{2018}) included all 21 behavioral social science studies from Nature and Science from 2010-2015 that were feasible to replicate. They consulted original authors and had high power to detect even small effects; under these conditions and with this sample, the replication rate was around 60\%.
+A few large-scale investigations have measured replication rates in samples of psychology studies. The first of these, RP:P, sampled roughly 100 studies from articles published in three top psychology journals in 2008 and distributed the studies across participating labs, finding an overall replication rate of around 40\% (\protect\hyperlink{ref-openscienceconsortium2015}{3}). The followup Many Labs studies investigated heterogeneity using short target studies that each compared two conditions. These study designs were not representative of the psychology literature as a whole, and due to the goal of measuring heterogeneity, they had large overall samples across multiple sites. Across Many Labs 1--3, only 29 of 51 target effects (57\%) replicated (\protect\hyperlink{ref-klein2014}{6}--\protect\hyperlink{ref-ebersole2016}{8}). (\protect\hyperlink{ref-camerer2018}{9}) included all 21 behavioral social science studies from Nature and Science from 2010-2015 that were feasible to replicate. They consulted original authors and had high power to detect even small effects; under these conditions and with this sample, the replication rate was around 60\%.
 
-While their sampling procedure and methods varied, these previous approaches to replicability have all focused on interpreting their results in terms of a potentially problematic estimand: the probability of a finding in the literature being truly replicable. Critics have pointed out that ``true'' replicability may not be possible to estimate outside of a specific sample (\protect\hyperlink{ref-vanbavel2016}{Van Bavel et al. 2016}) or even time period (\protect\hyperlink{ref-ramscar2015}{Ramscar et al. 2015}).
+While their sampling procedure and methods varied, these previous approaches to replicability have all focused on interpreting their results in terms of a potentially problematic estimand: the probability of a finding in the literature being truly replicable. Critics have pointed out that ``true'' replicability may not be possible to estimate outside of a specific sample (\protect\hyperlink{ref-vanbavel2016}{10}) or even time period (\protect\hyperlink{ref-ramscar2015}{11}).
 
 Further, the methods used in these studies are not sufficient to yield an unbiased estimate of this quantity. In no case were studies randomly sampled from the literature; instead replication projects sampled from specific journals and adjusted the sample for feasibility concerns. These reasonable decisions further undermine the interpretation of the results from these studies as representing the proportion of true findings in the psychology literature as a whole.
 
-Rather than aim for some measure of true replicability, perhaps we should contextualize the true estimand for replication efforts based on their methodologies and outcome measures. Through this lens, RP:P estimated the rate at which findings from relatively simple experiments published in a few well-known journals at a particular time could be replicated in a typical psychology lab. Many Labs estimated the rate at which well-known, two-condition findings replicate in very large samples. Camerer et al. (\protect\hyperlink{ref-camerer2018}{2018}) estimated which prestigious journal findings replicate when conducted in a highly-resourced environment with expert involvement. All of these could be potentially desirable estimands.
+Rather than aim for some measure of true replicability, perhaps we should contextualize the true estimand for replication efforts based on their methodologies and outcome measures. Through this lens, RP:P estimated the rate at which findings from relatively simple experiments published in a few well-known journals at a particular time could be replicated in a typical psychology lab. Many Labs estimated the rate at which well-known, two-condition findings replicate in very large samples. (\protect\hyperlink{ref-camerer2018}{9}) estimated which prestigious journal findings replicate when conducted in a highly-resourced environment with expert involvement. All of these could be potentially desirable estimands.
 
 But in practice, most scientific work is conducted by graduate students with limited time, limited budgets, and limited access to experts. If students cannot replicate a finding under these circumstances, they cannot build on it in their own empirical or theoretical work. How replicable are findings in the literature for graduate students operating under these less-than-ideal conditions? We address this question here.
 
@@ -335,13 +333,13 @@ In the current study, we estimate the probability of successful replication in t
 \hypertarget{when-do-replications-succeed}{%
 \subsection{When do replications succeed?}\label{when-do-replications-succeed}}
 
-Despite variation in the methods and outcomes used by large-scale replication studies, they are often aggregated together in analyses looking at the predictability of replication success. Prediction markets and elicitations have established that people can predict above chance what studies will replicate (\protect\hyperlink{ref-dreber2015}{Dreber et al. 2015}, \protect\hyperlink{ref-camerer2018}{Camerer et al. 2018}, \protect\hyperlink{ref-forsell2019}{Forsell et al. 2019}, \protect\hyperlink{ref-hoogeveen2019}{Hoogeveen et al. 2019}), but have not identified concrete predictors that differentiate replications from non-replications. Machine learning approaches trained on the available replications are also above chance at predicting replication success (\protect\hyperlink{ref-yang2020}{Yang et al. 2020}, \protect\hyperlink{ref-youyou2023}{Youyou et al. 2023}), though again the precise features relating to success are unclear.
+Despite variation in the methods and outcomes used by large-scale replication studies, they are often aggregated together in analyses looking at the predictability of replication success. Prediction markets and elicitations have established that people can predict above chance what studies will replicate (\protect\hyperlink{ref-camerer2018}{9},\protect\hyperlink{ref-hoogeveen2019}{12}--\protect\hyperlink{ref-forsell2019}{14}), but have not identified concrete predictors that differentiate replications from non-replications. Machine learning approaches trained on the available replications are also above chance at predicting replication success (\protect\hyperlink{ref-yang2020}{15},\protect\hyperlink{ref-youyou2023}{16}), though again the precise features relating to success are unclear.
 
-In search of such features, RP:P examined correlates of replicability in the RP:P sample and found that studies in cognitive psychology (as opposed to social psychology) and studies with larger effect sizes and smaller \(p\) values were more likely to replicate. Using these same data combined with a few other smaller samples, Altmejd et al. (\protect\hyperlink{ref-altmejd2019}{2019}) examined statistical and demographic features of replication studies and identified larger sample sizes, larger effect sizes, and simple effects (as opposed to interaction terms) as predictive of replication.\footnote{While most approaches to correlates of replicability have been correlational, experimental approaches can be used to test potential interventions (\protect\hyperlink{ref-ebersole2020}{Ebersole et al. 2020}, \protect\hyperlink{ref-protzko2020}{Protzko et al. 2020}). Experiments can be very valuable as tests of specific causes of non-replication, but they are expensive and time-consuming to conduct, and not all factors affecting replication success can be manipulated experimentally.}
+In search of such features, RP:P examined correlates of replicability in the RP:P sample and found that studies in cognitive psychology (as opposed to social psychology) and studies with larger effect sizes and smaller \(p\) values were more likely to replicate. Using these same data combined with a few other smaller samples, (\protect\hyperlink{ref-altmejd2019}{17}) examined statistical and demographic features of replication studies and identified larger sample sizes, larger effect sizes, and simple effects (as opposed to interaction terms) as predictive of replication.\footnote{While most approaches to correlates of replicability have been correlational, experimental approaches can be used to test potential interventions (\protect\hyperlink{ref-protzko2020}{18},\protect\hyperlink{ref-ebersole2020}{19}). Experiments can be very valuable as tests of specific causes of non-replication, but they are expensive and time-consuming to conduct, and not all factors affecting replication success can be manipulated experimentally.}
 
-These approaches are fundamentally limited by the available data. Large-scale replications are arduous and expensive to run, so only a few large-scale replication datasets exist, and most analyses draw heavily on same small set of data points. In particular, the RP:P dataset is much discussed and reanalyzed (\protect\hyperlink{ref-anderson2016}{Anderson et al. 2016}, \protect\hyperlink{ref-etz2016}{Etz \& Vandekerckhove 2016}, \protect\hyperlink{ref-gilbert2016}{Gilbert et al. 2016}, \protect\hyperlink{ref-patil2016}{Patil et al. 2016}) -- to the point that much of what we think we know about replicability may be over-fit to the 100 studies included in RP:P.
+These approaches are fundamentally limited by the available data. Large-scale replications are arduous and expensive to run, so only a few large-scale replication datasets exist, and most analyses draw heavily on same small set of data points. In particular, the RP:P dataset is much discussed and reanalyzed (\protect\hyperlink{ref-etz2016}{20}--\protect\hyperlink{ref-anderson2016}{23}) -- to the point that much of what we think we know about replicability may be over-fit to the 100 studies included in RP:P.
 
-Further, none of these studies focused on features of experimental design, such as within-participants designs or the use of repeated measures. There has been speculation that both of these factors should be linked to increased replicability due to their role in enabling increased statistical precision. Within-participants designs lead to more precise experimental estimates by allowing the estimation of correlated person-level variation across conditions; repeated measures allow for more precise estimation by averaging out measurement error. Both are often recommended by methodologists as part of good measurement practices, at least when they are feasible (\protect\hyperlink{ref-greenwald1976}{Greenwald 1976}, \protect\hyperlink{ref-rosenthal2008}{Rosenthal \& Rosnow 2008}, \protect\hyperlink{ref-frank2023}{Frank et al. 2023}).
+Further, none of these studies focused on features of experimental design, such as within-participants designs or the use of repeated measures. There has been speculation that both of these factors should be linked to increased replicability due to their role in enabling increased statistical precision. Within-participants designs lead to more precise experimental estimates by allowing the estimation of correlated person-level variation across conditions; repeated measures allow for more precise estimation by averaging out measurement error. Both are often recommended by methodologists as part of good measurement practices, at least when they are feasible (\protect\hyperlink{ref-rosenthal2008}{24}--\protect\hyperlink{ref-frank2023}{26}).
 
 In sum, our current study examines the overall rate of replicability as well as the statistical and design features that predict replicability in a new sample of student replications.
 
@@ -401,11 +399,11 @@ The sample of replicated studies reflects the variability of the literature, inc
 
 These replications were all conducted on short time scales, within a constrained class budget. In some cases the budget limited the number of participants who could be recruited, occasionally below what the original study included or what power analyses suggested. The replications had a median post-exclusion sample size that was 86\% of the original sample size (interquartile range 41\%-105\%)\footnote{Replications had a median of 59 participants (interquartile range: 31 - 124), while original studies had a median of 101 participants (interquartile range: 40 - 180).}. In nearly all cases, replications were conducted online, with recruitment from Amazon Mechanical Turk (the default from 2011 to 2020) or Prolific (the default from 2021 -- 2022).
 
-Many different measures can be used to define replication success of an individual statistical result (\protect\hyperlink{ref-gelman2018}{Gelman 2018/ed}, \protect\hyperlink{ref-simonsohn2015}{Simonsohn 2015}, \protect\hyperlink{ref-mathur2020}{Mathur \& VanderWeele 2020}). However, whether a replication should be considered successful is not always dependent on only one statistical comparison between the two studies. Often in original papers, multiple statistical tests are cited in support of the claim that a pattern of results matches a particular theoretical expectation.
+Many different measures can be used to define replication success of an individual statistical result (\protect\hyperlink{ref-simonsohn2015}{27}--\protect\hyperlink{ref-mathur2020}{29}). However, whether a replication should be considered successful is not always dependent on only one statistical comparison between the two studies. Often in original papers, multiple statistical tests are cited in support of the claim that a pattern of results matches a particular theoretical expectation.
 
 As our primary outcome, we chose to use a subjective replication score (coded by two independent raters -- one typically at the time of project completion -- with discrepancies resolved by discussion). Unlike statistical measures, subjective replication success accommodates studies with multiple important outcome measures that together define the pattern of interest. Further, this measure was applicable across the diverse range of statistical measures and reporting practices present in the sample.
 
-As a complement to our primary subjective outcome, we also used two statistical measures of replication on the subset of the data where they were computable for the key statistic of interest (136 cases, see Figure \ref{fig:prisma}). We used \emph{p-original}, the \emph{p}-value on the null hypothesis that the original and replication statistics are from the same distribution, and \emph{prediction interval}, a binary measure of whether the replication statistic fell within the prediction interval of the original statistic (\protect\hyperlink{ref-mathur2020}{Mathur \& VanderWeele 2020}). The prediction interval depends on the level of evidence of the original study; if the effect was marginal, the prediction interval could overlap zero; thus, a replication might fall within the predictive interval, and be consistent with the original outcome, but not provide compelling evidence for the claimed effect. Conversely, large original effects with precise point estimates may have prediction intervals that do not overlap a smaller replication effect size, and thus would be inconsistent with the original outcome, even though researcher intuition might classify it as a success. Thus, these two statistical metrics each quantify the similarity between a key statistic in the original study and the replication, but they will not always match researcher intuitions on whether a study replicated.
+As a complement to our primary subjective outcome, we also used two statistical measures of replication on the subset of the data where they were computable for the key statistic of interest (136 cases, see Figure \ref{fig:prisma}). We used \emph{p-original}, the \emph{p}-value on the null hypothesis that the original and replication statistics are from the same distribution, and \emph{prediction interval}, a binary measure of whether the replication statistic fell within the prediction interval of the original statistic (\protect\hyperlink{ref-mathur2020}{29}). The prediction interval depends on the level of evidence of the original study; if the effect was marginal, the prediction interval could overlap zero; thus, a replication might fall within the predictive interval, and be consistent with the original outcome, but not provide compelling evidence for the claimed effect. Conversely, large original effects with precise point estimates may have prediction intervals that do not overlap a smaller replication effect size, and thus would be inconsistent with the original outcome, even though researcher intuition might classify it as a success. Thus, these two statistical metrics each quantify the similarity between a key statistic in the original study and the replication, but they will not always match researcher intuitions on whether a study replicated.
 
 \begin{figure}[ht]
 \includegraphics[width=1\linewidth,height=0.25\textheight]{manuscript_files/figure-latex/smd-1} \caption{Relationship between effect size of the original study, effect size of the replication study, and subjective replication success rating, for those studies where effect size was applicable (N=112).}\label{fig:smd}
@@ -414,11 +412,13 @@ As a complement to our primary subjective outcome, we also used two statistical 
 \hypertarget{overall-replication-rate}{%
 \subsection{Overall replication rate}\label{overall-replication-rate}}
 
-Across the 176 studies, the average subjective replication score was 49\%, which we can interpret as an overall subjective replication rate. 46\% (62/136) of replications has outcomes with point-estimates within the prediction interval of the original outcome. The median \emph{p}-original value on the original and replication point-estimates coming from the same distribution was 0.03, representing the median probability that a replication study's estimate would be at least as extreme as was actually observed, if in fact the replication and original were statistically consistent.
+Across the 176 studies, the average subjective replication score was 49\%, which we can interpret as an overall subjective replication rate. 46\% (62/136) of replications had outcomes with point-estimates within the prediction interval of the original outcome. The median \emph{p}-original value on the original and replication point-estimates coming from the same distribution was 0.03, representing the median probability that a replication study's estimate would be at least as extreme as was actually observed, if in fact the replication and original were statistically consistent. The subjective replication scores were moderately correlated with both prediction interval (r=0.37) and \emph{p}-original (r=0.29) values; prediction interval and \emph{p}-original were highly correlated with each other (r=0.73).
 
-Figure \ref{fig:smd} shows the relationship between original standardized effect size, replication effect size, and subjective replication score. Some studies replicated with similar size effects to the original, and others failed to replicate, with replication effect sizes near zero. On average, there was a diminution of effect sizes from original to replication. This pattern of results is consistent with the results of RP:P (\protect\hyperlink{ref-openscienceconsortium2015}{Open Science Consortium 2015}).
+Figure \ref{fig:smd} shows the relationship between original standardized effect size, replication effect size, and subjective replication score. Some studies replicated with similar size effects to the original, and others failed to replicate, with replication effect sizes near zero.
 
-Some multi-site replication projects have found heterogeneity in effect sizes across replication sites (\protect\hyperlink{ref-klein2018}{Klein et al. 2018}, \protect\hyperlink{ref-ebersole2020}{Ebersole et al. 2020}, \protect\hyperlink{ref-olsson2020}{Olsson-Collentine et al. 2020}). As a test of sensitivity to heterogeneity, we assumed that the level of heterogeneity in hypothetical multi-site replications of our sampled articles was the same as the average level heterogeneity found by Olsson-Collentine et al. (\protect\hyperlink{ref-olsson2020}{2020}) in prior multi-site replications in psychology (\(\tau=.21\) in units of standardized mean difference). Under this assumption, 64\% (72/112) of replication effect sizes are distributionally consistent with the original effect size. However, more work on understanding heterogeneity is needed to understand what levels of heterogeneity to expect across different implementations of the same experiment, and how considerations of heterogeneity should impact interpretations of both novel results and replication results.
+On average, there was a diminution of effect sizes from original to replication. This pattern of results is consistent with the results of RP:P (\protect\hyperlink{ref-openscienceconsortium2015}{3}). Specifically, the median original effect size (in SMD units) was 0.61 (interquartile range: 0.46 - 0.98), and the median replication effect size was 0.28 (0.09 - 0.76), for a median difference of 0.3 (0.03 - 0.64). Among the pairs with a subjective replication score of 1 (N=38 with standardized effect sizes), the median original effect size was 0.92 (interquartile range: 0.52 - 1.4), and the median replication effect size was 0.89 (0.57 - 1.24), for a median difference of 0.02 (-0.16 - 0.3). Thus, for the highest subjectively-rated replications, effect sizes for original and replication were similar in magnitude on average, with some replications having larger effects than their originals.
+
+Some multi-site replication projects have found heterogeneity in effect sizes across replication sites (\protect\hyperlink{ref-klein2018}{7},\protect\hyperlink{ref-ebersole2020}{19},\protect\hyperlink{ref-olsson2020}{30}). As a test of sensitivity to heterogeneity, we assumed that the level of heterogeneity in hypothetical multi-site replications of our sampled articles was the same as the average level heterogeneity found by (\protect\hyperlink{ref-olsson2020}{30}) in prior multi-site replications in psychology (\(\tau=.21\) in units of standardized mean difference). Under this assumption, 64\% (72/112) of replication effect sizes are distributionally consistent with the original effect size. However, more work on understanding heterogeneity is needed to understand what levels of heterogeneity to expect across different implementations of the same experiment, and how considerations of heterogeneity should impact interpretations of both novel results and replication results.
 
 \begin{table}[!h]
 
@@ -446,16 +446,51 @@ r & p & Predictors\\
 \end{tabular}
 \end{table}
 
+\begin{table}[!h]
+
+\caption{\label{tab:unnamed-chunk-6}Descriptive properties of the replication dataset. For categorical features, counts and percentages are given. For continuous features, the median value and interquartile range are given. N=176 except for original effect size and p-value where N=112. }
+\centering
+\fontsize{10}{12}\selectfont
+\begin{tabular}[t]{lc}
+\toprule
+Feature & Summary\\
+\midrule
+Subfield & \\
+\hspace{1em}Cognitive & 62 (35\%)\\
+\hspace{1em}Social & 70 (40\%)\\
+\hspace{1em}Other psych & 24 (14\%)\\
+\hspace{1em}Non-psych & 20 (11\%)\\
+Open data & 52 (30\%)\\
+Open materials & 83 (47\%)\\
+Switch from in-person to online & 94 (53\%)\\
+Original authors at Stanford & 16 (9.1\%)\\
+Within subjects design & 80 (45\%)\\
+Single vignette & 78 (44\%)\\
+Number of trials & 6 (1, 60)\\
+Publication Year & 2015 (2011, 2017)\\
+Original sample size & 101 (40, 181)\\
+Replication sample size & 59 (31, 125)\\
+Ratio of replication/original sample sizes & 0.86 (0.41, 1.05)\\
+Original effect size (SMD) & 0.61 (0.46, 0.98)\\
+Original p-value & 0.0001 (0.0000, 0.0069)\\
+\bottomrule
+\end{tabular}
+\end{table}
+
 \hypertarget{bivariate-correlates-of-replication-success}{%
 \subsection{Bivariate correlates of replication success}\label{bivariate-correlates-of-replication-success}}
 
-We investigated what features of the original study and replication were correlated with replication success, with the goal of being able to identify potential markers of replicability. We chose a set of predictor variables based on the correlational results of RP:P (\protect\hyperlink{ref-openscienceconsortium2015}{Open Science Consortium 2015}), our own intuitions of experimental design factors that might impact replication success, and some covariates related to how close the replication was; a full description of these features is given in the Methods.
+We investigated what features of the original study and replication were correlated with replication success, with the goal of being able to identify potential markers of replicability. We chose a set of predictor variables based on the correlational results of RP:P (\protect\hyperlink{ref-openscienceconsortium2015}{3}), our own intuitions of experimental design factors that might impact replication success, and some covariates related to how close the replication was; a full description of these features is given in the Methods.
 
 Many predictors correlated with subjective replication success using unadjusted Pearson correlations (Table \ref{tab:cor}). Predictors of higher replicability included within-participants designs, larger numbers of trials per participant, and the original study having openly accessible data. Predictors of lower replicability included single-vignette studies (those with only one experimental stimulus per condition), classification as social psychology, and study pairs where the original study was in-person and the replication switched to online.
 
-Distributions of study outcomes across some of these properties are shown in Figure \ref{fig:predictors-graph}. Both social and cognitive psychology studies were well represented in the replication sample, and the cognitive psychology studies replicated more often than social psychology studies (mean subjective replication scores: 0.58 versus 0.36). Within and between participants designs were both common, and within-participants designs replicated more often than between-participants designs (mean scores: 0.65 versus 0.36). Studies with multiple vignettes replicated more often than single vignetted studies (mean scores: 0.59 versus 0.36). However, there were strong correlations among these experimental features as well as between these experimental features and specific subfields.
+\begin{figure}[ht]
+\includegraphics[width=1\linewidth,height=0.4\textheight]{manuscript_files/figure-latex/corr-plot-1} \caption{Correlations between predictors. See TODO Table 1 or Methods for descriptions. }\label{fig:corr-plot}
+\end{figure}
 
-Studies with open data, which almost always also had open materials as well, tended to replicate more than studies without open data. Nearly all replication studies were conducted online, but original studies were split between using in-person and online recruitment. Replications that switched to online were less likely to replicate than those that had the same modality as the original (generally both online, in a few cases both in-person). While online studies in general show comparable results to studies conducted in person (\protect\hyperlink{ref-crump2013}{Crump et al. 2013}), switching the modality does decrease the closeness of the replication, and some studies done in person may not have been well-adapted (e.g., inductions might have been weaker or instructions might have been insufficient). These factors -- open materials, open data, and online samples -- are more common in more recent studies, and so these effects may partially reflect temporal trends.
+Distributions of study outcomes across some of these properties are shown in Figure \ref{fig:predictors-graph}. Both social and cognitive psychology studies were well represented in the replication sample, and the cognitive psychology studies replicated more often than social psychology studies (mean subjective replication scores: 0.58 versus 0.36). Within and between participants designs were both common, and within-participants designs replicated more often than between-participants designs (mean scores: 0.65 versus 0.36). Studies with multiple vignettes replicated more often than single vignetted studies (mean scores: 0.59 versus 0.36). However, there were strong correlations among these experimental features as well as between these experimental features and specific subfields (Figure \ref{fig:corr-plot}).
+
+Studies with open data, which almost always also had open materials as well, tended to replicate more than studies without open data. Nearly all replication studies were conducted online, but original studies were split between using in-person and online recruitment. Replications that switched to online were less likely to replicate than those that had the same modality as the original (generally both online, in a few cases both in-person). While online studies in general show comparable results to studies conducted in person (\protect\hyperlink{ref-crump2013}{31}), switching the modality does decrease the closeness of the replication, and some studies done in person may not have been well-adapted (e.g., inductions might have been weaker or instructions might have been insufficient). These factors -- open materials, open data, and online samples -- are more common in more recent studies, and so these effects may partially reflect temporal trends (see Figure \ref{fig:corr-plot} for the correlations between these factors and publication year).
 
 \begin{figure}[ht]
 \includegraphics[width=1\linewidth]{manuscript_files/figure-latex/predictors-graph-1} \caption{Distribution of subjective replication scores within categories. Bar heights are counts of studies.}\label{fig:predictors-graph}
@@ -464,7 +499,7 @@ Studies with open data, which almost always also had open materials as well, ten
 \hypertarget{joint-evaluation-of-the-predictors-of-replicability}{%
 \subsection{Joint evaluation of the predictors of replicability}\label{joint-evaluation-of-the-predictors-of-replicability}}
 
-While a number of features show individual correlations with the subjective replication score, many correlate with one another. To determine which predictors were the strongest, we modeled subjective replication score as an ordinal outcome using ordinal Bayesian regression models with a logit link function, regularized using a horseshoe shrinkage prior (\protect\hyperlink{ref-carvalho09}{Carvalho et al. 2009}). This model estimates odds ratios representing the association of the predictor with having a higher versus lower subjective replication score. We first ran models using all of the original-replication pairs (N=176), but without original effect size and original \(p\) value as predictors, as they were uncodable for some pairs. We next ran models including all predictors, but on only the subset of data where all predictors were available (N=112).
+While a number of features show individual correlations with the subjective replication score, many correlate with one another. To determine which predictors were the strongest, we modeled subjective replication score as an ordinal outcome using ordinal Bayesian regression models with a logit link function, regularized using a horseshoe shrinkage prior (\protect\hyperlink{ref-carvalho09}{32}). This model estimates odds ratios representing the association of the predictor with having a higher versus lower subjective replication score. We first ran models using all of the original-replication pairs (N=176), but without original effect size and original \(p\) value as predictors, as they were uncodable for some pairs. We next ran models including all predictors, but on only the subset of data where all predictors were available (N=112).
 
 Coefficient estimates from the two ordinal models predicting the subjective replication scores are shown in Figure \ref{fig:mod-results}. Due to a large number of predictors coupled with a small and noisy dataset, there is much uncertainty around the coefficients even with strong regularization. The general directions of coefficients are consistent with the effects of the predictors in isolation.
 
@@ -487,21 +522,21 @@ We do not interpret our non-replications as indicating the original results were
 
 Our results are limited by the sample of studies we included, which are limited in number and may not be representative of the studies of interest to psychologists as a whole. Further, our predictor variables were not manipulated, so they cannot be interpreted as causing (non-)replication, but only as correlational markers. Some of the correlates are most easily interpreted as being about the original study, and others reflect the closeness of the replication to the original. For instance, while within-participants designs are more likely to replicate than between-participants designs, this predictor could also be related to the types of experiments that tend to be run in each design. Given the strong relationship of this factor to replicability, slightly more skepticism and critical reading of between-participants designs may be warranted, but this correlation, by itself, does not mean scientists should prefer within-participants designs.
 
-Large scale replication studies are costly and arduous. The batch of replications presented here were pedagogical replications, done as part of a class. Trainees must learn experimental methods, and conducting replications as part of methods classes serves several purposes: it enables students to learn to do experiments in a supportive context, it often leads to more useful results than if students designed their own experiments from scratch, and it creates a resource for studying the literature (\protect\hyperlink{ref-frank2012}{Frank \& Saxe 2012}, \protect\hyperlink{ref-hawkins2018}{Hawkins et al. 2018}, \protect\hyperlink{ref-wagge2019}{Wagge et al. 2019}, \protect\hyperlink{ref-quintana2021}{Quintana 2021}). We believe that this kind of pedagogy has an important role to play in improving methodological practices in psychology more broadly. The tools and workflows of rigorous, replicable science cannot simply be mandated: they have to be learned.
+Large scale replication studies are costly and arduous. The batch of replications presented here were pedagogical replications, done as part of a class. Trainees must learn experimental methods, and conducting replications as part of methods classes serves several purposes: it enables students to learn to do experiments in a supportive context, it often leads to more useful results than if students designed their own experiments from scratch, and it creates a resource for studying the literature (\protect\hyperlink{ref-quintana2021}{33}--\protect\hyperlink{ref-hawkins2018}{36}). We believe that this kind of pedagogy has an important role to play in improving methodological practices in psychology more broadly. The tools and workflows of rigorous, replicable science cannot simply be mandated: they have to be learned.
 
 \hypertarget{methods}{%
 \section{Methods}\label{methods}}
 
-Our pre-registration, code, and coded data are available at \url{https://osf.io/xwn9m/}.
+Our pre-registration, code, and coded data are available at \url{https://osf.io/xwn9m/} (\protect\hyperlink{ref-osfdata}{37}).
 
 \hypertarget{dataset}{%
 \subsection{Dataset}\label{dataset}}
 
-The dataset of replication projects comes from class projects conducted in PSYCH 251 (earlier called PSYCH 254) a graduate-level experimental methods class taught at Stanford by MCF from 2011 to 2022. This class is commonly taken by first year graduate students in psychology and related disciplines, and it has been a requirement of the Psychology PhD since around 2015. Each student chose a study to replicate, implemented the study, wrote analysis code, pre-registered their replication, ran the study, and turned in a structured final report including methods, analytic plan, changes from the original study, confirmatory and exploratory analyses, and discussion of outcomes. Students were encouraged to do experimental replications, but some students chose to replicate correlational outcomes or do computational reproducibility projects instead. We cannot include the full student reports for confidentiality reasons, but we include over 50 reports that we received permission to share and the template given to students at \url{https://osf.io/xwn9m/}.
+The dataset of replication projects comes from class projects conducted in PSYCH 251 (earlier called PSYCH 254) a graduate-level experimental methods class taught at Stanford by MCF from 2011 to 2022. This class is commonly taken by first year graduate students in psychology and related disciplines, and it has been a requirement of the Psychology PhD since around 2015. Each student chose a study to replicate, implemented the study, wrote analysis code, pre-registered their replication, ran the study, and turned in a structured final report including methods, analytic plan, changes from the original study, confirmatory and exploratory analyses, and discussion of outcomes. Students were encouraged to do experimental replications, but some students chose to replicate correlational outcomes or do computational reproducibility projects instead. We cannot include the full student reports for confidentiality reasons, but we include over 50 reports that we received permission to share and the template given to students at \url{https://osf.io/xwn9m/} (\protect\hyperlink{ref-osfdata}{37}).
 
 Students were free to choose what study to replicate; the recommended path for students who did not have their own ideas was to pick an interesting study from a recent year of Psychological Science (this led to a high fraction of Psych Science articles in the replication sample, 80, 45\% of studies).
 
-Four of the replication projects were included in RP:P, and 10 were previously reported in Hawkins et al. (\protect\hyperlink{ref-hawkins2018}{2018}) (which reported 11 student replications from the 2015-2016 class, one of those was excluded from the current sample for being non-experimental).
+Four of the replication projects were included in RP:P, and 10 were previously reported in (\protect\hyperlink{ref-hawkins2018}{36}) (which reported 11 student replications from the 2015-2016 class; one of those was excluded from the current sample for being non-experimental).
 
 \hypertarget{coding-procedure}{%
 \subsection{Coding procedure}\label{coding-procedure}}
@@ -513,7 +548,7 @@ We relied primarily on student reports to code the measured variables for the re
 
 Our primary replication outcome was experimenter and instructor rated replication success. The subjective replication success was recorded by the teaching staff for the majority of class replications at the time they were conducted. Where the values were missing they were filled in by MCF on the basis of the reports. For all studies, replication success was independently coded by VB on the basis of the reports. Where VB's coding disagreed with the staff/MCF's code, the difference was resolved by discussion between VB and MCF (26\% of studies). Subjective replication scores were coded on a {[}0, .25, .5, .75, 1{]} scale.
 
-This subjective replication outcome was chosen because it already existed, could be applied to all projects (regardless of type and detail of statistical reporting), and did not rely solely on one statistical measure. As a complement, we also identified a ``key'' statistical test for each paper (see below for details), and if possible, computed \(p\)-original and prediction interval at this statistic, following Mathur \& VanderWeele (\protect\hyperlink{ref-mathur2020}{2020}). \(p\)-original was a continuous measure of the \(p\) value on the hypothesis that the original and replication samples come from the same distribution. Prediction interval was a binary measure of whether the replication outcome fell within the prediction interval of the original outcome measure.
+This subjective replication outcome was chosen because it already existed, could be applied to all projects (regardless of type and detail of statistical reporting), and did not rely solely on one statistical measure. As a complement, we also identified a ``key'' statistical test for each paper (see below for details), and if possible, computed \(p\)-original and prediction interval at this statistic, following (\protect\hyperlink{ref-mathur2020}{29}). \(p\)-original was a continuous measure of the \(p\) value on the hypothesis that the original and replication samples come from the same distribution. Prediction interval was a binary measure of whether the replication outcome fell within the prediction interval of the original outcome measure.
 
 \hypertarget{demographic-properties}{%
 \subsubsection{Demographic properties}\label{demographic-properties}}
@@ -562,9 +597,9 @@ All original-replication pairs (except for one) had codable demographic and expe
 
 We ran a model predicting the subjective replication score on the basis of demographic and experimental predictors on the entire dataset. We ran two models predicting \(p\)-original and predicting whether the replication was in the prediction interval from demographic and experimental predictors on the subset of data where we had \(p\)-original and prediction intervals. Then, on the smaller subset of the data where we had effect sizes and \(p\) values, we re-ran these three models with those as additional predictor variables.
 
-The subjective replication scores were coded on {[}0, .25, .5, .75, 1{]}, and we ramapped these to 1-5 to run an ordinal regression predicting replication score. We ran logistic regressions predicting prediction interval and linear regressions predicting \(p\)-original.
+The subjective replication scores were coded on {[}0, .25, .5, .75, 1{]}, and we remapped these to 1-5 to run an ordinal regression predicting replication score. We ran logistic regressions predicting prediction interval and linear regressions predicting \(p\)-original.
 
-We used a horseshoe shrinkage prior on the fixed effect coefficients because we had a lot of predictors compared to the amount of data (\protect\hyperlink{ref-carvalho09}{Carvalho et al. 2009}). All models included random slopes for predictors nested within year the class occurred to control for variation between cohorts of students. We did not include any interaction terms in the models. All numeric predictor variables were z-scored after other transforms (e.g., logs) to ensure comparable regularization effects from the horseshoe prior. The priors we used were horseshoe(3) for betas, normal(0,.5) for standard deviation of random slopes, and lkj(1) for correlations between random slopes. Models were run in BRMS (\protect\hyperlink{ref-brms}{Bürkner 2017}).
+We used a horseshoe shrinkage prior on the fixed effect coefficients because we had a lot of predictors compared to the amount of data (\protect\hyperlink{ref-carvalho09}{32}). All models included random slopes for predictors nested within year the class occurred to control for variation between cohorts of students. We did not include any interaction terms in the models. All numeric predictor variables were z-scored after other transforms (e.g., logs) to ensure comparable regularization effects from the horseshoe prior. The priors we used were horseshoe(3) for betas, normal(0,.5) for standard deviation of random slopes, and lkj(1) for correlations between random slopes. Models were run in BRMS (\protect\hyperlink{ref-brms}{38}).
 
 As a secondary sensitivity analysis, we examined the subset of the data where the statistical tests had the same specification, the result was of primary importance in the original paper (i.e.~not a manipulation check), and there were no big issues with the replication.
 
@@ -591,117 +626,158 @@ MCF: Conceptualization, Methodology, Writing - review \& editing.
 \addcontentsline{toc}{section}{References}
 
 \hypertarget{refs}{}
-\begin{CSLReferences}{1}{0}
-\leavevmode\vadjust pre{\hypertarget{ref-altmejd2019}{}}%
-Altmejd A, Dreber A, Forsell E, Huber J, Imai T, Johannesson M, Kirchler M, Nave G, Camerer C (2019) Predicting the replicability of social science lab experiments. \emph{PLOS ONE} \textbf{14}:e0225826. doi:\href{https://doi.org/10.1371/journal.pone.0225826}{10.1371/journal.pone.0225826}
-
-\leavevmode\vadjust pre{\hypertarget{ref-anderson2016}{}}%
-Anderson CJ, Bahník án, Barnett-Cowan M, Bosco FA, Chandler J, Chartier CR, Cheung F, Christopherson CD, Cordes A, Cremata EJ, Della Penna N, Estel V, Fedor A, Fitneva SA, Frank MC, Grange JA, Hartshorne JK, Hasselman F, Henninger F, Hulst M van der, Jonas KJ, Lai CK, Levitan CA, Miller JK, Moore KS, Meixner JM, Munafò MR, Neijenhuijs KI, Nilsonne G, Nosek BA, Plessow F, Prenoveau JM, Ricker AA, Schmidt K, Spies JR, Stieger S, Strohminger N, Sullivan GB, Aert RCM van, Assen MALM van, Vanpaemel W, Vianello M, Voracek M, Zuni K (2016) Response to {Comment} on {``{Estimating} the reproducibility of psychological science.''} \emph{Science} \textbf{351}:1037--1037. doi:\href{https://doi.org/10.1126/science.aad9163}{10.1126/science.aad9163}
-
-\leavevmode\vadjust pre{\hypertarget{ref-brms}{}}%
-Bürkner P-C (2017) {brms}: An {R} package for {Bayesian} multilevel models using {Stan}. \emph{Journal of Statistical Software} \textbf{80}:1--28. doi:\href{https://doi.org/10.18637/jss.v080.i01}{10.18637/jss.v080.i01}
-
-\leavevmode\vadjust pre{\hypertarget{ref-camerer2018}{}}%
-Camerer CF, Dreber A, Holzmeister F, Ho T-H, Huber J, Johannesson M, Kirchler M, Nave G, Nosek BA, Pfeiffer T, Altmejd A, Buttrick N, Chan T, Chen Y, Forsell E, Gampa A, Heikensten E, Hummer L, Imai T, Isaksson S, Manfredi D, Rose J, Wagenmakers E-J, Wu H (2018) Evaluating the replicability of social science experiments in {Nature} and {Science} between 2010 and 2015. \emph{Nat Hum Behav} \textbf{2}:637--644. doi:\href{https://doi.org/10.1038/s41562-018-0399-z}{10.1038/s41562-018-0399-z}
-
-\leavevmode\vadjust pre{\hypertarget{ref-carvalho09}{}}%
-Carvalho CM, Polson NG, Scott JG (2009) Handling sparsity via the horseshoe. In: Dyk D van, Welling M (eds) \emph{Proceedings of the twelth international conference on artificial intelligence and statistics}. PMLR, Hilton Clearwater Beach Resort, Clearwater Beach, Florida USA, p 73--80. Available from: \url{https://proceedings.mlr.press/v5/carvalho09a.html}
-
-\leavevmode\vadjust pre{\hypertarget{ref-crump2013}{}}%
-Crump MJC, McDonnell JV, Gureckis TM (2013) Evaluating {Amazon}'s {Mechanical Turk} as a {Tool} for {Experimental Behavioral Research}. \emph{PLOS ONE} \textbf{8}:e57410. doi:\href{https://doi.org/10.1371/journal.pone.0057410}{10.1371/journal.pone.0057410}
-
-\leavevmode\vadjust pre{\hypertarget{ref-dreber2015}{}}%
-Dreber A, Pfeiffer T, Almenberg J, Isaksson S, Wilson B, Chen Y, Nosek BA, Johannesson M (2015) Using prediction markets to estimate the reproducibility of scientific research. \emph{Proc Natl Acad Sci} \textbf{112}:15343--15347. doi:\href{https://doi.org/10.1073/pnas.1516179112}{10.1073/pnas.1516179112}
-
-\leavevmode\vadjust pre{\hypertarget{ref-ebersole2016}{}}%
-Ebersole CR, Atherton OE, Belanger AL, Skulborstad HM, Allen JM, Banks JB, Baranski E, Bernstein MJ, Bonfiglio DBV, Boucher L, Brown ER, Budiman NI, Cairo AH, Capaldi CA, Chartier CR, Chung JM, Cicero DC, Coleman JA, Conway JG, Davis WE, Devos T, Fletcher MM, German K, Grahe JE, Hermann AD, Hicks JA, Honeycutt N, Humphrey B, Janus M, Johnson DJ, Joy-Gaba JA, Juzeler H, Keres A, Kinney D, Kirshenbaum J, Klein RA, Lucas RE, Lustgraaf CJN, Martin D, Menon M, Metzger M, Moloney JM, Morse PJ, Prislin R, Razza T, Re DE, Rule NO, Sacco DF, Sauerberger K, Shrider E, Shultz M, Siemsen C, Sobocko K, Weylin Sternglanz R, Summerville A, Tskhay KO, Allen Z van, Vaughn LA, Walker RJ, Weinberg A, Wilson JP, Wirth JH, Wortman J, Nosek BA (2016) Many {Labs} 3: {Evaluating} participant pool quality across the academic semester via replication. \emph{Journal of Experimental Social Psychology} \textbf{67}:68--82. doi:\href{https://doi.org/10.1016/j.jesp.2015.10.012}{10.1016/j.jesp.2015.10.012}
-
-\leavevmode\vadjust pre{\hypertarget{ref-ebersole2020}{}}%
-Ebersole CR, Mathur MB, Baranski E, Bart-Plange D-J, Buttrick NR, Chartier CR,..., Nosek BA (2020) Many {Labs} 5: {Testing Pre-Data-Collection Peer Review} as an {Intervention} to {Increase Replicability}. \emph{Adv Methods Pract Psychol Sci} \textbf{3}:309--331. doi:\href{https://doi.org/10.1177/2515245920958687}{10.1177/2515245920958687}
-
-\leavevmode\vadjust pre{\hypertarget{ref-etz2016}{}}%
-Etz A, Vandekerckhove J (2016) A {Bayesian Perspective} on the {Reproducibility Project}: {Psychology}. \emph{PLOS ONE} \textbf{11}:e0149794. doi:\href{https://doi.org/10.1371/journal.pone.0149794}{10.1371/journal.pone.0149794}
-
-\leavevmode\vadjust pre{\hypertarget{ref-forsell2019}{}}%
-Forsell E, Viganola D, Pfeiffer T, Almenberg J, Wilson B, Chen Y, Nosek BA, Johannesson M, Dreber A (2019) Predicting replication outcomes in the {Many Labs} 2 study. \emph{Journal of Economic Psychology} \textbf{75}:102117. doi:\href{https://doi.org/10.1016/j.joep.2018.10.009}{10.1016/j.joep.2018.10.009}
-
-\leavevmode\vadjust pre{\hypertarget{ref-frank2012}{}}%
-Frank MC, Saxe R (2012) Teaching {Replication}: \emph{Perspect Psychol Sci}. doi:\href{https://doi.org/10.1177/1745691612460686}{10.1177/1745691612460686}
-
-\leavevmode\vadjust pre{\hypertarget{ref-frank2023}{}}%
-Frank MC, Braginsky M, Cachia J, Coles N, Hardwicke T, Hawkins R, Mathur MB, Williams R (2023) Experimentology: An open science approach to experimental psychology methods.
-
-\leavevmode\vadjust pre{\hypertarget{ref-gelman2018}{}}%
-Gelman A (2018/ed) Don't characterize replications as successes or failures. \emph{Behav Brain Sci} \textbf{41}:e128. doi:\href{https://doi.org/10.1017/S0140525X18000638}{10.1017/S0140525X18000638}
-
-\leavevmode\vadjust pre{\hypertarget{ref-gilbert2016}{}}%
-Gilbert DT, King G, Pettigrew S, Wilson TD (2016) Comment on {``{Estimating} the reproducibility of psychological science.''} \emph{Science} \textbf{351}:1037--1037. doi:\href{https://doi.org/10.1126/science.aad7243}{10.1126/science.aad7243}
-
-\leavevmode\vadjust pre{\hypertarget{ref-greenwald1976}{}}%
-Greenwald AG (1976) Within-subjects designs: To use or not to use? \emph{Psychological Bulletin} \textbf{83}:314
+\begin{CSLReferences}{0}{0}
+\leavevmode\vadjust pre{\hypertarget{ref-klein2022}{}}%
+\CSLLeftMargin{1. }%
+\CSLRightInline{Klein RA, Cook CL, Ebersole CR, Vitiello C, Nosek BA, Hilgard J, et al. Many {Labs} 4: {Failure} to {Replicate Mortality Salience Effect With} and {Without Original Author Involvement}. Collabra: Psychology {[}Internet{]}. 2022 Apr 29 {[}cited 2023 Feb 10{]};8(1):35271. Available from: \url{https://doi.org/10.1525/collabra.35271}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-hagger2016}{}}%
-Hagger MS, Chatzisarantis NLD, Alberts H, Anggono CO, Batailler C, Birt AR, Brand R, Brandt MJ, Brewer G, Bruyneel S, Calvillo DP, Campbell WK, Cannon PR, Carlucci M, Carruth NP, Cheung T, Crowell A, De Ridder DTD, Dewitte S, Elson M, Evans JR, Fay BA, Fennis BM, Finley A, Francis Z, Heise E, Hoemann H, Inzlicht M, Koole SL, Koppel L, Kroese F, Lange F, Lau K, Lynch BP, Martijn C, Merckelbach H, Mills NV, Michirev A, Miyake A, Mosser AE, Muise M, Muller D, Muzi M, Nalis D, Nurwanti R, Otgaar H, Philipp MC, Primoceri P, Rentzsch K, Ringos L, Schlinkert C, Schmeichel BJ, Schoch SF, Schrama M, Schütz A, Stamos A, Tinghög G, Ullrich J, vanDellen M, Wimbarti S, Wolff W, Yusainy C, Zerhouni O, Zwienenberg M (2016) A {Multilab Preregistered Replication} of the {Ego-Depletion Effect}. \emph{Perspect Psychol Sci} \textbf{11}:546--573. doi:\href{https://doi.org/10.1177/1745691616652873}{10.1177/1745691616652873}
-
-\leavevmode\vadjust pre{\hypertarget{ref-hawkins2018}{}}%
-Hawkins RD, Smith EN, Au C, Arias JM, Catapano R, Hermann E, Keil M, Lampinen A, Raposo S, Reynolds J, Salehi S, Salloum J, Tan J, Frank MC (2018) Improving the replicability of psychological science through pedagogy. \emph{Advances in Methods and Practices in Psychological Science} \textbf{1}:7--18
-
-\leavevmode\vadjust pre{\hypertarget{ref-hoogeveen2019}{}}%
-Hoogeveen S, Sarafoglou A, Wagenmakers E-J (2019) Laypeople {Can Predict Which Social Science Studies Replicate}. preprint. {PsyArXiv}. Available from: \url{https://osf.io/egw9d} {[}Last accessed 30 September 2019{]}. doi:\href{https://doi.org/10.31234/osf.io/egw9d}{10.31234/osf.io/egw9d}
-
-\leavevmode\vadjust pre{\hypertarget{ref-klein2014}{}}%
-Klein RA, Ratliff KA, Vianello M, Adams RB, Bahník án, Bernstein MJ,..., Nosek BA (2014) Investigating {Variation} in {Replicability}: {A} {``{Many Labs}''} {Replication Project}. \emph{Social Psychology} \textbf{45}:142--152. doi:\href{https://doi.org/10.1027/1864-9335/a000178}{10.1027/1864-9335/a000178}
-
-\leavevmode\vadjust pre{\hypertarget{ref-klein2018}{}}%
-Klein RA, Vianello M, Hasselman F, Adams BG, Adams RB, Alper S,..., Nosek BA (2018) Many {Labs} 2: {Investigating Variation} in {Replicability Across Samples} and {Settings}. \emph{Adv Methods Pract Psychol Sci} \textbf{1}:443--490. doi:\href{https://doi.org/10.1177/2515245918810225}{10.1177/2515245918810225}
-
-\leavevmode\vadjust pre{\hypertarget{ref-klein2022}{}}%
-Klein RA, Cook CL, Ebersole CR, Vitiello C, Nosek BA, Hilgard J, Ahn PH, Brady AJ, Chartier CR, Christopherson CD, Clay S, Collisson B, Crawford JT, Cromar R, Gardiner G, Gosnell CL, Grahe J, Hall C, Howard I, Joy-Gaba JA, Kolb M, Legg AM, Levitan CA, Mancini AD, Manfredi D, Miller J, Nave G, Redford L, Schlitz I, Schmidt K, Skorinko JLM, Storage D, Swanson T, Van Swol LM, Vaughn LA, Vidamuerte D, Wiggins B, Ratliff KA (2022) Many {Labs} 4: {Failure} to {Replicate Mortality Salience Effect With} and {Without Original Author Involvement}. \emph{Collabra: Psychology} \textbf{8}:35271. doi:\href{https://doi.org/10.1525/collabra.35271}{10.1525/collabra.35271}
-
-\leavevmode\vadjust pre{\hypertarget{ref-mathur2020}{}}%
-Mathur MB, VanderWeele TJ (2020) New statistical metrics for multisite replication projects. \emph{J R Stat Soc Ser A Stat Soc} \textbf{183}:1145--1166. doi:\href{https://doi.org/10.1111/rssa.12572}{10.1111/rssa.12572}
-
-\leavevmode\vadjust pre{\hypertarget{ref-olsson2020}{}}%
-Olsson-Collentine A, Assen MA van, Wicherts J (2020) Heterogeneity in direct replications in psychology and its association with effect size.
+\CSLLeftMargin{2. }%
+\CSLRightInline{Hagger MS, Chatzisarantis NLD, Alberts H, Anggono CO, Batailler C, Birt AR, et al. A {Multilab Preregistered Replication} of the {Ego-Depletion Effect}. Perspect Psychol Sci {[}Internet{]}. 2016 Jul 1 {[}cited 2023 Apr 27{]};11(4):546--73. Available from: \url{https://doi.org/10.1177/1745691616652873}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-openscienceconsortium2015}{}}%
-Open Science Consortium (2015) \href{https://www.science.org/doi/full/10.1126/science.aac4716?casa_token=IJ35TwwlcjsAAAAA\%3AqiP68QbVAHleIg9zD3WugKWuV6Oa5rswS0VQnDsCq5I14ME4WIQabNGVD_T6SBSuAt6voVHNnWc0sw}{Estimating the reproducibility of psychological science}. \emph{Science}
-
-\leavevmode\vadjust pre{\hypertarget{ref-patil2016}{}}%
-Patil P, Peng RD, Leek JT (2016) What {Should Researchers Expect When They Replicate Studies}? {A Statistical View} of {Replicability} in {Psychological Science}. \emph{Perspect Psychol Sci} \textbf{11}:539--544. doi:\href{https://doi.org/10.1177/1745691616646366}{10.1177/1745691616646366}
-
-\leavevmode\vadjust pre{\hypertarget{ref-protzko2020}{}}%
-Protzko J, Krosnick J, Nelson LD, Nosek BA, Axt J, Berent M, Buttrick N, DeBell M, Ebersole CR, Lundmark S, MacInnis B, O'Donnell M, Perfecto H, Pustejovsky JE, Roeder SS, Walleczek J, Schooler J (2020) High {Replicability} of {Newly-Discovered Social-behavioral Findings} is {Achievable}. preprint. {PsyArXiv}. Available from: \url{https://osf.io/n2a9x} {[}Last accessed 5 April 2023{]}. doi:\href{https://doi.org/10.31234/osf.io/n2a9x}{10.31234/osf.io/n2a9x}
-
-\leavevmode\vadjust pre{\hypertarget{ref-quintana2021}{}}%
-Quintana DS (2021) Replication studies for undergraduate theses to improve science and education. \emph{Nat Hum Behav} \textbf{5}:1117--1118. doi:\href{https://doi.org/10.1038/s41562-021-01192-8}{10.1038/s41562-021-01192-8}
-
-\leavevmode\vadjust pre{\hypertarget{ref-ramscar2015}{}}%
-Ramscar M, Shaoul C, Baayen RH (2015) Why many priming results don't (and won't) replicate: {A} quantitative analysis.
-
-\leavevmode\vadjust pre{\hypertarget{ref-rosenthal2008}{}}%
-Rosenthal R, Rosnow RL (2008) Essentials of behavioral research: Methods and data analysis.
-
-\leavevmode\vadjust pre{\hypertarget{ref-simmons2011}{}}%
-Simmons JP, Nelson LD, Simonsohn U (2011) False-positive psychology: Undisclosed flexibility in data collection and analysis allows presenting anything as significant. \emph{Psychological science} \textbf{22}:1359--1366
-
-\leavevmode\vadjust pre{\hypertarget{ref-simonsohn2015}{}}%
-Simonsohn U (2015) Small {Telescopes}: {Detectability} and the {Evaluation} of {Replication Results}. \emph{Psychol Sci} \textbf{26}:559--569. doi:\href{https://doi.org/10.1177/0956797614567341}{10.1177/0956797614567341}
+\CSLLeftMargin{3. }%
+\CSLRightInline{Open Science Consortium. Estimating the reproducibility of psychological science. Science {[}Internet{]}. 2015 {[}cited 2023 Mar 17{]}; Available from: \url{https://www.science.org/doi/full/10.1126/science.aac4716?casa_token=IJ35TwwlcjsAAAAA\%3AqiP68QbVAHleIg9zD3WugKWuV6Oa5rswS0VQnDsCq5I14ME4WIQabNGVD_T6SBSuAt6voVHNnWc0sw}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-smaldino2016}{}}%
-Smaldino PE, McElreath R (2016) The natural selection of bad science. \emph{Royal Society Open Science} \textbf{3}:160384. doi:\href{https://doi.org/10.1098/rsos.160384}{10.1098/rsos.160384}
+\CSLLeftMargin{4. }%
+\CSLRightInline{Smaldino PE, McElreath R. The natural selection of bad science. Royal Society Open Science {[}Internet{]}. 2016 Sep;3(9):160384. Available from: \url{https://doi.org/10.1098\%2Frsos.160384}}
+
+\leavevmode\vadjust pre{\hypertarget{ref-simmons2011}{}}%
+\CSLLeftMargin{5. }%
+\CSLRightInline{Simmons JP, Nelson LD, Simonsohn U. False-positive psychology: Undisclosed flexibility in data collection and analysis allows presenting anything as significant. Psychological science. 2011;22(11):1359--66. }
+
+\leavevmode\vadjust pre{\hypertarget{ref-klein2014}{}}%
+\CSLLeftMargin{6. }%
+\CSLRightInline{Klein RA, Ratliff KA, Vianello M, Adams RB, Bahník án, Bernstein MJ, et al. Investigating {Variation} in {Replicability}: {A} {``{Many Labs}''} {Replication Project}. Social Psychology {[}Internet{]}. 2014 May 1 {[}cited 2023 Feb 10{]};45(3):142--52. Available from: \url{https://econtent.hogrefe.com/doi/10.1027/1864-9335/a000178}}
+
+\leavevmode\vadjust pre{\hypertarget{ref-klein2018}{}}%
+\CSLLeftMargin{7. }%
+\CSLRightInline{Klein RA, Vianello M, Hasselman F, Adams BG, Adams RB, Alper S, et al. Many {Labs} 2: {Investigating Variation} in {Replicability Across Samples} and {Settings}. Adv Methods Pract Psychol Sci {[}Internet{]}. 2018 Dec 1 {[}cited 2023 Feb 10{]};1(4):443--90. Available from: \url{https://doi.org/10.1177/2515245918810225}}
+
+\leavevmode\vadjust pre{\hypertarget{ref-ebersole2016}{}}%
+\CSLLeftMargin{8. }%
+\CSLRightInline{Ebersole CR, Atherton OE, Belanger AL, Skulborstad HM, Allen JM, Banks JB, et al. Many {Labs} 3: {Evaluating} participant pool quality across the academic semester via replication. Journal of Experimental Social Psychology {[}Internet{]}. 2016 Nov 1 {[}cited 2023 Feb 10{]};67:68--82. Available from: \url{https://www.sciencedirect.com/science/article/pii/S0022103115300123}}
+
+\leavevmode\vadjust pre{\hypertarget{ref-camerer2018}{}}%
+\CSLLeftMargin{9. }%
+\CSLRightInline{Camerer CF, Dreber A, Holzmeister F, Ho TH, Huber J, Johannesson M, et al. Evaluating the replicability of social science experiments in {Nature} and {Science} between 2010 and 2015. Nat Hum Behav {[}Internet{]}. 2018 Aug 27 {[}cited 2023 Feb 11{]};2(9):637--44. Available from: \url{https://www.nature.com/articles/s41562-018-0399-z}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-vanbavel2016}{}}%
-Van Bavel JJ, Mende-Siedlecki P, Brady WJ, Reinero DA (2016) Contextual sensitivity in scientific reproducibility. \emph{Proc Natl Acad Sci} \textbf{113}:6454--6459. doi:\href{https://doi.org/10.1073/pnas.1521897113}{10.1073/pnas.1521897113}
+\CSLLeftMargin{10. }%
+\CSLRightInline{Van Bavel JJ, Mende-Siedlecki P, Brady WJ, Reinero DA. Contextual sensitivity in scientific reproducibility. Proc Natl Acad Sci {[}Internet{]}. 2016 Jun 7 {[}cited 2023 Apr 5{]};113(23):6454--9. Available from: \url{https://www.pnas.org/doi/full/10.1073/pnas.1521897113}}
 
-\leavevmode\vadjust pre{\hypertarget{ref-wagge2019}{}}%
-Wagge JR, Brandt MJ, Lazarevic LB, Legate N, Christopherson C, Wiggins B, Grahe JE (2019) \href{https://www.frontiersin.org/articles/10.3389/fpsyg.2019.00247}{Publishing {Research With Undergraduate Students} via {Replication Work}: {The Collaborative Replications} and {Education Project}}. \emph{Front Psychol} \textbf{10}
+\leavevmode\vadjust pre{\hypertarget{ref-ramscar2015}{}}%
+\CSLLeftMargin{11. }%
+\CSLRightInline{Ramscar M, Shaoul C, Baayen RH. Why many priming results don't (and won't) replicate: {A} quantitative analysis. 2015. }
+
+\leavevmode\vadjust pre{\hypertarget{ref-hoogeveen2019}{}}%
+\CSLLeftMargin{12. }%
+\CSLRightInline{Hoogeveen S, Sarafoglou A, Wagenmakers EJ. Laypeople {Can Predict Which Social Science Studies Replicate} {[}Internet{]}. {PsyArXiv}; 2019 Sep {[}cited 2019 Sep 30{]}. Available from: \url{https://osf.io/egw9d}}
+
+\leavevmode\vadjust pre{\hypertarget{ref-dreber2015}{}}%
+\CSLLeftMargin{13. }%
+\CSLRightInline{Dreber A, Pfeiffer T, Almenberg J, Isaksson S, Wilson B, Chen Y, et al. Using prediction markets to estimate the reproducibility of scientific research. Proc Natl Acad Sci {[}Internet{]}. 2015 Dec 15 {[}cited 2023 Mar 17{]};112(50):15343--7. Available from: \url{https://www.pnas.org/doi/abs/10.1073/pnas.1516179112}}
+
+\leavevmode\vadjust pre{\hypertarget{ref-forsell2019}{}}%
+\CSLLeftMargin{14. }%
+\CSLRightInline{Forsell E, Viganola D, Pfeiffer T, Almenberg J, Wilson B, Chen Y, et al. Predicting replication outcomes in the {Many Labs} 2 study. Journal of Economic Psychology {[}Internet{]}. 2019 Dec 1 {[}cited 2023 Mar 17{]};75:102117. Available from: \url{https://www.sciencedirect.com/science/article/pii/S0167487018303283}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-yang2020}{}}%
-Yang Y, Youyou W, Uzzi B (2020) Estimating the deep replicability of scientific findings using human and artificial intelligence. \emph{Proc Natl Acad Sci} \textbf{117}:10762--10768. doi:\href{https://doi.org/10.1073/pnas.1909046117}{10.1073/pnas.1909046117}
+\CSLLeftMargin{15. }%
+\CSLRightInline{Yang Y, Youyou W, Uzzi B. Estimating the deep replicability of scientific findings using human and artificial intelligence. Proc Natl Acad Sci {[}Internet{]}. 2020 May 19 {[}cited 2023 May 15{]};117(20):10762--8. Available from: \url{https://www.pnas.org/doi/10.1073/pnas.1909046117}}
 
 \leavevmode\vadjust pre{\hypertarget{ref-youyou2023}{}}%
-Youyou W, Yang Y, Uzzi B (2023) A discipline-wide investigation of the replicability of {Psychology} papers over the past two decades. \emph{Proc Natl Acad Sci} \textbf{120}:e2208863120. doi:\href{https://doi.org/10.1073/pnas.2208863120}{10.1073/pnas.2208863120}
+\CSLLeftMargin{16. }%
+\CSLRightInline{Youyou W, Yang Y, Uzzi B. A discipline-wide investigation of the replicability of {Psychology} papers over the past two decades. Proc Natl Acad Sci {[}Internet{]}. 2023 Feb 7 {[}cited 2023 Jan 31{]};120(6):e2208863120. Available from: \url{https://www.pnas.org/doi/10.1073/pnas.2208863120}}
+
+\leavevmode\vadjust pre{\hypertarget{ref-altmejd2019}{}}%
+\CSLLeftMargin{17. }%
+\CSLRightInline{Altmejd A, Dreber A, Forsell E, Huber J, Imai T, Johannesson M, et al. Predicting the replicability of social science lab experiments. PLOS ONE {[}Internet{]}. 2019 Dec 5 {[}cited 2023 Mar 17{]};14(12):e0225826. Available from: \url{https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0225826}}
+
+\leavevmode\vadjust pre{\hypertarget{ref-protzko2020}{}}%
+\CSLLeftMargin{18. }%
+\CSLRightInline{Protzko J, Krosnick J, Nelson LD, Nosek BA, Axt J, Berent M, et al. High {Replicability} of {Newly-Discovered Social-behavioral Findings} is {Achievable} {[}Internet{]}. {PsyArXiv}; 2020 Sep {[}cited 2023 Apr 5{]}. Available from: \url{https://osf.io/n2a9x}}
+
+\leavevmode\vadjust pre{\hypertarget{ref-ebersole2020}{}}%
+\CSLLeftMargin{19. }%
+\CSLRightInline{Ebersole CR, Mathur MB, Baranski E, Bart-Plange DJ, Buttrick NR, Chartier CR, et al. Many {Labs} 5: {Testing Pre-Data-Collection Peer Review} as an {Intervention} to {Increase Replicability}. Adv Methods Pract Psychol Sci {[}Internet{]}. 2020 Sep 1 {[}cited 2023 Feb 10{]};3(3):309--31. Available from: \url{https://doi.org/10.1177/2515245920958687}}
+
+\leavevmode\vadjust pre{\hypertarget{ref-etz2016}{}}%
+\CSLLeftMargin{20. }%
+\CSLRightInline{Etz A, Vandekerckhove J. A {Bayesian Perspective} on the {Reproducibility Project}: {Psychology}. PLOS ONE {[}Internet{]}. 2016 Feb 26 {[}cited 2023 Mar 17{]};11(2):e0149794. Available from: \url{https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0149794}}
+
+\leavevmode\vadjust pre{\hypertarget{ref-gilbert2016}{}}%
+\CSLLeftMargin{21. }%
+\CSLRightInline{Gilbert DT, King G, Pettigrew S, Wilson TD. Comment on {``{Estimating} the reproducibility of psychological science.''} Science {[}Internet{]}. 2016 Mar 4 {[}cited 2023 Mar 17{]};351(6277):1037--7. Available from: \url{https://www.science.org/doi/10.1126/science.aad7243}}
+
+\leavevmode\vadjust pre{\hypertarget{ref-patil2016}{}}%
+\CSLLeftMargin{22. }%
+\CSLRightInline{Patil P, Peng RD, Leek JT. \href{https://doi.org/10.1177/1745691616646366}{What {Should Researchers Expect When They Replicate Studies}? {A Statistical View} of {Replicability} in {Psychological Science}}. Perspect Psychol Sci. 2016 Jul;11(4):539--44. }
+
+\leavevmode\vadjust pre{\hypertarget{ref-anderson2016}{}}%
+\CSLLeftMargin{23. }%
+\CSLRightInline{Anderson CJ, Bahník án, Barnett-Cowan M, Bosco FA, Chandler J, Chartier CR, et al. Response to {Comment} on {``{Estimating} the reproducibility of psychological science.''} Science {[}Internet{]}. 2016 Mar 4 {[}cited 2023 Apr 4{]};351(6277):1037--7. Available from: \url{https://www.science.org/doi/10.1126/science.aad9163}}
+
+\leavevmode\vadjust pre{\hypertarget{ref-rosenthal2008}{}}%
+\CSLLeftMargin{24. }%
+\CSLRightInline{Rosenthal R, Rosnow RL. Essentials of behavioral research: Methods and data analysis. 2008. }
+
+\leavevmode\vadjust pre{\hypertarget{ref-greenwald1976}{}}%
+\CSLLeftMargin{25. }%
+\CSLRightInline{Greenwald AG. Within-subjects designs: To use or not to use? Psychological Bulletin. 1976;83(2):314. }
+
+\leavevmode\vadjust pre{\hypertarget{ref-frank2023}{}}%
+\CSLLeftMargin{26. }%
+\CSLRightInline{Frank MC, Braginsky M, Cachia J, Coles N, Hardwicke T, Hawkins R, et al. Experimentology: An open science approach to experimental psychology methods. Boston, MA: MIT Press; 2023. }
+
+\leavevmode\vadjust pre{\hypertarget{ref-simonsohn2015}{}}%
+\CSLLeftMargin{27. }%
+\CSLRightInline{Simonsohn U. Small {Telescopes}: {Detectability} and the {Evaluation} of {Replication Results}. Psychol Sci {[}Internet{]}. 2015 May 1 {[}cited 2023 Apr 4{]};26(5):559--69. Available from: \url{https://doi.org/10.1177/0956797614567341}}
+
+\leavevmode\vadjust pre{\hypertarget{ref-gelman2018}{}}%
+\CSLLeftMargin{28. }%
+\CSLRightInline{Gelman A. Don't characterize replications as successes or failures. Behav Brain Sci {[}Internet{]}. 2018/ed {[}cited 2023 Apr 4{]};41:e128. Available from: \url{https://www.cambridge.org/core/journals/behavioral-and-brain-sciences/article/abs/dont-characterize-replications-as-successes-or-failures/1AB661F1E7A08E9C5870258878DBA0EA}}
+
+\leavevmode\vadjust pre{\hypertarget{ref-mathur2020}{}}%
+\CSLLeftMargin{29. }%
+\CSLRightInline{Mathur MB, VanderWeele TJ. New statistical metrics for multisite replication projects. J R Stat Soc Ser A Stat Soc {[}Internet{]}. 2020 {[}cited 2023 Apr 4{]};183(3):1145--66. Available from: \url{https://onlinelibrary.wiley.com/doi/abs/10.1111/rssa.12572}}
+
+\leavevmode\vadjust pre{\hypertarget{ref-olsson2020}{}}%
+\CSLLeftMargin{30. }%
+\CSLRightInline{Olsson-Collentine A, Assen MA van, Wicherts J. Heterogeneity in direct replications in psychology and its association with effect size. 2020; }
+
+\leavevmode\vadjust pre{\hypertarget{ref-crump2013}{}}%
+\CSLLeftMargin{31. }%
+\CSLRightInline{Crump MJC, McDonnell JV, Gureckis TM. Evaluating {Amazon}'s {Mechanical Turk} as a {Tool} for {Experimental Behavioral Research}. PLOS ONE {[}Internet{]}. 2013 Mar 13 {[}cited 2020 Sep 30{]};8(3):e57410. Available from: \url{https://journals.plos.org/plosone/article?id=10.1371/journal.pone.0057410}}
+
+\leavevmode\vadjust pre{\hypertarget{ref-carvalho09}{}}%
+\CSLLeftMargin{32. }%
+\CSLRightInline{Carvalho CM, Polson NG, Scott JG. Handling sparsity via the horseshoe. In: Dyk D van, Welling M, editors. Proceedings of the twelth international conference on artificial intelligence and statistics {[}Internet{]}. Hilton Clearwater Beach Resort, Clearwater Beach, Florida USA: PMLR; 2009. p. 73--80. (Proceedings of machine learning research; vol. 5). Available from: \url{https://proceedings.mlr.press/v5/carvalho09a.html}}
+
+\leavevmode\vadjust pre{\hypertarget{ref-quintana2021}{}}%
+\CSLLeftMargin{33. }%
+\CSLRightInline{Quintana DS. Replication studies for undergraduate theses to improve science and education. Nat Hum Behav {[}Internet{]}. 2021 Sep {[}cited 2023 Apr 4{]};5(9, 9):1117--8. Available from: \url{https://www.nature.com/articles/s41562-021-01192-8}}
+
+\leavevmode\vadjust pre{\hypertarget{ref-wagge2019}{}}%
+\CSLLeftMargin{34. }%
+\CSLRightInline{Wagge JR, Brandt MJ, Lazarevic LB, Legate N, Christopherson C, Wiggins B, et al. Publishing {Research With Undergraduate Students} via {Replication Work}: {The Collaborative Replications} and {Education Project}. Front Psychol {[}Internet{]}. 2019 {[}cited 2023 Apr 4{]};10. Available from: \url{https://www.frontiersin.org/articles/10.3389/fpsyg.2019.00247}}
+
+\leavevmode\vadjust pre{\hypertarget{ref-frank2012}{}}%
+\CSLLeftMargin{35. }%
+\CSLRightInline{Frank MC, Saxe R. Teaching {Replication}: Perspect Psychol Sci {[}Internet{]}. 2012 Nov 7 {[}cited 2020 Sep 14{]}; Available from: \url{https://journals.sagepub.com/doi/10.1177/1745691612460686}}
+
+\leavevmode\vadjust pre{\hypertarget{ref-hawkins2018}{}}%
+\CSLLeftMargin{36. }%
+\CSLRightInline{Hawkins RD, Smith EN, Au C, Arias JM, Catapano R, Hermann E, et al. Improving the replicability of psychological science through pedagogy. Advances in Methods and Practices in Psychological Science. 2018 Mar;1(1):7--18. }
+
+\leavevmode\vadjust pre{\hypertarget{ref-osfdata}{}}%
+\CSLLeftMargin{37. }%
+\CSLRightInline{Boyce V. Meta analysis of class replication projects from PSYCH251 {[}Internet{]}. OSF; 2023. Available from: \href{https://osf.io/xwn9m}{osf.io/xwn9m}}
+
+\leavevmode\vadjust pre{\hypertarget{ref-brms}{}}%
+\CSLLeftMargin{38. }%
+\CSLRightInline{Bürkner PC. \href{https://doi.org/10.18637/jss.v080.i01}{{brms}: An {R} package for {Bayesian} multilevel models using {Stan}}. Journal of Statistical Software. 2017;80(1):1--28. }
 
 \end{CSLReferences}
 
