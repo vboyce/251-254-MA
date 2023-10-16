@@ -1,24 +1,26 @@
 
 \documentclass{stanfordletter}
-%\makelabels
+\makelabels
 \usepackage{todonotes}
 \usepackage{varioref}
 \usepackage{xr}
-%\externaldocument[paper-]{../revision}
+\externaldocument[paper-]{../revision}
 \usepackage[american]{babel}
 \usepackage{csquotes}
 \usepackage[backend=biber,style=apa,doi=false,url=false,hyperref=true,apamaxprtauth=30,uniquename=false]{biblatex}
+\usepackage{framed}
 \DeclareLanguageMapping{american}{american-apa}
 %\bibliography{../draft0}
 \newcommand{\citet}[1]{\textcite{#1}}
 \newcommand{\citep}[1]{\parencite{#1}}
 
-%\makelabels
+\makelabels
 \newcommand{\theysaid}[1]{\begin{leftbar} \noindent 
 		\textsl{ #1}\end{leftbar}}
 \newcommand{\revised}[1]{\begin{quote}		#1 \end{quote}}
 
-
+\usepackage{longtable,booktabs,array}
+\usepackage{float}
 \begin{document}
 	\name{Veronica Boyce}
 	\signature{Veronica Boyce \\ Maya Mathur \\ Michael C. Frank}
@@ -36,22 +38,26 @@
           
           \theysaid{Both reviewers were in agreement that the manuscript is well written and describes a dataset and series of analyses that will be of interest to the readers of the journal. There were only a few minor points that they like to see addressed and responded to before it can be published. We would like to see your responses to these suggestions.}
           
-          \theysaid{Reviewer comments to Author:
+          \theysaid{Reviewer comments to Author:\\
+          Reviewer: 1 \\
+          Comments to the Author(s)}
           
-          Reviewer: 1
-          Comments to the Author(s)
-          I have read this manuscript with great enthusiasm. It provides an important infusion of new data into a field that is very much oversaturated with analyses of what little data there is.
-        }
+          \theysaid{I have read this manuscript with great enthusiasm. It provides an important infusion of new data into a field that is very much oversaturated with analyses of what little data there is.}
         
-        \theysaid{
-          
-          I find the report to be clearly written, well-documented, of a sensible length, and appropriately cautious when discussing the generalizability and potential causal implications of the reported results. But for a single minor issue, I believe the report could be accepted as is.
-          
-          The only thing I miss in the current manuscript is some description/discussion of how close/conceptual replications in the sample tended to be. See LeBel et. al. (2018, figure 1; https://doi.org/10.1177/2515245918787489) for a taxonomy of replication closeness. It would not need to be a long section, and I am not saying the authors need to code closeness for all studies included, or anything like that. However, I recommend adding a short paragraph to give readers a sense of how closely the original procedures were followed in the replications (on average/in general). The rationale being that I would generally expect a higher replication rate the closer replication procedures are to the original. Having a sense of what mix of close/conceptual replications in this sample is thus relevant for my interpretation of the overall replicability estimate.}
+        \theysaid{I find the report to be clearly written, well-documented, of a sensible length, and appropriately cautious when discussing the generalizability and potential causal implications of the reported results. But for a single minor issue, I believe the report could be accepted as is.}
+        
+          \theysaid{The only thing I miss in the current manuscript is some description/discussion of how close/conceptual replications in the sample tended to be. See LeBel et. al. (2018, figure 1; https://doi.org/10.1177/2515245918787489) for a taxonomy of replication closeness. It would not need to be a long section, and I am not saying the authors need to code closeness for all studies included, or anything like that. However, I recommend adding a short paragraph to give readers a sense of how closely the original procedures were followed in the replications (on average/in general). The rationale being that I would generally expect a higher replication rate the closer replication procedures are to the original. Having a sense of what mix of close/conceptual replications in this sample is thus relevant for my interpretation of the overall replicability estimate.
+          }
           
           TODO our response!
           
           We've added TODO what we add
+          
+          can't always tell if close or very close b/c had to guess based on whether materials were open and whether student mentioned having received from authors. 
+          
+		student reports has a "differences" section -- this combined with platform and open materials and if they mentioned getting materials from authors. 
+		
+		not quite sure how to code in some cases
           
           We considered coding for closeness (and started to do so in a preliminary stage) but couldn't come up with a scheme that felt meaningfully uniform. We thank the reviewer for the pointer to LeBel!
           
@@ -67,6 +73,11 @@
           
           
           This is why we're careful to frame as "how well can grad students redo" -- closeness was dependent on factors like avialable and ease, and varies by study in how much it calls into question the original study results. 
+          
+          coded based on what is being analyzed -- sometimes there were additional measures in original or this is the behavioral portion of an fmri etc
+          
+          assuming that switching from college to crowdsourced is not a difference in sample 
+          and that reducing number of trials (ex. in trade-off with number of participants) doesn't prevent "close
           
           \theysaid{Reviewer: 2
           	Comments to the Author(s)
@@ -103,6 +114,8 @@
           	5. I was curious whether the authors considered inviting the graduate students who ran the studies as co-authors/contributors on this paper. I could see good reasons for either decision, but just wanted to raise the question.
           }
           
+          Coauthors: In prior collaborations with students, we have invited students prospectively to be co-authors (Hawkins et al., 2018; Hardwicke et al., 2018). In those projects, we gave opportunities to engage with the research design throughout the process as well as approval over the manuscript. In this case, our study was based on retrospective coding of a large sample of projects. We had no assurance that we could contact all students for input (and had we been able to reach them, they might not have been interested). Further, we did not see ways that we could engage them with the research design prospectively to provide meaningful opportunities for contribution. Instead, we viewed this study as an archival investigation of course records - a meta-analysis of gray literature. (Note that we did attempt to contact all students to alert them to the project and provide them with an opportunity to include their course project in the shared materials).
+          
           \theysaid{
           	6. Personally, I was curious about how the "date of original study publication" fared as a predictor, as well as whether being published in Psych Science was a predictor (I have a conflict of interest in asking about this, I am the incoming editor in chief of Psych Science).  Of course readers can presumably analyze these themselves, but I wonder if it would be worth including at least publication year, as that was in the preregistration (and I also thought of it before looking at the preregistration, and I expect other readers might wonder the same thing).
           }
@@ -110,16 +123,80 @@
           
           Psych Science makes up TODO \% of the sample, so we couldn't really use it as a predictor, since other journals are much much less represented. 
           
+          But, for your edification, we did run the descriptive summary and the bivariate correlates on the Psych Science subsample. 
+         
           
+          We were unable to use journal as a predictor in the models because of very uneven representation across journals. By far the most represented journal was Psychological Science, with 80 original papers. Other journals had at most a few papers in the sample.
+          
+          Here we present bivariate analyses on the subset of the data coming from Psych Science. This is a post-hoc split of the data.
+          
+          Overall, this split looks similar to the overall sample. Of note, publication year is correlated with replication success in this sample, but is not substantially correlated overall.
+          
+\begin{center}
+          
+          Descriptive properties of the Psych Science portion of the replication dataset. For categorical features, counts and percentages are given. For continuous features, the median value and interquartile range are given. 
+
+          \fontsize{10}{12}\selectfont
+          \begin{tabular}[t]{lc}
+          	\toprule
+          	Feature & Summary\\
+          	\midrule
+          	Subfield & \\
+          	\hspace{1em}Cognitive & 23 (29\%)\\
+          	\hspace{1em}Social & 39 (49\%)\\
+          	\hspace{1em}Other psych & 15 (19\%)\\
+          	\hspace{1em}Non-psych & 3 (3.8\%)\\
+          	Open data & 35 (44\%)\\
+          	Open materials & 50 (63\%)\\
+          	Switch from in-person to online & 33 (41\%)\\
+          	Original authors at Stanford & 6 (7.5\%)\\
+          	Within subjects design & 36 (45\%)\\
+          	Single vignette & 41 (51\%)\\
+          	Number of trials & 4 (1, 59)\\
+          	Publication Year & 2016 (2014, 2017)\\
+          	Original sample size & 97 (48, 155)\\
+          	Replication sample size & 61 (30, 125)\\
+          	Ratio of replication/original sample sizes & 0.79 (0.47, 1.05)\\
+          	Original effect size (SMD) & 0.61 (0.47, 0.99)\\
+          	Original p-value & 0.0003 (0.0000, 0.0070)\\
+          	\bottomrule
+          \end{tabular}
+
+          
+
+          
+     The unadjusted Pearson correlations between each individual predictor and the subjective replication score for the Psych Science subsample.
+
+          \fontsize{10}{12}\selectfont
+          \begin{tabular}[t]{ccl}
+          	\toprule
+          	r & p & Predictors\\
+          	\midrule
+          	0.397 & 0.000 & Within participants design (versus between participants)\\
+          	0.297 & 0.007 & Publication year\\
+          	0.288 & 0.010 & Open data\\
+          	0.214 & 0.057 & Non psychology (versus cognitive psych)\\
+          	0.171 & 0.130 & Log number of  trials\\
+          	0.167 & 0.139 & Other psychology (versus cognitive psych)\\
+          	0.030 & 0.790 & Open materials\\
+          	-0.052 & 0.644 & Log original sample size\\
+          	-0.114 & 0.315 & Log ratio between replication and original sample sizes\\
+          	-0.163 & 0.149 & Stanford affiliation of original authors at time of replication\\
+          	-0.255 & 0.022 & Switch to online for replication (versus same modality for original and replication)\\
+          	-0.268 & 0.016 & Social psychology (versus cognitive psych)\\
+          	-0.311 & 0.005 & Single vignette (versus multiple items/inductions per condition)\\
+          	\bottomrule
+          \end{tabular}
+          \end{center}
+
+Notably, the Psych Science subsample is pretty similar descriptively to the overall sample. The biggest difference in the bi-variate correlations is the Publication Year is correlated with replication success in the Psych Science portion, but not the overall sample (possible due to more limited time frame for Psych Science, and substantial changes in how the journal was run during that time frame). 
           	\theysaid{
-          	Minor typos:
-          	section 2.1 "of replications has outcomes with" should be "had"
+          	Minor typos:\\
+          	section 2.1 "of replications has outcomes with" should be "had"\\
           	section 4.3 "ramapped" should be "remapped"
           }
           Fixed, thank you!
           
-          
-         
           
           \closing{Sincerely,}
 		

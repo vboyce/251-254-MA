@@ -209,9 +209,8 @@ In sum, our current study examines the overall rate of replicability as well as 
 
 
 ```{r, include=F}
-matching <- d |> filter(include!="unusable") |> mutate(match=ifelse(replicated_instructor_code==replicated_report_code,1,0)) |> group_by(match) |> tally()
+matching <- d |>  mutate(match=ifelse(replicated_instructor_code==replicated_report_code,1,0)) |> group_by(match) |> tally()
 
-d |> filter(include!="unusable")
 irr <- cor.test(d$replicated_instructor_code, d$replicated_report_code, method="spearman")$estimate
 pred_int_avail <- d |> filter(include %in% c("stats", "pred_int")) |> tally()
 
@@ -226,7 +225,13 @@ PSYCH 251 is a graduate-level experimental methods class in experimental psychol
 
 The sample of replicated studies reflects the variability of the literature, including studies from different subfields (and occasionally fields outside of psychology), with different experimental methods and statistical outcomes. We leveraged naturally occurring variability in this sample of replications to examine how different demographic, experimental design, and statistical properties predict replication success. 
 
-These replications were all conducted on short time scales, within a constrained class budget. In some cases the budget limited the number of participants who could be recruited, occasionally below what the original study included or what power analyses suggested. The replications had a median post-exclusion sample size that was `r round(ratio_dist[3]*100)`% of the original sample size.  In nearly all cases, replications were conducted online, with recruitment from Amazon Mechanical Turk (the default from 2011 to 2020) or Prolific (the default from 2021 -- 2022). 
+
+```{r}
+closeness <- d |> group_by(how_close) |> tally() |> mutate(pct=(n/sum(n)*100) |> round())
+
+```
+
+These replications were all conducted on short time scales, within a constrained class budget. In some cases the budget limited the number of participants who could be recruited, occasionally below what the original study included or what power analyses suggested. The replications had a median post-exclusion sample size that was `r round(ratio_dist[3]*100)`% of the original sample size.  In nearly all cases, replications were conducted online, with recruitment from Amazon Mechanical Turk (the default from 2011 to 2020) or Prolific (the default from 2021 -- 2022). The goal was for replications to be as close as possible to the original, but budgetary constraints, inability to option original materials, and primarily using online samples meant that replications varied in their degree of closeness to the original. According to the schema from @lebel2018, `r pluck(closeness,3,2)`% of studies were exact replications, `r pluck(closeness,3,4)`% were very close replications, `r pluck(closeness,3,1)`% were close replications, and `r pluck(closeness,3,3)` were far replications (See Methods for more details on common deviations).
 
 Many different measures can be used to define replication success of an individual statistical result [@simonsohn2015; @gelman2018; @mathur2020].  However, whether a replication should be considered successful is not always dependent on only one statistical comparison between the two studies. Often in original papers, multiple statistical tests are cited in support of the claim that a pattern of results matches a particular theoretical expectation. 
 
@@ -336,7 +341,7 @@ desc <- d %>% mutate(target_d_calc=ifelse(include=="stats", target_d_calc, NA),
                  single_vignette ~ "Single vignette",
                  open_data ~ "Open data",
                  open_materials ~ "Open materials",
-                 within_between ~ "Within subjects design",
+                 within_between ~ "Within participants design",
                  repeated_measure ~ "Number of trials",
                  target_N ~ "Original sample size",
                  replication_N ~ "Replication sample size",
@@ -418,9 +423,12 @@ We investigated what features of the original study and replication were correla
 Many predictors correlated with subjective replication success using unadjusted Pearson correlations (Table \ref{tab:cor}). Predictors of higher replicability included within-participants designs, larger numbers of trials per participant, and the original study having openly accessible data. Predictors of lower replicability included single-vignette studies (those with only one experimental stimulus per condition), classification as social psychology, and study pairs where the original study was in-person and the replication switched to online. 
 
 ```{r corr-plot, out.height="40%", fig.width=8, fig.height=4.5, fig.pos="ht", fig.cap="Correlations between predictors. See TODO Table 1 or Methods for descriptions. "}
-dat <-  for_cor %>% mutate(cognitive=ifelse(subfield=="cognitive",1,0)) %>% select(-sub_rep, -subfield) 
+dat <-  for_cor %>% mutate(cognitive=ifelse(subfield=="cognitive",1,0)) %>% select(-sub_rep, -subfield) %>% select( "social", "cognitive", "other_psych", "non_psych","is_within", "single_vignette", "stanford", "change_platform", "open_data", "open_mat", "pub_year", "log_trials", "log_sample", "log_ratio_ss", )
+
 
 corr_mat <- round(cor(dat),2) 
+
+corr_mat[lower.tri(corr_mat)] <- NA
 
 # Install and load reshape2 package
 
@@ -431,20 +439,22 @@ melted_corr_mat <-melt(corr_mat) %>%
          value=ifelse(Var1 %in% c("cognitive", "non_psych", "other_psych", "social") &
                         Var2 %in% c("cognitive", "non_psych", "other_psych", "social"),
                       NA, value)) %>% 
-  mutate(Var1=factor(Var1, levels=c("social", "cognitive", "other_psych", "non_psych", "is_within", "single_vignette", "stanford", "change_platform", "open_data", "open_mat", "pub_year", "log_trials", "log_sample", "log_ratio_ss"), labels=c("Social psych", "Cognitive psych", "Other psych", "Non-psych", "Within participants design", "Single vignette ","Stanford affiliated", "Switch to online", "Open data", "Open materials", "Publication year", "Log # of trials", "Log original sample size", "Log ratio rep/original sample sizes")),
-         Var2=factor(Var2, levels=c("social", "cognitive", "other_psych", "non_psych", "is_within", "single_vignette", "stanford", "change_platform", "open_data", "open_mat", "pub_year", "log_trials", "log_sample", "log_ratio_ss"), labels=c("Social psych", "Cognitive psych", "Other psych", "Non-psych", "Within participants design", "Single vignette ","Stanford affiliated", "Switch to online", "Open data", "Open materials", "Publication year", "Log # of trials", "Log original sample size", "Log ratio rep/original sample sizes")))
+    filter(Var1!="log_ratio_ss") |> 
+  mutate(Var1=factor(Var1, levels=c("social", "cognitive", "other_psych", "non_psych", "is_within", "single_vignette", "stanford", "change_platform", "open_data", "open_mat", "pub_year", "log_trials", "log_sample", "log_ratio_ss"), labels=c("Social psych", "Cognitive psych", "Other psych", "Non-psych", "Within participants design", "Single vignette ","Stanford affiliated", "Switch to online", "Open data", "Open materials", "Publication year", "Log # of trials", "Log original sample size", "Log ratio rep/original sample sizes"))) |> 
+           filter(!Var2 %in% c("social", "cognitive","other_psych", "non_psych")) |> 
+         mutate(Var2=factor(Var2, levels=c("social", "cognitive", "other_psych", "non_psych", "is_within", "single_vignette", "stanford", "change_platform", "open_data", "open_mat", "pub_year", "log_trials", "log_sample", "log_ratio_ss"), labels=c("Social psych", "Cognitive psych", "Other psych", "Non-psych", "Within participants design", "Single vignette ","Stanford affiliated", "Switch to online", "Open data", "Open materials", "Publication year", "Log # of trials", "Log original sample size", "Log ratio rep/original sample sizes"))) 
 
 # plotting the correlation heatmap
 ggplot(data = melted_corr_mat, aes(x=Var1, y=Var2,
                                    fill=value)) + #scale_fill_viridis()+
   theme_classic()+
+      scale_y_discrete(limits=rev)+
   scale_fill_gradient2(low="#763386",high="#FDE725FF", na.value="grey")+
   labs(x="", y="")+
   geom_tile(alpha=.7)+
   theme(axis.text.x = element_text(angle = 40, vjust = 1, hjust=1), legend.position="none")+
   geom_text(aes(label=value), size=3)
   
-
 
 ```
 Distributions of study outcomes across some of these properties are shown in Figure \ref{fig:predictors-graph}. Both social and cognitive psychology studies were well represented in the replication sample, and the cognitive psychology studies replicated more often than social psychology studies (mean subjective replication scores: `r pluck(cog,2,1) |> round(2)` versus `r pluck(cog,2,4) |> round(2)`). Within and between participants designs were both common, and within-participants designs replicated more often than between-participants designs (mean scores: `r pluck(within,2,2) |> round(2)` versus `r pluck(within,2,1) |> round(2)`). Studies with multiple vignettes replicated more often than single vignetted studies (mean scores: `r pluck(vignette,2,1) |> round(2)` versus `r pluck(vignette,2,2) |> round(2)`). However, there were strong correlations among these experimental features as well as between these experimental features and specific subfields (Figure \ref{fig:corr-plot}). 
@@ -576,12 +586,21 @@ Here, we take a functional approach to assessing replicability, framing both our
 
 We do not interpret our non-replications as indicating the original results were false positives: presumably some were and some were not. There are many possible reasons for the non-replications in this sample. In some cases, the problem may be with the replication, such as too few participants, many exclusions for failed attention checks, or participants speeding through the study. When these issues are diagnosed, they can suggest possible ways to "rescue" the replication by increasing the sample or changing the interface, without altering the underlying experiment; thus, while the replication did not succeed, after some troubleshooting, students may still be able to extend the work in the future. In other cases, there were a priori reasons to distrust the original study, such as exclusion criteria that seemed post-hoc or high-order interaction terms with a small sample. That said, not all scientists recognize the same factors as potential indications of low power or questionable research practices; students conducting these replications generally expected them to succeed. In many -- perhaps most -- non-replications in our sample, it was unclear why the results failed to replicate.
 
-Our results are limited by the sample of studies we included, which are limited in number and may not be representative of the studies of interest to psychologists as a whole. Further, our predictor variables were not manipulated, so they cannot be interpreted as causing (non-)replication, but only as correlational markers. Some of the correlates are most easily interpreted as being about the original study, and others reflect the closeness of the replication to the original. For instance, while within-participants designs are more likely to replicate than between-participants designs, this predictor could also be related to the types of experiments that tend to be run in each design. Given the strong relationship of this factor to replicability, slightly more skepticism and critical reading of between-participants designs may be warranted, but this correlation, by itself, does not mean scientists should prefer within-participants designs. 
+Our results are limited by the sample of studies we included, which are limited in number and may not be representative of the studies of interest to psychologists as a whole. Further, our predictor variables were not manipulated, so they cannot be interpreted as causing (non-)replication, but only as correlational markers. Some of the correlates are most easily interpreted as being about the original study, and others reflect the closeness of the replication to the original. 
+
+For instance, while within-participants designs are more likely to replicate than between-participants designs, this predictor could also be related to the types of experiments that tend to be run in each design. Additionally, as @greenwald1976 notes, within-participants designs can lead to practice effects, carry-over of treatments, and critically, sensitization effects, where participants reason about the contrast between conditions and respond differently due to that reasoning. Sensitization effects are a threat to internal validity, and could be replicable even in the absence of the effect itself being replicable.  Given the strong relationship of within-participants designs to replicability, slightly more skepticism and critical reading of between-participants designs may be warranted, but this correlation, by itself, does not mean scientists should prefer within-participants designs. 
 
 Large scale replication studies are costly and arduous. The batch of replications presented here were pedagogical replications, done as part of a class. Trainees must learn experimental methods, and conducting replications as part of methods classes serves several purposes: it enables students to learn to do experiments in a supportive context, it often leads to more useful results than if students designed their own experiments from scratch, and it creates a resource for studying the literature [@quintana2021; @wagge2019;@frank2012; @hawkins2018]. We believe that this kind of pedagogy has an important role to play in improving methodological practices in psychology more broadly. The tools and workflows of rigorous, replicable science cannot simply be mandated: they have to be learned.
 
 # Methods
-Our pre-registration, code, and coded data are available at https://osf.io/xwn9m/ [@osfdata]. <!--TODO VIEW ONLY https://osf.io/xwn9m/?view_only=ebb6df1ae97045cfa5154d6119ec20b1-->
+Our pre-registration, code, and coded data are available at https://osf.io/xwn9m/ [@osfdata]. 
+
+At the onset of this project, all authors had some familiarity with the dataset. MCF taught PSYCH 254/251; MM and VB had each been students in the class. The coding of the data primarily took place before the pre-registration was finalized; the only way for us to know what variables were actually codeable and what forms of missingness were present in the data was to code it. Thus, the pre-registration was a pre-registration of the analyses and a "locking-in" of the coding scheme. VB coded both the predictor variables and was one of the coders of outcome variables, but these were coded in separate passes through the data.  <!--TODO VIEW ONLY https://osf.io/xwn9m/?view_only=ebb6df1ae97045cfa5154d6119ec20b1-->
+
+## Deviations from pre-registration
+The descriptive statistics and bivariate correlations between predictor and outcome variables were not pre-registered. 
+
+In the pre-registration, our research questions mentioned publication journal, but due to the distribution of journals, journal was not a predictor in the pre-registered model plan (or the actual models). Our pre-registration stated that we could not include students names or reports in the released dataset; we ended up letting students opt-in to associating their names with their projects and having their replication report included. Our pre-registration stated that any errors found would be noted; errors are noted in the data spreadsheet of the materials. 
 
 ## Dataset
 
@@ -596,11 +615,20 @@ The dataset of replication projects comes from class projects conducted in PSYCH
 
 Students were free to choose what study to replicate; the recommended path for students who did not have their own ideas was to pick an interesting study from a recent year of Psychological Science (this led to `r nrow(ps)` Psych Science articles in the replication sample, `r round( nrow(ps)/nrow(all)*100)`% of all studies). 
 
+Replications varied in how close they were to the original; while the goal was to replicate the original as closely as possible, some deviations were sometimes necessary. Student reports contained a section listing changes from the original. In response to a reviewer, we attempted to code studies using the classification scheme from @lebel2018. 
+
+Common reasons for replications being very close instead of exact were a switch from in-person to online and lack of access to the original instructions. (It was not always possible to tell if students had access to original wording and presentation style of materials.) Common reason for replications being only close included recreating materials when the original materials were not available and changing materials to fit the audience (ex. switching from UK to US English). (It was not always possible to determine if students had the original materials; in some cases students mentioned trying to obtain materials but did not indicate if they had succeeded.) Less common reasons for replications being only close included changing the number of trials per participant or reducing training periods.
+
+Far replications were rare, but were primarily due to a couple deviations. In some cases an original study had a specific population (ex. high schoolers or hiring managers), and the replication was on a convenience population. The other main reason was changing the language of materials to English when cultural or linguistic factors were potentially relevant to the construct of interest. 
+
+Other common changes (that we did not consider as decreasing the closeness) were switching which convenience population was used (i.e. from college students to crowdworkers or from one crowdwork platform to another), changing or reducing demographic surveys (which were used only in exploratory or secondary analyses, if at all), and removing secondary measures that were not part of the analyses being replicated. 
 Four of the replication projects were included in RP:P, and 10 were previously reported in @hawkins2018 (which reported 11 student replications from the 2015-2016 class; one of those was excluded from the current sample for being non-experimental).  
 
 ## Coding procedure
 
 We relied primarily on student reports to code the measured variables for the replications. We supplemented this with spreadsheets of information about projects from the time of the class and the original papers.
+
+
 
 ### Measures of replication success
 Our primary replication outcome was experimenter and instructor rated replication success. The subjective replication success was recorded by the teaching staff for the majority of class replications at the time they were conducted. Where the values were missing they were filled in by MCF on the basis of the reports. For all studies, replication success was independently coded by VB on the basis of the reports. Where VB’s coding disagreed with the staff/MCF’s code, the difference was resolved by discussion between VB and MCF (`r round(pluck(matching,2,1)/176*100)`% of studies). Subjective replication scores were coded on a [0, .25, .5, .75, 1] scale. 

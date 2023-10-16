@@ -47,7 +47,7 @@ googledrive::drive_download(f, path=here("data","raw_data.xlsx"), overwrite=T)
 raw <- readxl::read_xlsx(here("data","raw_data.xlsx"), sheet="aligned data", skip=1) |> 
   mutate(student_name_shared=ifelse(is.na(student_name_shared), "N/A", student_name_shared),
          replication_report_included=ifelse(is.na(replication_report_included), "no", replication_report_included)) |> 
-  select(target_lastauthor_year, student_name_shared, replication_report_included, sensitivity, include,
+  select(target_lastauthor_year, student_name_shared, replication_report_included, how_close, sensitivity, include,
          status, status_explanation,  academic_year, journal, target_cite, article_link, study_number,  subfield, target_year, stanford_internal, 
          open_data, open_materials, target_on_turk, replication_on_turk, 
          within_between, single_vignette, repeated_measure,
@@ -60,7 +60,7 @@ Read in cache.
 
 ```{r}
 d <- read_csv(here("data", "raw_data.csv")) |> 
-  select(target_lastauthor_year, sensitivity, include,
+  select(target_lastauthor_year, sensitivity, include, how_close,
          status, academic_year, subfield, target_year, stanford_internal, 
          open_data, open_materials, target_on_turk, replication_on_turk, 
          within_between, single_vignette, repeated_measure,
@@ -88,6 +88,13 @@ d |> group_by(include) |> tally()
 d_val <- d |> filter(!status %in% c("missing", "non-experiment", "reproduction", "unusable"))
 ```
 
+# Closeness
+
+```{r}
+ d |> filter(include %in% c("exp","pred_int", "stats")) |> group_by(how_close) |> tally()
+
+
+```
 # Parsing
 
 We parse out values from the raw stats. 

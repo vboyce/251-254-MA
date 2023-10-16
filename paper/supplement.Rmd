@@ -8,6 +8,7 @@ output:
 header-includes:
  - \usepackage{tikz}
  - \usetikzlibrary{positioning,arrows.meta, quotes, shapes}
+ - \usepackage{placeins}
 ---
 
 ```{r setup, include=F}
@@ -51,6 +52,7 @@ The prediction interval and p-original values used for models and point estimate
 
 Of all studies where prediction intervals can be calculated, `r all_true`/`r all` (`r round(all_true/all*100)`%) of the original estimates had prediction intervals that included the replication effect size. For those where we have SMD, `r all_orig_true`/`r all_orig` (`r round(all_orig_true/all_orig*100)`%) of the original estimates had prediction intervals that included the replication effect size, when we use original units where possible.  Using SMD units, `r all_d_true`/`r all_orig` (`r round(all_d_true/all_orig*100)`%) of the original estimates had prediction intervals that included the replication effect size. Allowing for heterogeneity, with tau=.21, `r all_tau`/`r all_orig` (`r round(all_tau/all_orig*100)`%) of the original estimates are distributionally consistent. 
 
+\FloatBarrier
 
 # Additional model results
 
@@ -135,6 +137,7 @@ d |>
   theme(axis.ticks.y=element_blank(), axis.title.y=element_blank())
 ```
 
+\FloatBarrier
 
 ```{r, eval=F}
 do_draws <- function(model){
@@ -240,14 +243,14 @@ knitr::kable(predint, col.names=NULL, align='rrlrlrlrl',position="!h", caption="
 ```
 
 ```{r}
-knitr::kable(predint, col.names=NULL, align='rrlrlrlrl',position="!h", caption="Coefficients and 95\\% CrI from linear models predictiong the p-original value between the original and replicaiton effects. All pairs indicates that all pairs with calculable prediction intervals were used, regardless of whether they had full statistical information; Full stats indicates that only data with full statistical information was used. Sensitivity indicates that it was a sensitivity test.", booktabs=T, linesep="") |> kable_styling() |>  
+knitr::kable(porig, col.names=NULL, align='rrlrlrlrl',position="!h", caption="Coefficients and 95\\% CrI from linear models predictiong the p-original value between the original and replicaiton effects. All pairs indicates that all pairs with calculable prediction intervals were used, regardless of whether they had full statistical information; Full stats indicates that only data with full statistical information was used. Sensitivity indicates that it was a sensitivity test.", booktabs=T, linesep="") |> kable_styling() |>  
   add_header_above(c(" " = 1, "N=136" = 2, "N=112" = 2, "N=100" = 2, "N=82"=2)) |> 
  add_header_above(c(" " = 1, " " = 2, " " = 2, "Sensitivity" = 2, "Sensitivity"=2)) |> add_header_above(c(" " = 1, "All pairs" = 2, "Full stats" = 2, "All pairs" = 2, "Full stats"=2))
   
 
 ```
 
-# Sub sample of Psych Science papers
+<!-- # Sub sample of Psych Science papers
 
 
 
@@ -342,4 +345,4 @@ knitr::kable(cors, digits = 3, align='ccl',format="latex", position="!h", captio
 
 ```
 
-
+-->
