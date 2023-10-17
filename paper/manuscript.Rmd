@@ -320,45 +320,6 @@ On average, there was a diminution of effect sizes from original to replication.
 
 
 
-```{r}
-library(gtsummary)
-theme_gtsummary_language("en", big.mark = "")
-library(kableExtra)
- 
-
-desc <- d %>% mutate(target_d_calc=ifelse(include=="stats", target_d_calc, NA),
-             target_p_calc=ifelse(include=="stats",target_p_calc, NA),
-      switch_modality=ifelse(target_on_turk!=replication_on_turk,1,0),
-         ss_ratio=replication_N/target_N)%>% 
-  select("subfield","open_data", "open_materials","switch_modality",  "stanford_internal","within_between","single_vignette","repeated_measure","target_year","target_N","replication_N", "ss_ratio", "target_d_calc", "target_p_calc") %>% 
-  mutate(subfield=factor(subfield, levels=c("cognitive", "social", "other-psych", "non-psych"), labels=c("Cognitive", "Social", "Other psych", "Non-psych")),
-         within_between=ifelse(within_between=="between", 0, 1)) %>% 
-             tbl_summary(
-               label=list(
-                 subfield ~ "Subfield",
-                 stanford_internal ~ "Original authors at Stanford",
-                 target_year~ "Publication Year",
-                 single_vignette ~ "Single vignette",
-                 open_data ~ "Open data",
-                 open_materials ~ "Open materials",
-                 within_between ~ "Within participants design",
-                 repeated_measure ~ "Number of trials",
-                 target_N ~ "Original sample size",
-                 replication_N ~ "Replication sample size",
-                 ss_ratio ~ "Ratio of replication/original sample sizes",
-                 target_d_calc ~"Original effect size (SMD)",
-                 target_p_calc ~ "Original p-value",
-                 switch_modality ~ "Switch from in-person to online"
-               ),
-               statistic = list(all_continuous() ~ "{mean} ({sd})", all_continuous() ~ "{median} ({p25}, {p75})"),
-               digits=list(target_year ~ 0, target_p_calc ~4),
-    missing="no",
-             ) %>% modify_header(label="Feature", stat_0="Summary") %>% 
-    modify_footnote(update = everything() ~ NA)
-
-as_kable_extra(desc,format="latex", position="!h", caption="Descriptive properties of the replication dataset. For categorical features, counts and percentages are given. For continuous features, the median value and interquartile range are given. N=176 except for original effect size and p-value where N=112. ", booktabs=TRUE, linesep="") |> kable_styling(full_width=F, font_size=10)
-
-```
 
 
 ```{r }
@@ -406,61 +367,54 @@ knitr::kable(cors, digits = 3, align='ccl',format="latex", position="!h", captio
 
 ```
 
-```{r}
 
-within <- for_cor |> group_by(is_within) |> summarize(avg=mean(sub_rep))
-
-cog <- for_cor |> group_by(subfield) |> summarize(avg=mean(sub_rep))
-vignette <- for_cor |> group_by(single_vignette) |> summarize(avg=mean(sub_rep))
-
-```
 
 
 ## Bivariate correlates of replication success
 
-We investigated what features of the original study and replication were correlated with replication success, with the goal of being able to identify potential markers of replicability. We chose a set of predictor variables based on the correlational results of RP:P [@openscienceconsortium2015], our own intuitions of experimental design factors that might impact replication success, and some covariates related to how close the replication was; a full description of these features is given in the Methods. 
+We investigated what features of the original study and replication were correlated with replication success, with the goal of being able to identify potential markers of replicability. We chose a set of predictor variables based on the correlational results of RP:P [@openscienceconsortium2015], our own intuitions of experimental design factors that might impact replication success, and some covariates related to how close the replication was; Table \ref{tab:dist} has descriptive statistics of the distribution of values for these features in the dataset, and a full description of these features is given in the Methods. 
 
-Many predictors correlated with subjective replication success using unadjusted Pearson correlations (Table \ref{tab:cor}). Predictors of higher replicability included within-participants designs, larger numbers of trials per participant, and the original study having openly accessible data. Predictors of lower replicability included single-vignette studies (those with only one experimental stimulus per condition), classification as social psychology, and study pairs where the original study was in-person and the replication switched to online. 
+```{r dist}
+library(gtsummary)
+theme_gtsummary_language("en", big.mark = "")
+library(kableExtra)
+ 
 
-```{r corr-plot, out.height="40%", fig.width=8, fig.height=4.5, fig.pos="ht", fig.cap="Correlations between predictors. See TODO Table 1 or Methods for descriptions. "}
-dat <-  for_cor %>% mutate(cognitive=ifelse(subfield=="cognitive",1,0)) %>% select(-sub_rep, -subfield) %>% select( "social", "cognitive", "other_psych", "non_psych","is_within", "single_vignette", "stanford", "change_platform", "open_data", "open_mat", "pub_year", "log_trials", "log_sample", "log_ratio_ss", )
+desc <- d %>% mutate(target_d_calc=ifelse(include=="stats", target_d_calc, NA),
+             target_p_calc=ifelse(include=="stats",target_p_calc, NA),
+      switch_modality=ifelse(target_on_turk!=replication_on_turk,1,0),
+         ss_ratio=replication_N/target_N)%>% 
+  select("subfield","open_data", "open_materials","switch_modality",  "stanford_internal","within_between","single_vignette","repeated_measure","target_year","target_N","replication_N", "ss_ratio", "target_d_calc", "target_p_calc") %>% 
+  mutate(subfield=factor(subfield, levels=c("cognitive", "social", "other-psych", "non-psych"), labels=c("Cognitive", "Social", "Other psych", "Non-psych")),
+         within_between=ifelse(within_between=="between", 0, 1)) %>% 
+             tbl_summary(
+               label=list(
+                 subfield ~ "Subfield",
+                 stanford_internal ~ "Original authors at Stanford",
+                 target_year~ "Publication Year",
+                 single_vignette ~ "Single vignette (1 item/condition)",
+                 open_data ~ "Open data",
+                 open_materials ~ "Open materials",
+                 within_between ~ "Within participants design",
+                 repeated_measure ~ "Number of trials",
+                 target_N ~ "Original sample size",
+                 replication_N ~ "Replication sample size",
+                 ss_ratio ~ "Ratio of replication/original sample sizes",
+                 target_d_calc ~"Original effect size (SMD)",
+                 target_p_calc ~ "Original p-value",
+                 switch_modality ~ "Switch from in-person to online"
+               ),
+               statistic = list(all_continuous() ~ "{mean} ({sd})", all_continuous() ~ "{median} ({p25}, {p75})"),
+               digits=list(target_year ~ 0, target_p_calc ~4),
+    missing="no",
+             ) %>% modify_header(label="Feature", stat_0="Summary") %>% 
+    modify_footnote(update = everything() ~ NA)
 
-
-corr_mat <- round(cor(dat),2) 
-
-corr_mat[lower.tri(corr_mat)] <- NA
-
-# Install and load reshape2 package
-
-
-# reduce the size of correlation matrix
-melted_corr_mat <-melt(corr_mat) %>% 
-  mutate(value=ifelse(Var1==Var2, NA, value),
-         value=ifelse(Var1 %in% c("cognitive", "non_psych", "other_psych", "social") &
-                        Var2 %in% c("cognitive", "non_psych", "other_psych", "social"),
-                      NA, value)) %>% 
-    filter(Var1!="log_ratio_ss") |> 
-  mutate(Var1=factor(Var1, levels=c("social", "cognitive", "other_psych", "non_psych", "is_within", "single_vignette", "stanford", "change_platform", "open_data", "open_mat", "pub_year", "log_trials", "log_sample", "log_ratio_ss"), labels=c("Social psych", "Cognitive psych", "Other psych", "Non-psych", "Within participants design", "Single vignette ","Stanford affiliated", "Switch to online", "Open data", "Open materials", "Publication year", "Log # of trials", "Log original sample size", "Log ratio rep/original sample sizes"))) |> 
-           filter(!Var2 %in% c("social", "cognitive","other_psych", "non_psych")) |> 
-         mutate(Var2=factor(Var2, levels=c("social", "cognitive", "other_psych", "non_psych", "is_within", "single_vignette", "stanford", "change_platform", "open_data", "open_mat", "pub_year", "log_trials", "log_sample", "log_ratio_ss"), labels=c("Social psych", "Cognitive psych", "Other psych", "Non-psych", "Within participants design", "Single vignette ","Stanford affiliated", "Switch to online", "Open data", "Open materials", "Publication year", "Log # of trials", "Log original sample size", "Log ratio rep/original sample sizes"))) 
-
-# plotting the correlation heatmap
-ggplot(data = melted_corr_mat, aes(x=Var1, y=Var2,
-                                   fill=value)) + #scale_fill_viridis()+
-  theme_classic()+
-      scale_y_discrete(limits=rev)+
-  scale_fill_gradient2(low="#763386",high="#FDE725FF", na.value="grey")+
-  labs(x="", y="")+
-  geom_tile(alpha=.7)+
-  theme(axis.text.x = element_text(angle = 40, vjust = 1, hjust=1), legend.position="none")+
-  geom_text(aes(label=value), size=3)
-  
+as_kable_extra(desc,format="latex", position="!h", caption="Descriptive properties of the replication dataset. For categorical features, counts and percentages are given. For continuous features, the median value and interquartile range are given. N=176 except for original effect size and p-value where N=112. See Methods for full description of how these values were coded. ", booktabs=TRUE, linesep="") |> kable_styling(full_width=F, font_size=10)
 
 ```
-Distributions of study outcomes across some of these properties are shown in Figure \ref{fig:predictors-graph}. Both social and cognitive psychology studies were well represented in the replication sample, and the cognitive psychology studies replicated more often than social psychology studies (mean subjective replication scores: `r pluck(cog,2,1) |> round(2)` versus `r pluck(cog,2,4) |> round(2)`). Within and between participants designs were both common, and within-participants designs replicated more often than between-participants designs (mean scores: `r pluck(within,2,2) |> round(2)` versus `r pluck(within,2,1) |> round(2)`). Studies with multiple vignettes replicated more often than single vignetted studies (mean scores: `r pluck(vignette,2,1) |> round(2)` versus `r pluck(vignette,2,2) |> round(2)`). However, there were strong correlations among these experimental features as well as between these experimental features and specific subfields (Figure \ref{fig:corr-plot}). 
 
-Studies with open data, which almost always also had open materials as well, tended to replicate more than studies without open data. Nearly all replication studies were conducted online, but original studies were split between using in-person and online recruitment. Replications that switched to online were less likely to replicate than those that had the same modality as the original (generally both online, in a few cases both in-person).  While online studies in general show comparable results to studies conducted in person [@crump2013], switching the modality does decrease the closeness of the replication, and some studies done in person may not have been well-adapted (e.g., inductions might have been weaker or instructions might have been insufficient). These factors -- open materials, open data, and online samples -- may have all contributed to the closeness of the replications. However, they are also practices that have increased over time, and so these effects may partially reflect temporal trends. Nonetheless, publication year only very weakly correlated with replicability, but does correlate strongly with online samples and openness (Figure \ref{fig:corr-plot}). 
-
+Many predictors correlated with subjective replication success using unadjusted Pearson correlations (Table \ref{tab:cor}). Predictors of higher replicability included within-participants designs, larger numbers of trials per participant, and the original study having openly accessible data. Predictors of lower replicability included single-vignette studies (those with only one experimental stimulus per condition), classification as social psychology, and study pairs where the original study was in-person and the replication switched to online. 
 
 ```{r predictors-graph, out.width="100%", fig.width=8, fig.height=4, fig.pos="ht", fig.cap="Distribution of subjective replication scores within categories. Bar heights are counts of studies."}
 dat <- read_csv(here("data","for_model.csv")) |> filter(include %in% c("stats", "exp", "pred_int")) |> mutate(sub_rep=as.factor(sub_rep))
@@ -518,6 +472,55 @@ mid_row <- plot_grid(open,  modal, leg, rel_widths=c(1.2, .6, .25), nrow=1)
 plot_grid (top_row, mid_row, nrow=2)
 ```
 
+```{r}
+
+within <- for_cor |> group_by(is_within) |> summarize(avg=mean(sub_rep))
+
+cog <- for_cor |> group_by(subfield) |> summarize(avg=mean(sub_rep))
+vignette <- for_cor |> group_by(single_vignette) |> summarize(avg=mean(sub_rep))
+
+```
+Distributions of study outcomes across some of these properties are shown in Figure \ref{fig:predictors-graph}. Both social and cognitive psychology studies were well represented in the replication sample, and the cognitive psychology studies replicated more often than social psychology studies (mean subjective replication scores: `r pluck(cog,2,1) |> round(2)` versus `r pluck(cog,2,4) |> round(2)`). Within and between participants designs were both common, and within-participants designs replicated more often than between-participants designs (mean scores: `r pluck(within,2,2) |> round(2)` versus `r pluck(within,2,1) |> round(2)`). Studies with multiple vignettes replicated more often than single vignetted studies (mean scores: `r pluck(vignette,2,1) |> round(2)` versus `r pluck(vignette,2,2) |> round(2)`). However, there were strong correlations among these experimental features as well as between these experimental features and specific subfields (Figure \ref{fig:corr-plot}). 
+
+Studies with open data, which almost always also had open materials as well, tended to replicate more than studies without open data. Nearly all replication studies were conducted online, but original studies were split between using in-person and online recruitment. Replications that switched to online were less likely to replicate than those that had the same modality as the original (generally both online, in a few cases both in-person).  While online studies in general show comparable results to studies conducted in person [@crump2013], switching the modality does decrease the closeness of the replication, and some studies done in person may not have been well-adapted (e.g., inductions might have been weaker or instructions might have been insufficient). These factors -- open materials, open data, and online samples -- may have all contributed to the closeness of the replications. However, they are also practices that have increased over time, and so these effects may partially reflect temporal trends. Nonetheless, publication year only very weakly correlated with replicability, but does correlate strongly with online samples and openness (Figure \ref{fig:corr-plot}). 
+
+
+
+```{r corr-plot, out.height="40%", fig.width=8, fig.height=4.5, fig.pos="ht", fig.cap="Correlations between predictor variables. See Methods for descriptions of how each variable was coded. "}
+dat <-  for_cor %>% mutate(cognitive=ifelse(subfield=="cognitive",1,0)) %>% select(-sub_rep, -subfield) %>% select( "social", "cognitive", "other_psych", "non_psych","is_within", "single_vignette", "stanford", "change_platform", "open_data", "open_mat", "pub_year", "log_trials", "log_sample", "log_ratio_ss", )
+
+
+corr_mat <- round(cor(dat),2) 
+
+corr_mat[lower.tri(corr_mat)] <- NA
+
+# Install and load reshape2 package
+
+
+# reduce the size of correlation matrix
+melted_corr_mat <-melt(corr_mat) %>% 
+  mutate(value=ifelse(Var1==Var2, NA, value),
+         value=ifelse(Var1 %in% c("cognitive", "non_psych", "other_psych", "social") &
+                        Var2 %in% c("cognitive", "non_psych", "other_psych", "social"),
+                      NA, value)) %>% 
+    filter(Var1!="log_ratio_ss") |> 
+  mutate(Var1=factor(Var1, levels=c("social", "cognitive", "other_psych", "non_psych", "is_within", "single_vignette", "stanford", "change_platform", "open_data", "open_mat", "pub_year", "log_trials", "log_sample", "log_ratio_ss"), labels=c("Social psych", "Cognitive psych", "Other psych", "Non-psych", "Within participants design", "Single vignette ","Stanford affiliated", "Switch to online", "Open data", "Open materials", "Publication year", "Log # of trials", "Log original sample size", "Log ratio rep/original sample sizes"))) |> 
+           filter(!Var2 %in% c("social", "cognitive","other_psych", "non_psych")) |> 
+         mutate(Var2=factor(Var2, levels=c("social", "cognitive", "other_psych", "non_psych", "is_within", "single_vignette", "stanford", "change_platform", "open_data", "open_mat", "pub_year", "log_trials", "log_sample", "log_ratio_ss"), labels=c("Social psych", "Cognitive psych", "Other psych", "Non-psych", "Within participants design", "Single vignette ","Stanford affiliated", "Switch to online", "Open data", "Open materials", "Publication year", "Log # of trials", "Log original sample size", "Log ratio rep/original sample sizes"))) 
+
+# plotting the correlation heatmap
+ggplot(data = melted_corr_mat, aes(x=Var1, y=Var2,
+                                   fill=value)) + #scale_fill_viridis()+
+  theme_classic()+
+      scale_y_discrete(limits=rev)+
+  scale_fill_gradient2(low="#763386",high="#FDE725FF", na.value="grey")+
+  labs(x="", y="")+
+  geom_tile(alpha=.7)+
+  theme(axis.text.x = element_text(angle = 40, vjust = 1, hjust=1), legend.position="none")+
+  geom_text(aes(label=value), size=3)
+  
+
+```
 ```{r}
 do_estimates <- function(model, variable){
   summary(model)$fixed |> as_tibble(rownames="var") |> filter(var==variable)|> 

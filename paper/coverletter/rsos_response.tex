@@ -17,7 +17,7 @@
 \makelabels
 \newcommand{\theysaid}[1]{\begin{leftbar} \noindent 
 		\textsl{ #1}\end{leftbar}}
-\newcommand{\revised}[1]{\begin{quote}		#1 \end{quote}}
+\newcommand{\revised}[1]{\begin{quote}	#1 \end{quote}}
 
 \usepackage{longtable,booktabs,array}
 \usepackage{float}
@@ -34,7 +34,7 @@
           Thank you for your speedy response to our submission. 
           To address reviewer points, we are quoting the decision letter with our point-by-point responses and revised text. 
           
-          Before we get to responses to reviewers, we should mention for transparency that we found an error in our code for calculating p-values that affected 26 rows of the data. This has been fixed and all analyses downstream of the problem have been rerun and the changes propagated to the manuscript, with no substantial changes to results or interpretation. (We were missing an absolute value function; which led to taking the wrong tail for p-values where the t-value was negative.)
+          Before we get to responses to reviewers, we should mention for transparency that we found an error in our code for calculating p-values that affected 26 rows of the data. (We were missing an absolute value function; which led to taking the wrong tail for p-values where the t-value was negative.) This error has been corrected. Additionally, we discovered an error in one of the student reports effecting the replication effect. Their code was fixed and rerun on their data. All analyses downstream of these problems have been rerun and the changes propagated to the manuscript. Many model estimates and credible intervals have changed numerically, but there  were no substantial changes to results or interpretation. 
           
           \theysaid{Both reviewers were in agreement that the manuscript is well written and describes a dataset and series of analyses that will be of interest to the readers of the journal. There were only a few minor points that they like to see addressed and responded to before it can be published. We would like to see your responses to these suggestions.}
           
@@ -49,88 +49,161 @@
           \theysaid{The only thing I miss in the current manuscript is some description/discussion of how close/conceptual replications in the sample tended to be. See LeBel et. al. (2018, figure 1; https://doi.org/10.1177/2515245918787489) for a taxonomy of replication closeness. It would not need to be a long section, and I am not saying the authors need to code closeness for all studies included, or anything like that. However, I recommend adding a short paragraph to give readers a sense of how closely the original procedures were followed in the replications (on average/in general). The rationale being that I would generally expect a higher replication rate the closer replication procedures are to the original. Having a sense of what mix of close/conceptual replications in this sample is thus relevant for my interpretation of the overall replicability estimate.
           }
           
-          TODO our response!
+          Thanks for bringing this up and pointing us toward the LeBel paper. We had considered coding for closeness of replication, but weren't able to come up with something that felt rigorous enough to use as a predictor variable. 
           
-          We've added TODO what we add
+          I know it wasn't asked for, but I thought it would be worthwhile to code every paper according to the LeBel taxonomy off of the student reports which had a section on ``Differences from Original Study''. There were sources of uncertainty, both from not being sure what exactly counted as a different IV or different population, and from unclarity in student reports (around whether they had succeeded in getting materials from original authors and if it also included exact formatting). But this at least gives a good estimate of the distribution, even if individual cases may be debatably classified. 
+         
+          We've added the following text to the start of the Results where we discuss the sample:
           
-          can't always tell if close or very close b/c had to guess based on whether materials were open and whether student mentioned having received from authors. 
+          \revised{The goal was for replications to be as close as possible to the original, but budgetary constraints, inability to option original materials, and primarily using online samples meant that replications varied in their degree of closeness to the original. According to the schema from (LeBel et al. 2018), 19\% of studies were exact replications, 29\% were very close replications, 44\% were close replications, and 8 were far replications (See Methods for more details on common deviations).}
           
-		student reports has a "differences" section -- this combined with platform and open materials and if they mentioned getting materials from authors. 
-		
-		not quite sure how to code in some cases
+          And we've added the following additional details to Dataset subsection of the Methods:
           
-          We considered coding for closeness (and started to do so in a preliminary stage) but couldn't come up with a scheme that felt meaningfully uniform. We thank the reviewer for the pointer to LeBel!
+          \revised{Replications varied in how close they were to the original; while the goal was to replicate the original as closely as possible, some deviations were sometimes necessary. Student reports contained a section listing changes from the original. In response to a reviewer, we attempted to code studies using the classification scheme from LeBel et al. (2018).
+          	
+          	
+          	Common reasons for replications being very close instead of exact were a switch from in-person to online and lack of access to the original instructions. (It was not always possible to tell if students had access to original wording and presentation style of materials.) Common reason for replications being only close included recreating materials when the original materials were not available and changing materials to fit the audience (ex. switching from UK to US English). (It was not always possible to determine if students had the original materials; in some cases students mentioned trying to obtain materials but did not indicate if they had succeeded.) Less common reasons for replications being only close included changing the number of trials per participant or reducing training periods.
+          	
+          	
+          	Far replications were rare, but were primarily due to a couple deviations. In some cases an original study had a specific population (ex. high schoolers or hiring managers), and the replication was on a convenience population. The other main reason was changing the language of materials to English when cultural or linguistic factors were potentially relevant to the construct of interest.
+          	
+          	
+          	Other common changes (that we did not consider as decreasing the closeness) were switching which convenience population was used (i.e.~from college students to crowdworkers or from one crowdwork platform to another), changing or reducing demographic surveys (which were used only in exploratory or secondary analyses, if at all), and removing secondary measures that were not part of the analyses being replicated.}
+         
+         We hope these additions will offer readers clarify about how and to what extent replications differed from the original studies. 
           
-          From memory, I think we have a range from exact replication to very close replication to close replication. 
+
           
-          For studies that were originally done online and had open materials, may have approached exact replication. (Ex. the study I did, there was javascript for running the study available and I rehosted it, so the procedure was identical). 
-          
-          Many switched to online and may have had procedural differences as a result (or as a result of instruction text not being available and students recreating from what the manuscript said). 
-          
-          When possible the stimuli were usually the same. In a couple cases, populations and stimuli were farther due to language changes. In some cases, stimuli weren't available, and so were recreated to match as was possible. 
-          
-          Population was different in some cases due to switches from college student to crowdworker; in one case from high school to young adult crowd worker; and in some cases from "hiring manager" to crowdworker. 
-          
-          
-          This is why we're careful to frame as "how well can grad students redo" -- closeness was dependent on factors like avialable and ease, and varies by study in how much it calls into question the original study results. 
-          
-          coded based on what is being analyzed -- sometimes there were additional measures in original or this is the behavioral portion of an fmri etc
-          
-          assuming that switching from college to crowdsourced is not a difference in sample 
-          and that reducing number of trials (ex. in trade-off with number of participants) doesn't prevent "close
-          
-          \theysaid{Reviewer: 2
-          	Comments to the Author(s)
+          \theysaid{Reviewer: 2\\
+          	Comments to the Author(s)\\
           	This is an excellent contribution, and I have only minor suggestions for the authors. I should state upfront that, unfortunately, I was more rushed than I expected to be when doing this review, and so did not access the data or code, or any supplemental materials.  I glanced at the preregistration.  I also lack the expertise to evaluate the statistical approach.
           }
           	
           \theysaid{	1a. I believe there are some deviations from the preregistration (e.g., year of publication is mentioned as a potential predictor (with no directional hypothesis) in the preregistration but is not in the results; other variables appear in the manuscript but not in the preregistration). The authors should be clear about these deviations and also any decisions that were not constrained by the preregistration. Perhaps a disclosure table would be a good way to share this information.}
           
-          TODO check deviations
+          Publication year was included in the pre-registered models; it is visible in the Figure with odds ratios and 95\%CrI. It's also in the (non-pre-registered) table of bivariate correlations. 
           
-          We did include publication year in the models (and in the not-pre-registered list of correlations). 
-          
-          
+          I also don't believe we have any predictors that weren't pre-registered (https://osf.io/8t6hb, on pages 8-9 has the list of model predictors and their transformations). However, there may have been discrepancies between what was listed in our Research Questions and Hypotheses (pages 1-2) and what made it into the Model Specification. 
+ 
+ 
+         However, I did go back through our pre-registration looking for deviations. 
+         
+         We have added a Methods subsection called ``Deviations from pre-registration'' that contains the following text. 
+         
+         \revised{
+         The descriptive statistics and bivariate correlations between predictor and outcome variables were not pre-registered.
+         
+         
+         In the pre-registration, our research questions mentioned publication journal, but due to the distribution of journals, journal was not a predictor in the pre-registered model plan (or the actual models). Our pre-registration stated that we could not include students names or reports in the released dataset; we ended up letting students opt-in to associating their names with their projects and having their replication report included. Our pre-registration stated that any errors found would be noted; errors are noted in the data spreadsheet of the materials.}
+         
           \theysaid{
           	1b. Even though the analyses are preregistered, I assume that the decisions made in the preregistration were not made without any knowledge of the data.  That is, the people involved in making the decisions in the preregistration presumably knew/remembered some of the outcomes of the replication studies.  Of course this is fine, but I think it makes the choices and analyses slightly data-dependent, and therefore more susceptible to inadvertently overfitting the models to this dataset. I think it would be good to point this out to readers, and calibrate claims appropriately (I think the claims are already well-calibrated, in that the authors don't make strong claims, which is appropriate for several reasons).
           }
           
-          In fact, much of the data-coding had been done when the pre-registration was finalized, due to the need to figure out what variables were actually codeable. 
+          At the time of pre-registration, much of the data had already been coded. (We had to code the data in order to figure out which variables were actually codeable, what data was missing, and what instantiations of predictors were feasible.)  Thus the pre-registration is a constraint on the analysis, but not on the initial data processing. 
           
+          At the start of the Methods section we have added the following text to address the authors state of knowledge at the start of the project and at the time of the pre-registration. 
+          
+          \revised{At the onset of this project, all authors had some familiarity with the dataset. MCF taught PSYCH 254/251; MM and VB had each been students in the class. The coding of the data primarily took place before the pre-registration was finalized; the only way for us to know what variables were actually codeable and what forms of missingness were present in the data was to code it. Thus, the pre-registration was a pre-registration of the analyses and a ``locking-in'' of the coding scheme. VB coded both the predictor variables and was one of the coders of outcome variables, but these were coded in separate passes through the data.}
+          
+          We hope both of these disclosures can help readers make informed judgments of our results. 
           
           
           \theysaid{
           	2. There are some descriptive variables that I would have liked to see in the main text, such as the number of studies at each level of each of the predictor variables, the correlations among the predictor variables, and the correlations among the outcome variables.
           }
           
+          We have added all of these.
+          
+          Distributions of predictor variables are in a new Table. 
+          
+          \revised{{Descriptive properties of the replication dataset. For categorical features, counts and percentages are given. For continuous features, the median value and interquartile range are given. N=176 except for original effect size and p-value where N=112. See Methods for full description of how these values were coded. }
+          	{\centering
+          	\fontsize{10}{12}\selectfont
+          	\begin{tabular}[t]{lc}
+          		\toprule
+          		Feature & Summary\\
+          		\midrule
+          		Subfield & \\
+          		\hspace{1em}Cognitive & 62 (35\%)\\
+          		\hspace{1em}Social & 70 (40\%)\\
+          		\hspace{1em}Other psych & 24 (14\%)\\
+          		\hspace{1em}Non-psych & 20 (11\%)\\
+          		Open data & 52 (30\%)\\
+          		Open materials & 83 (47\%)\\
+          		Switch from in-person to online & 94 (53\%)\\
+          		Original authors at Stanford & 16 (9.1\%)\\
+          		Within participants design & 80 (45\%)\\
+          		Single vignette (1 item/condition) & 78 (44\%)\\
+          		Number of trials & 6 (1, 60)\\
+          		Publication Year & 2015 (2011, 2017)\\
+          		Original sample size & 101 (40, 181)\\
+          		Replication sample size & 59 (31, 125)\\
+          		Ratio of replication/original sample sizes & 0.86 (0.41, 1.05)\\
+          		Original effect size (SMD) & 0.61 (0.46, 0.98)\\
+          		Original p-value & 0.0001 (0.0000, 0.0069)\\
+          		\bottomrule
+          	\end{tabular}}}
+          
+          Correlations of predictor variables are in a new Figure. 
+          
+          \revised{
+          		\includegraphics[width=1\linewidth,height=0.4\textheight]{../manuscript_files/figure-latex/corr-plot-1}
+          		{Correlations between predictor variables. See Methods for descriptions of how each variable was coded. }
+         }
+         
+         Lastly, correlations between outcome variables were added to as the following text in the subsection Overall replication rate in Results.
+         
+         \revised{The subjective replication scores were moderately correlated with both prediction interval (r=0.36) and \emph{p}-original (r=0.27) values; prediction interval and \emph{p}-original were highly correlated with each other (r=0.73).
+         }
+         
+         We hope these all provide readers with appropriate context for interpreting our reported results and understanding this dataset. 
+          
           \theysaid{
           	3. I was curious to know the magnitude of the difference in effect sizes between the original studies and replication studies, for: 1) all studies, and 2) just the "successful" replications.
           }
           
+          We have added this. There is now a paragraph in the Overall replication rate subsection of results that reads
+          
+          \revised{On average, there was a diminution of effect sizes from original to replication. This pattern of results is consistent with the results of RP:P (Open Science Consortium 2015). Specifically, the median original effect size (in SMD units) was 0.61 (interquartile range: 0.46 - 0.98), and the median replication effect size was 0.28 (0.09 - 0.76), for a median difference of 0.31 (0.04 - 0.66). Among the pairs with a subjective replication score of 1 (N=38 with standardized effect sizes), the median original effect size was 0.92 (interquartile range: 0.52 - 1.4), and the median replication effect size was 0.89 (0.57 - 1.24), for a median difference of 0.03 (-0.16 - 0.33). Thus, for the highest subjectively-rated replications, effect sizes for original and replication were similar in magnitude on average, with some replications having larger effects than their originals.
+          }
+          
+          
+          
+          
           \theysaid{
           	4. The authors are appropriately cautious in drawing conclusions, for example about the effect of within-participant designs.  I would suggest adding that it's possible one factor that contributed to this effect is that within-participant designs could be more susceptible to artifacts, such as demand characteristics, that could inflate the replicability of the result but not its accuracy.  This is also a reason to caution against simply adopting a within-participant design as a way to improve replicability in future studies, without considering the potential costs to other aspects of validity/accuracy of the results.
           }
+          
+          We have added mention of these caveats to the Discussion section. A paragraph now reads
+          
+          \revised{For instance, while within-participants designs are more likely to replicate than between-participants designs, this predictor could also be related to the types of experiments that tend to be run in each design. As Greenwald (1976) notes, within-participants designs can lead to practice effects, carry-over of treatments, and critically, sensitization effects, where participants reason about the contrast between conditions and respond differently due to that reasoning. Sensitization effects are a threat to internal validity, and could be replicable even in the absence of the effect itself being replicable.  Given the strong relationship of within-participants designs to replicability, slightly more skepticism and critical reading of between-participants designs may be warranted, but this correlation, by itself, does not mean scientists should prefer within-participants designs.}
+          
           \theysaid{
           	5. I was curious whether the authors considered inviting the graduate students who ran the studies as co-authors/contributors on this paper. I could see good reasons for either decision, but just wanted to raise the question.
           }
           
-          Coauthors: In prior collaborations with students, we have invited students prospectively to be co-authors (Hawkins et al., 2018; Hardwicke et al., 2018). In those projects, we gave opportunities to engage with the research design throughout the process as well as approval over the manuscript. In this case, our study was based on retrospective coding of a large sample of projects. We had no assurance that we could contact all students for input (and had we been able to reach them, they might not have been interested). Further, we did not see ways that we could engage them with the research design prospectively to provide meaningful opportunities for contribution. Instead, we viewed this study as an archival investigation of course records - a meta-analysis of gray literature. (Note that we did attempt to contact all students to alert them to the project and provide them with an opportunity to include their course project in the shared materials).
+          In prior collaborations with students, we have invited students prospectively to be co-authors (Hawkins et al., 2018; Hardwicke et al., 2018). In those projects, we gave opportunities to engage with the research design throughout the process as well as approval over the manuscript. In this case, our study was based on retrospective coding of a large sample of projects. We had no assurance that we could contact all students for input (and had we been able to reach them, they might not have been interested). Further, we did not see ways that we could engage them with the research design prospectively to provide meaningful opportunities for contribution. Instead, we viewed this study as an archival investigation of course records - a meta-analysis of gray literature. (Note that we did attempt to contact all students to alert them to the project and provide them with an opportunity to include their course project in the shared materials).
           
           \theysaid{
           	6. Personally, I was curious about how the "date of original study publication" fared as a predictor, as well as whether being published in Psych Science was a predictor (I have a conflict of interest in asking about this, I am the incoming editor in chief of Psych Science).  Of course readers can presumably analyze these themselves, but I wonder if it would be worth including at least publication year, as that was in the preregistration (and I also thought of it before looking at the preregistration, and I expect other readers might wonder the same thing).
           }
-          We do have publication year. We've added a more clear mention in the text. It is correlated with practices that have changed over time, such as open data, open materials, and online samples, which basically means it's correlated with closeness of replication. 
           
-          Psych Science makes up TODO \% of the sample, so we couldn't really use it as a predictor, since other journals are much much less represented. 
+          Date of original publication was a predictor, but I've added a mention of it in the text instead of just in Figures and Tables. 
+       
+          The end of the Bivariate correlations of replication success subsection of results now reads
+          
+          \revised{These factors -- open materials, open data, and online samples --  may have all contributed to the closeness of the replications. However, they are also practices that have increased over time, and so these effects may partially reflect temporal trends. Nonetheless, publication year only very weakly correlated with replicability, but does correlate strongly with online samples and openness (Figure 4).}
+          
+          For reference, the bivariate correlation between publication year and subjective replication (reported in Table 1) was r=.064 ($p$=.399). 
+          	
+
+          
+          Psych Science makes up 45\% of the sample, so we felt we couldn't use journal as a predictor, since other journals are much much less represented. (I guess we could have done Psych Science versus everything else, but that wouldn't have been interpretable.)
           
           But, for your edification, we did run the descriptive summary and the bivariate correlates on the Psych Science subsample. 
-         
           
-          We were unable to use journal as a predictor in the models because of very uneven representation across journals. By far the most represented journal was Psychological Science, with 80 original papers. Other journals had at most a few papers in the sample.
-          
-          Here we present bivariate analyses on the subset of the data coming from Psych Science. This is a post-hoc split of the data.
-          
-          Overall, this split looks similar to the overall sample. Of note, publication year is correlated with replication success in this sample, but is not substantially correlated overall.
+           
           
 \begin{center}
           
@@ -189,7 +262,10 @@
           \end{tabular}
           \end{center}
 
-Notably, the Psych Science subsample is pretty similar descriptively to the overall sample. The biggest difference in the bi-variate correlations is the Publication Year is correlated with replication success in the Psych Science portion, but not the overall sample (possible due to more limited time frame for Psych Science, and substantial changes in how the journal was run during that time frame). 
+Overall, the Psych Science subsample looks similar to the overall sample. Of note, publication year is correlated with replication success in the Psych Science portion, but not the overall sample (possible due to more limited time frame for Psych Science, and substantial changes in how the journal was run during that time frame).
+
+
+
           	\theysaid{
           	Minor typos:\\
           	section 2.1 "of replications has outcomes with" should be "had"\\
