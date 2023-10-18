@@ -280,7 +280,7 @@ pred_p <- cor.test(for_cor$predInt, for_cor$p_orig)$estimate
 
 ```
 
-Across the 176 studies, the average subjective replication score was `r round(pluck(sub_rep_rate,1))`%, which we can interpret as an overall subjective replication rate. `r round(pluck(pred_int_rate,1))`% (`r predIntcount`/`r predInttotal`) of replications had outcomes with point-estimates within the prediction interval of the original outcome. The median *p*-original value on the original and replication point-estimates coming from the same distribution was `r round(pluck(porig_rate, 1),2)`, representing the median probability that a replication study's estimate would be at least as extreme as was actually observed, if in fact the replication and original were statistically consistent. The subjective replication scores were moderately correlated with both prediction interval (r=`r round(sub_pred,2)`) and *p*-original (r=`r round(sub_p, 2)`) values; prediction interval and *p*-original were highly correlated with each other (r=`r round(pred_p,2)`).
+Across the 176 studies, the average subjective replication score was `r round(pluck(sub_rep_rate,1))`%, which we can interpret as an overall subjective replication rate. `r round(pluck(pred_int_rate,1))`% (`r predIntcount`/`r predInttotal`) of replications had outcomes with point-estimates within the prediction interval of the original outcome. The median *p*-original value on the original and replication point-estimates coming from the same distribution was `r round(pluck(porig_rate, 1),2)`, representing the median probability that a replication study's estimate would be at least as extreme as was actually observed, if in fact the replication and original were statistically consistent. The subjective replication scores were moderately correlated with both prediction interval (r=`r round(sub_pred,2)`) and *p*-original (r=`r round(sub_p, 2)`) values; prediction interval and *p*-original were highly correlated with each other (r=`r round(pred_p,2)`). As mentioned above, inconsistency between the subjective replication and numeric outcomes can occur in a few circumstances such as when there is a large precise original effect and a smaller, but clear replication effect; when there is a small, imprecise original effect and a smaller, null, or opposite replication effect; or when the key measure does not represent the overall pattern of the results.
 
 ```{r}
 medians <- d %>% filter(include =="stats") %>%
@@ -364,6 +364,8 @@ cors <- tibble(preds = preds) |>
 
 library(kableExtra)
 knitr::kable(cors, digits = 3, align='ccl',format="latex", position="!h", caption="The unadjusted Pearson correlations between each individual predictor and the subjective replication score. See Methods for how these variables were coded.", booktabs=TRUE, linesep="") |> kable_styling(full_width=F, font_size=10) 
+
+
 
 ```
 
@@ -624,7 +626,8 @@ Common reasons for replications being very close instead of exact were a switch 
 
 Far replications were rare, but were primarily due to a couple deviations. In some cases an original study had a specific population (ex. high schoolers or hiring managers), and the replication was on a convenience population. The other main reason was changing the language of materials to English when cultural or linguistic factors were potentially relevant to the construct of interest. 
 
-Other common changes (that we did not consider as decreasing the closeness) were switching which convenience population was used (i.e. from college students to crowdworkers or from one crowdwork platform to another), changing or reducing demographic surveys (which were used only in exploratory or secondary analyses, if at all), and removing secondary measures that were not part of the analyses being replicated. 
+Other common changes were changing or reducing demographic surveys (which were used only in exploratory or secondary analyses, if at all) and removing secondary measures that were not part of the analyses being replicated. We did not consider these as reducing the degree of closeness.
+
 Four of the replication projects were included in RP:P, and 10 were previously reported in @hawkins2018 (which reported 11 student replications from the 2015-2016 class; one of those was excluded from the current sample for being non-experimental).  
 
 ## Coding procedure
