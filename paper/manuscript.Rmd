@@ -14,7 +14,7 @@ address:
     address: Stanford University
 footnote:
   - code: corresp
-    text: "Corresponding author. Email: vboyce@stanford.edu"
+    text: "Corresponding author. Email: vboyce@mit.edu"
 bibliography: ["251MA.bib"] # Replace with one or more of your own bibtex files. Better BibTeX for Zotero is your friend
 csl: vancouver.csl # Use any CSL style. See https://www.zotero.org/styles for a good list. Ignored if citation_package: natbib
 link-citations: TRUE
@@ -106,8 +106,47 @@ d <- read_csv(here("data", "processed_data.csv")) |> filter(status!="unusable") 
 
 
 
-Cumulative scientific progress requires empirical results that are robust enough to support theory construction and extension. Yet in psychology, some prominent findings have failed to replicate, and large-scale studies suggest replicability issues are widespread. The identification of predictors of replication success is limited by the difficulty of conducting large samples of independent replication experiments, however: most investigations re-analyse the same set of ~170 replications. We introduce a new dataset of 176 replications from students in a graduate-level methods course. Replication results were judged to be successful in 49% of replications; of the 136 where effect sizes could be numerically compared, 46% had point estimates within the prediction interval of the original outcome (versus the expected 95%). Larger original effect sizes and within-participants designs were especially related to replication success. Our results indicate that, consistent with prior reports, the robustness of the psychology literature is low enough to limit cumulative progress by student investigators.
+Cumulative scientific progress requires empirical results that are robust enough to support theory construction and extension. Yet in psychology, some prominent findings have failed to replicate, and large-scale studies suggest replicability issues are widespread. The identification of predictors of replication success is limited by the difficulty of conducting large samples of independent replication experiments, however: most investigations re-analyse the same set of ~170 replications. We introduce a new dataset of 176 replications from students in a graduate-level methods course. Replication results were judged to be successful in 49% of replications; of the 136 where effect sizes could be numerically compared, 74% had point estimates within the prediction interval of the original outcome (versus the expected 95%). Larger original effect sizes and within-participants designs were especially related to replication success. Our results indicate that, consistent with prior reports, the robustness of the psychology literature is low enough to limit cumulative progress by student investigators.
 :::
+
+Corrected November 2026 after an AI audit found errors; see the next page for details about corrections.
+
+<!------------ Correction notice (same text as the website note) -------------------->
+
+\newpage
+
+\begingroup\small
+
+# Correction note {-}
+
+An AI audit in November 2026 turned up errors in the code that computed the statistical replication measures (prediction interval and *p*-original), and some claims in the text that the corrected results do not support. The primary measure, the subjective replication score (49% average), and the model using all 176 pairs are unchanged. With the corrected code, many more replications are statistically consistent with their originals, and the predictors of the subjective score are less certain than the published paper says. These errors have been addressed in this version of the manuscript.
+
+Claude Code was used for the AI audit, to fix the issues, and to draft text for this notice.
+
+**Analysis errors**
+
+1. *Variance used as a standard error.* The code that computed standardized effect sizes returned the sampling variance of *d* where a standard error was expected, and this value was then squared again before computing prediction intervals and *p*-original. This made the uncertainty around effect sizes far too small.
+2. *Standard errors for mean-based comparisons.* For between-participants comparisons computed from reported means and SDs, the standard error of the difference was too small (by about a factor of 2 for two groups and 4 for a $2 \times 2$ interaction), and the SD was rebuilt with $n - 1$ where it should have used $n$.
+3. *Within-participants effect sizes.* Within-participants effects ($d_z$) used the variance formula for between-groups *d*.
+4. *Smaller issues.* A parsing error dropped the last digit of some SDs (7 original studies; effect sizes changed by at most 0.011), and an original *p* of 0 was coded as log $p = -300$, although another study had a smaller log *p*; it is now set to the smallest observed value.
+
+Together, these change the statistical replication measures. 74% (101/136) of replications fell within the prediction interval of the original (published: 45%, 61/136), and the median *p*-original was 0.26 (published: 0.03). Under the heterogeneity assumption ($\tau = 0.21$), 78% (87/112) were consistent with the original (published: 63%, 71/112). The subjective score now correlates more weakly with the prediction interval (r = 0.14; published: 0.36) and *p*-original (r = 0.23; published: 0.27). The median original *p*-value changed from 0.0001 to 0.0015.
+
+In the model predicting the subjective score from all predictors (N = 112), within-participants designs (OR = 2.21 [0.87, 8.68]; published: 2.89 [0.96, 11.24]) and original effect size (OR = 2.07 [0.87, 7.48]; published: 3.33 [1.11, 12.44]) are now weaker, and original *p*-value is now about as strong (OR = 0.43 [0.14, 1.04]; published: 0.77 [0.33, 1.36]), so it is now reported in the main text. In the models predicting prediction interval and *p*-original, no predictor's credible interval excludes the null.
+
+**Text errors and claims that changed**
+
+1. *Statistical replication rate.* The abstract and Results now give 74% within the prediction interval (published: 46% in the abstract, 45% in the Results), and the correlations between the subjective score and the statistical measures are now described as weak.
+2. *Predictors in the joint models.* The published text said that within-participants designs and effect size were both robust to the sensitivity analysis, and that within-participants designs and effect size were the strongest predictors of the prediction interval. With the corrected measures, the effect-size interval in the sensitivity analysis includes 1 (OR = 4.52 [0.98, 29.81]; published: 7.22 [1.24, 47]), and no predictor stands out for the prediction interval. The text now describes the strength of the original evidence (effect size and *p*-value, which are strongly correlated with each other) together.
+3. *Sensitivity analysis description.* The Results described the sensitivity subset as "studies with close replications and matching statistical tests". The subset was defined by matching statistical tests on central results and no major issues with the replication, not by the closeness rating (exact, very close, close, far; coded using the scheme of LeBel et al., 2018), which was coded later; 6 of its 82 pairs are rated far. The description now matches the Methods.
+4. *Strongest correlates.* The Discussion's list of the strongest bivariate correlates left out single-vignette designs (the second-strongest) and number of trials. It now matches Table 1.
+5. *Table 1 labels.* The subfield rows were labelled "versus cognitive psych", but each correlation compares that subfield with all other subfields (of the 176 pairs, 62 are cognitive, 70 social, 24 other psychology and 20 non-psychology). The labels now say so (also in the corresponding Supplement table). The values are unchanged.
+6. *Figure 2 and Supplement Figure 2.* The plots left out 3 pairs with original effect sizes above 5 without saying so, and included 2 pairs that are not part of the 112 with standardized effect sizes. The plots now show only the 112 pairs, and the captions note the 3 that are not shown.
+7. *Far replications.* "8 were far replications" should have read 8%.
+
+\endgroup
+
+\newpage
 
 # Introduction
 
@@ -231,7 +270,7 @@ closeness <- d |> group_by(how_close) |> tally() |> mutate(pct=(n/sum(n)*100) |>
 
 ```
 
-These replications were all conducted on short time scales, within a constrained class budget. In some cases the budget limited the number of participants who could be recruited, occasionally below what the original study included or what power analyses suggested. The replications had a median post-exclusion sample size that was `r round(ratio_dist[3]*100)`% of the original sample size.  In nearly all cases, replications were conducted online, with recruitment from Amazon Mechanical Turk (the default from 2011 to 2020) or Prolific (the default from 2021 -- 2022). The goal was for replications to be as close as possible to the original, but budgetary constraints, inability to option original materials, and primarily using online samples meant that replications varied in their degree of closeness to the original. According to the schema from @lebel2018, `r pluck(closeness,3,2)`% of studies were exact replications, `r pluck(closeness,3,4)`% were very close replications, `r pluck(closeness,3,1)`% were close replications, and `r pluck(closeness,3,3)` were far replications (See Methods for more details on common deviations).
+These replications were all conducted on short time scales, within a constrained class budget. In some cases the budget limited the number of participants who could be recruited, occasionally below what the original study included or what power analyses suggested. The replications had a median post-exclusion sample size that was `r round(ratio_dist[3]*100)`% of the original sample size.  In nearly all cases, replications were conducted online, with recruitment from Amazon Mechanical Turk (the default from 2011 to 2020) or Prolific (the default from 2021 -- 2022). The goal was for replications to be as close as possible to the original, but budgetary constraints, inability to option original materials, and primarily using online samples meant that replications varied in their degree of closeness to the original. According to the schema from @lebel2018, `r pluck(closeness,3,2)`% of studies were exact replications, `r pluck(closeness,3,4)`% were very close replications, `r pluck(closeness,3,1)`% were close replications, and `r pluck(closeness,3,3)`% were far replications (See Methods for more details on common deviations).
 
 Many different measures can be used to define replication success of an individual statistical result [@simonsohn2015; @gelman2018; @mathur2020].  However, whether a replication should be considered successful is not always dependent on only one statistical comparison between the two studies. Often in original papers, multiple statistical tests are cited in support of the claim that a pattern of results matches a particular theoretical expectation. 
 
@@ -240,8 +279,9 @@ As our primary outcome, we  chose to use a subjective replication score (coded b
 
 As a complement to our primary subjective outcome, we also used two statistical measures of replication on the subset of the data where they were computable for the key statistic of interest (`r pluck(pred_int_avail,1)` cases, see Figure \ref{fig:prisma}). We used *p-original*, the *p*-value on the null hypothesis that the original and replication statistics are from the same distribution, and *prediction interval*, a binary measure of whether the replication statistic fell within the prediction interval of the original statistic [@mathur2020]. The prediction interval depends on the level of evidence of the original study; if the effect was marginal, the prediction interval could overlap zero; thus, a replication might fall within the predictive interval, and be consistent with the original outcome, but not provide compelling evidence for the claimed effect. Conversely, large original effects with precise point estimates may have prediction intervals that do not overlap a smaller replication effect size, and thus would be inconsistent with the original outcome, even though researcher intuition might classify it as a success. Thus, these two statistical metrics each quantify the similarity between a key statistic in the original study and the replication, but they will not always match researcher intuitions on whether a study replicated.
 
-```{r smd, out.height="25%", fig.width=6, fig.height=3, fig.pos="ht", fig.cap="Relationship between effect size of the original study, effect size of the replication study, and subjective replication success rating, for those studies where effect size was applicable (N=112)."}
+```{r smd, out.height="25%", fig.width=6, fig.height=3, fig.pos="ht", fig.cap="Relationship between effect size of the original study, effect size of the replication study, and subjective replication success rating, for those studies where effect size was applicable (N=112; 3 pairs with original effect size > 5 are not shown)."}
 d |> 
+  filter(include == "stats") |> # the 112 pairs with effect sizes; other rows can have both d's but are not in this set
   filter(target_d_calc < 5, rep_d_calc < 5) |>
   ggplot(aes(x=target_d_calc, y=rep_d_calc))+
  
@@ -280,11 +320,11 @@ pred_p <- cor.test(for_cor$predInt, for_cor$p_orig)$estimate
 
 ```
 
-Across the 176 studies, the average subjective replication score was `r round(pluck(sub_rep_rate,1))`%, which we can interpret as an overall subjective replication rate. `r round(pluck(pred_int_rate,1))`% (`r predIntcount`/`r predInttotal`) of replications had outcomes with point-estimates within the prediction interval of the original outcome. The median *p*-original value on the original and replication point-estimates coming from the same distribution was `r round(pluck(porig_rate, 1),2)`, representing the median probability that a replication study's estimate would be at least as extreme as was actually observed, if in fact the replication and original were statistically consistent. The subjective replication scores were moderately correlated with both prediction interval (r=`r round(sub_pred,2)`) and *p*-original (r=`r round(sub_p, 2)`) values; prediction interval and *p*-original were highly correlated with each other (r=`r round(pred_p,2)`). As mentioned above, inconsistency between the subjective replication and numeric outcomes can occur in a few circumstances such as when there is a large precise original effect and a smaller, but clear replication effect; when there is a small, imprecise original effect and a smaller, null, or opposite replication effect; or when the key measure does not represent the overall pattern of the results.
+Across the 176 studies, the average subjective replication score was `r round(pluck(sub_rep_rate,1))`%, which we can interpret as an overall subjective replication rate. `r round(pluck(pred_int_rate,1))`% (`r predIntcount`/`r predInttotal`) of replications had outcomes with point-estimates within the prediction interval of the original outcome. The median *p*-original value on the original and replication point-estimates coming from the same distribution was `r round(pluck(porig_rate, 1),2)`, representing the median probability that a replication study's estimate would be at least as extreme as was actually observed, if in fact the replication and original were statistically consistent. The subjective replication scores were weakly correlated with both prediction interval (r=`r round(sub_pred,2)`) and *p*-original (r=`r round(sub_p, 2)`) values; prediction interval and *p*-original were more strongly correlated with each other (r=`r round(pred_p,2)`). As mentioned above, inconsistency between the subjective replication and numeric outcomes can occur in a few circumstances such as when there is a large precise original effect and a smaller, but clear replication effect; when there is a small, imprecise original effect and a smaller, null, or opposite replication effect; or when the key measure does not represent the overall pattern of the results.
 
 ```{r}
 medians <- d %>% filter(include =="stats") %>%
-  mutate(difference=target_d_calc-rep_d_calc) %>% summarize(orig=quantile(target_d_calc), rep=quantile(rep_d_calc), diff=quantile(difference))
+  mutate(difference=target_d_calc-rep_d_calc) %>% reframe(orig=quantile(target_d_calc), rep=quantile(rep_d_calc), diff=quantile(difference))
 
 original_50  <- pluck(medians, 1,3) %>% round(2)
 original_25 <- str_c(pluck(medians, 1,2) %>% round(2)," - ",pluck(medians, 1,4) %>% round(2))
@@ -298,7 +338,7 @@ diff_25 <- str_c(pluck(medians, 3,2) %>% round(2)," - ",pluck(medians, 3,4) %>% 
 medians_successful <- d %>% filter(include =="stats") %>%
   filter(sub_rep %in% c(1)) %>% 
     mutate(diff=target_d_calc-rep_d_calc) %>%
-  summarize(orig=quantile(target_d_calc), rep=quantile(rep_d_calc),
+  reframe(orig=quantile(target_d_calc), rep=quantile(rep_d_calc),
             diff=quantile(diff))
 
 original_50_succ  <- pluck(medians_successful, 1,3) %>% round(2)
@@ -360,7 +400,7 @@ preds <- c("pub_year", "open_data",  "open_mat", "stanford", "change_platform",
 cors <- tibble(preds = preds) |>
   mutate(r = sapply(preds, function(x) sub_cor(x, stat = "estimate")),
          p = sapply(preds, function(x) sub_cor(x, stat = "p"))) |> 
-  mutate(Predictors=factor(preds, levels=c("social", "other_psych", "non_psych", "is_within", "single_vignette", "change_platform", "open_data", "open_mat", "stanford", "pub_year", "log_trials", "log_sample", "log_ratio_ss"), labels=c("Social psychology (versus cognitive psych)", "Other psychology (versus cognitive psych)", "Non psychology (versus cognitive psych)", "Within participants design (versus between participants)", "Single vignette (versus multiple items/inductions per condition)", "Switch to online for replication (versus same modality for original and replication)", "Open data", "Open materials", "Stanford affiliation of original authors at time of replication", "Publication year", "Log number of  trials", "Log original sample size", "Log ratio between replication and original sample sizes"))) |> arrange(desc(r)) |> select(r, p, Predictors)
+  mutate(Predictors=factor(preds, levels=c("social", "other_psych", "non_psych", "is_within", "single_vignette", "change_platform", "open_data", "open_mat", "stanford", "pub_year", "log_trials", "log_sample", "log_ratio_ss"), labels=c("Social psychology (versus all other subfields)", "Other psychology (versus all other subfields)", "Non psychology (versus all other subfields)", "Within participants design (versus between participants)", "Single vignette (versus multiple items/inductions per condition)", "Switch to online for replication (versus same modality for original and replication)", "Open data", "Open materials", "Stanford affiliation of original authors at time of replication", "Publication year", "Log number of  trials", "Log original sample size", "Log ratio between replication and original sample sizes"))) |> arrange(desc(r)) |> select(r, p, Predictors)
 
 library(kableExtra)
 knitr::kable(cors, digits = 3, align='ccl',format="latex", position="!h", caption="The unadjusted Pearson correlations between each individual predictor and the subjective replication score. See Methods for how these variables were coded.", booktabs=TRUE, linesep="") |> kable_styling(full_width=F, font_size=10) 
@@ -410,7 +450,7 @@ desc <- d %>% mutate(target_d_calc=ifelse(include=="stats", target_d_calc, NA),
                digits=list(target_year ~ 0, target_p_calc ~4),
     missing="no",
              ) %>% modify_header(label="Feature", stat_0="Summary") %>% 
-    modify_footnote(update = everything() ~ NA)
+    remove_footnote_header(columns = everything()) # gtsummary >= 2.0: modify_footnote(update = ) is defunct
 
 as_kable_extra(desc,format="latex", position="!h", caption="Descriptive properties of the replication dataset. For categorical features, counts and percentages are given. For continuous features, the median value and interquartile range are given. N=176 except for original effect size and p-value where N=112. See Methods for full description of how these values were coded. ", booktabs=TRUE, linesep="") |> kable_styling(full_width=F, font_size=10)
 
@@ -540,12 +580,17 @@ within_3 <- do_estimates(tier3_subjective, "is_within")
 
 smd_3 <- do_estimates(tier3_subjective, "z_target_d_calc")
 
+p_3 <- do_estimates(tier3_subjective, "z_log_p")
+
 sens_3 <- read_rds(here(model_location, "sens_tier3_subjective.rds"))
 
 within_sens <- do_estimates(sens_3, "is_within")
 
 
 smd_sens <- do_estimates(sens_3, "z_target_d_calc")
+
+p_sens <- do_estimates(sens_3, "z_log_p")
+
 
 pred_int <- read_rds(here(model_location, "tier3_predint.rds"))
 
@@ -558,11 +603,11 @@ smd_2 <- do_estimates(pred_int, "z_target_d_calc")
 
 While a number of features show individual correlations with the subjective replication score, many correlate with one another. To determine which predictors were the strongest, we modeled subjective replication score as an ordinal outcome using ordinal Bayesian regression models with a logit link function, regularized using a horseshoe shrinkage prior [@carvalho09]. This model estimates odds ratios representing the association of the predictor with having a higher versus lower subjective replication score. We first ran models using all of the original-replication pairs (N=176), but without original effect size and original $p$ value as predictors, as they were uncodable for some pairs. We next ran models including all predictors, but on only the subset of data where all predictors were available (N=112). 
 
-Coefficient estimates from the two ordinal models predicting the subjective replication scores are shown in Figure \ref{fig:mod-results}. Due to a large number of predictors coupled with a small and noisy dataset, there is much uncertainty around the coefficients even with strong regularization. The general directions of coefficients are consistent with the effects of the predictors in isolation. 
+Coefficient estimates from the two ordinal models predicting the subjective replication scores are shown in Figure \ref{fig:mod-results}. Due to a large number of predictors coupled with a small and noisy dataset, there is much uncertainty around the coefficients even with strong regularization. The general directions of coefficients are mostly consistent with the effects of the predictors in isolation. 
 
-Within-participants designs stand out as the strongest correlate of replicability in the model with all the data (`r within_1`). In the model with all predictors, but less data, within-participants designs remain strong (`r within_3`), and standardized effect size is also substantially related to subjective replication score (`r smd_3`). Both effects are robust to a sensitivity analysis including only studies with close replications and matching statistical tests (within-participants `r within_sens`; effect size `r smd_sens`). 
+Within-participants designs stand out as the strongest correlate of replicability in the model with all the data (`r within_1`). In the model with all predictors, but less data, within-participants designs are also predictive (`r within_3`), and standardized effect size (`r smd_3`) and original p-values (`r p_3`) are also substantially related to subjective replication score. Effect size and p-value are strongly (negatively) correlated with each other, and both represent the strength of the original evidence. These effects are of similar magnitude in a sensitivity analysis including only studies with matching statistical tests on central results (not manipulation checks) and no known major issues with the replication (within-participants `r within_sens`; effect size `r smd_sens`; p-value `r p_sens`). 
 
-We also ran models predicting our secondary outcome measures: a logistic model predicting whether the replication effect was within the prediction interval of the original effect, and a linear model predicting what the $p$-original was between the replication and original. Both these models had more uncertain estimates. While the credible intervals were wide, the general patterns of predictor direction and relative strength were similar to the subjective replication models (see Supplement for results from all models). The strongest predictors for prediction interval were still within-participants designs (`r within_2`) and studies with larger effect sizes (`r smd_2`). 
+We also ran models predicting our secondary outcome measures: a logistic model predicting whether the replication effect was within the prediction interval of the original effect, and a linear model predicting what the $p$-original was between the replication and original. Both these models had more uncertain estimates, and all credible intervals included the null, as no predictor had strong enough evidence to overcome the regularizing prior.
 
 ```{r mod-results, out.width="90%", fig.width=8, fig.height=5, fig.pos="ht", fig.cap="Odds ratios and corresponding 95\\% CrI on the likelihood of having a higher subjective replication score as a function of the independent variable. Estimates from a model of all original-replication pairs (N=176) are shown in blue, and from a model of all pairs with full statistical information (N=112) are shown in red. A value of 1 indicates no association, greater than one indicates an association with higher replication scores and less than 1 an association with lower replication scores."}
 
@@ -585,7 +630,7 @@ tier1_subjective |> union(tier3_subjective) |> ggplot(aes(y = reorder(Term, OR, 
 
 Non-replications pose a problem for scientists who want to build on the empirical results in the literature, but the limited numbers of replications and limited research into specific predictors of replication failure mean that the reasons for non-replications are not well understood. 
 
-Here, we take a functional approach to assessing replicability, framing both our methods and interpretation around the idea of whether work can be repeated by an early-career scientist. We took advantage of 11 years of graduate student replication projects to study both the overall level of replication success and the correlational predictors of replication in a previously-unused dataset. In line with previous results, we found a `r round(pluck(sub_rep_rate,1))`% replication rate, with some studies showing effect sizes similar to the original and others much smaller. Within-participants designs, work in the subfield of cognitive psychology, and the original and replication both using online samples stood out as the strongest correlates of replication success. As many of these predictors interrelate with one another, we ran regularized regressions with all the predictors at once. Due to our small sample, model estimates were uncertain, but within-participants designs and large original effect sizes were the strongest predictors.
+Here, we take a functional approach to assessing replicability, framing both our methods and interpretation around the idea of whether work can be repeated by an early-career scientist. We took advantage of 11 years of graduate student replication projects to study both the overall level of replication success and the correlational predictors of replication in a previously-unused dataset. In line with previous results, we found a `r round(pluck(sub_rep_rate,1))`% replication rate, with some studies showing effect sizes similar to the original and others much smaller. Within-participants designs, multiple items per condition, more trials, and studies from cognitive (not social) psychology were the strongest correlates of replication success. As many of these predictors interrelate with one another, we ran regularized regressions with all the predictors at once. Due to our small sample, model estimates were uncertain, but within-participants designs and stronger evidence from the original study (large effect size and small p-value) were the strongest predictors.
 
 <!-- Large-scale replication studies including ours should be interpreted in light of their methods and their estimand. Given our sample, we are able to estimate the correlates of studies replicating when the replications are conducted online, by graduate students who have limited time and budget.  -->
 

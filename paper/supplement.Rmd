@@ -113,14 +113,15 @@ For some studies that were included with some statistical outcomes in the main r
 ```{r}
 # relative effect size
 
-medians <- d %>% filter(include =="stats") %>% summarize(orig=quantile(target_d_calc), rep=quantile(rep_d_calc))
+medians <- d %>% filter(include =="stats") %>% reframe(orig=quantile(target_d_calc), rep=quantile(rep_d_calc))
 
 ```
 
 
-```{r forest, out.height="100%", fig.width=9, fig.height=12, fig.pos="ht", fig.cap="Forest plot of original and replication effect sizes (N=112). Original effect sizes are open dots, replication are closed dots. Coloring indicates subjective replication score, and p-original values are listed on the left side. The median original effect size was .61 and the median replication effect size was .28. "}
+```{r forest, out.height="100%", fig.width=9, fig.height=12, fig.pos="ht", fig.cap=paste0("Forest plot of original and replication effect sizes (N=112; 3 pairs with original effect size > 5 are not shown). Original effect sizes are open dots, replication are closed dots. Coloring indicates subjective replication score, and p-original values are listed on the left side. The median original effect size was ", round(medians$orig[3], 2), " and the median replication effect size was ", round(medians$rep[3], 2), ". ")}
 
 d |> 
+  filter(include == "stats") |> # the 112 pairs with effect sizes; other rows can have both d's but are not in this set
   filter(target_d_calc < 5, rep_d_calc < 5) |>
   mutate(numpredInt=ifelse(predInt,1,0)) |> 
   ggplot(aes(y=reorder(target_lastauthor_year,target_d_calc, mean), color=as.factor(sub_rep)))+
@@ -306,7 +307,7 @@ desc <- d %>% left_join(all_label) %>%
     missing="no",
              ) %>% 
 modify_header(label="Feature", stat_0="Summary") %>% 
-    modify_footnote(update = everything() ~ NA)
+    remove_footnote_header(columns = everything()) # gtsummary >= 2.0: modify_footnote(update = ) is defunct
 
 as_kable_extra(desc,format="latex", position="!h", caption="Descriptive properties of the Psych Science portion of the replication dataset. For categorical features, counts and percentages are given. For continuous features, the median value and interquartile range are given. ", booktabs=TRUE, linesep="") |> kable_styling(full_width=F, font_size=10)
 
@@ -338,7 +339,7 @@ preds <- c("pub_year", "open_data",  "open_mat", "stanford", "change_platform",
 cors <- tibble(preds = preds) |>
   mutate(r = sapply(preds, function(x) sub_cor(x, stat = "estimate")),
          p = sapply(preds, function(x) sub_cor(x, stat = "p"))) |> 
-  mutate(Predictors=factor(preds, levels=c("social", "other_psych", "non_psych", "is_within", "single_vignette", "change_platform", "open_data", "open_mat", "stanford", "pub_year", "log_trials", "log_sample", "log_ratio_ss"), labels=c("Social psychology (versus cognitive psych)", "Other psychology (versus cognitive psych)", "Non psychology (versus cognitive psych)", "Within participants design (versus between participants)", "Single vignette (versus multiple items/inductions per condition)", "Switch to online for replication (versus same modality for original and replication)", "Open data", "Open materials", "Stanford affiliation of original authors at time of replication", "Publication year", "Log number of  trials", "Log original sample size", "Log ratio between replication and original sample sizes"))) |> arrange(desc(r)) |> select(r, p, Predictors)
+  mutate(Predictors=factor(preds, levels=c("social", "other_psych", "non_psych", "is_within", "single_vignette", "change_platform", "open_data", "open_mat", "stanford", "pub_year", "log_trials", "log_sample", "log_ratio_ss"), labels=c("Social psychology (versus all other subfields)", "Other psychology (versus all other subfields)", "Non psychology (versus all other subfields)", "Within participants design (versus between participants)", "Single vignette (versus multiple items/inductions per condition)", "Switch to online for replication (versus same modality for original and replication)", "Open data", "Open materials", "Stanford affiliation of original authors at time of replication", "Publication year", "Log number of  trials", "Log original sample size", "Log ratio between replication and original sample sizes"))) |> arrange(desc(r)) |> select(r, p, Predictors)
 
 library(kableExtra)
 knitr::kable(cors, digits = 3, align='ccl',format="latex", position="!h", caption="The unadjusted Pearson correlations between each individual predictor and the subjective replication score for the Psych Science subsample.", booktabs=TRUE, linesep="") |> kable_styling(full_width=F, font_size=10) 

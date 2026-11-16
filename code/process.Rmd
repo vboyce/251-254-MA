@@ -59,14 +59,15 @@ raw <- readxl::read_xlsx(here("data","raw_data.xlsx"), sheet="aligned data", ski
 Read in cache.
 
 ```{r}
-d <- read_csv(here("data", "raw_data.csv")) |> 
-  select(target_lastauthor_year, sensitivity, include, how_close,
-         status, academic_year, subfield, target_year, stanford_internal, 
-         open_data, open_materials, target_on_turk, replication_on_turk, 
+# col_select rather than select() so that student names are never read in
+d <- read_csv(here("data", "raw_data.csv"),
+              col_select=c(target_lastauthor_year, sensitivity, include, how_close,
+         status, academic_year, subfield, target_year, stanford_internal,
+         open_data, open_materials, target_on_turk, replication_on_turk,
          within_between, single_vignette, repeated_measure,
          target_N, target_raw_stat, same_dir, replication_N,
          replication_raw_stat, replicated_instructor_code, replicated_report_code,
-         adjudicated_replication_code)
+         adjudicated_replication_code))
 
 ```
 
@@ -118,7 +119,7 @@ test <- d_val |>
 ```{r}
 #found error in pval calculation related to sign flips
 
-test %>% ungroup() %>% summarize(target=quantile(target_p_calc, na.rm=T), rep=quantile(rep_p_calc, na.rm=T))
+test %>% ungroup() %>% reframe(target=quantile(target_p_calc, na.rm=T), rep=quantile(rep_p_calc, na.rm=T))
 ```
 
 
@@ -355,7 +356,7 @@ d_check_nas |> filter(include %in% c("stats", "pred_int", "exp")) |>
          sub_rep, subfield,
          stanford_internal,open_data, open_materials, target_on_turk,
          replication_on_turk, within_between, single_vignette, repeated_measure,
-         target_N, replication_N) |> filter(across(everything(), ~!is.na(.))) |> nrow()
+         target_N, replication_N) |> filter(if_all(everything(), ~!is.na(.))) |> nrow()
 
 message("number of rows for predInt/p_orig w/ demographic/experimental")
 message("expected")
@@ -369,7 +370,7 @@ d_check_nas |> filter(include %in% c("stats", "pred_int")) |>  select(target_las
                                                                       replication_on_turk, within_between, single_vignette, repeated_measure,
                                                                       target_N, replication_N, predInt, p_orig) |> 
   # filter(if_any(everything(), ~is.na(.)))
-  filter(across(everything(), ~!is.na(.))) |> nrow()
+  filter(if_all(everything(), ~!is.na(.))) |> nrow()
 
 message("number of complete rows for full analysis")
 
@@ -378,7 +379,7 @@ d_check_nas |> filter(include %in% c("stats")) |> nrow()
 message("actual")
 
 
-d_check_nas |> filter(include %in% c("stats")) |> filter(across(everything(), ~!is.na(.))) |> nrow()
+d_check_nas |> filter(include %in% c("stats")) |> filter(if_all(everything(), ~!is.na(.))) |> nrow()
 ```
 
 <!-- # how close subrep
@@ -398,7 +399,10 @@ d_check_nas |> filter(include %in% c("stats")) |> filter(across(everything(), ~!
 d_for_model <- d_es_predInt |> 
   ungroup() |> 
   mutate(pub_year= target_year-mean(target_year),
-         log_p =ifelse(target_p_calc==0,-300, log(target_p_calc)), #prevent any -Inf problems!
+         # p underflows to 0 when it is below about 1e-308, so its true log p is below every
+         # observed one; use the smallest observed log p rather than -Inf or an arbitrary constant
+         # (the earlier -300 put it above a row with log p = -348.8)
+         log_p =ifelse(target_p_calc==0, min(log(target_p_calc[target_p_calc>0]), na.rm=T), log(target_p_calc)),
          log_sample =log(target_N),
          log_ratio_ss = log(replication_N/target_N),
          change_platform=ifelse(replication_on_turk==target_on_turk,0,1),
